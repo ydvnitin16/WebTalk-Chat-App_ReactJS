@@ -13,7 +13,7 @@ const ChatHeader = () => {
     );
 
     return (
-        <div className="flex items-center justify-between p-4 shadow-sm dark:bg-zinc-800 md:dark:bg-zinc-900 dark:text-white">
+        <div className="fixed w-full top-0 md:static flex items-center justify-between border-none md:rounded-tr-4xl p-4 shadow-sm dark:bg-zinc-800 md:dark:bg-zinc-900 dark:text-white">
             <div className="flex items-center gap-3">
                 <button
                     className="md:hidden text-black dark:text-white"

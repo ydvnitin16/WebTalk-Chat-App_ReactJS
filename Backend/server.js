@@ -60,7 +60,7 @@ io.on('connect', (socket) => {
 
     socket.on('message', ({ message, room }) => {
         console.log(message);
-        io.to(room).emit('message', message);
+        io.to(room).emit('message', message, socket.user.id, room);
     });
 
     socket.on('disconnect', () => {

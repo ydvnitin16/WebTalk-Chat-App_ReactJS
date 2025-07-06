@@ -6,7 +6,7 @@ const Chat = () => {
 
     return (
         <>
-            <div className="flex flex-col md:flex-row h-screen bg-black p-1 font-sans relative">
+            <div className="flex flex-col md:flex-row h-screen bg-black md:px-2 py-2 font-sans relative">
                 <Sidebar />
 
                 <ChatBox />

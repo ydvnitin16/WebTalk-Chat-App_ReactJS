@@ -6,7 +6,7 @@ const ProfilePanel = () => {
     if (!selectedUser) return null;
 
     return (
-        <aside className="w-1/4 bg-white hidden lg:flex flex-col p-4 rounded-4xl mx-1 dark:bg-zinc-900 dark:text-white overflow-y-auto">
+        <aside className="w-1/4 bg-white hidden lg:flex flex-col p-4 rounded-4xl ml-3 dark:bg-zinc-900 dark:text-white overflow-y-auto">
             <h2 className="text-lg font-semibold mb-4">User Info</h2>
 
             <div className="flex flex-col items-center text-center">

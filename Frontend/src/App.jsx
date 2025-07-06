@@ -18,13 +18,15 @@ import { UseSelectedUserStore } from './stores/UseSelectedUserStore.jsx';
 export let socket;
 
 function App() {
+    const selectedUser = UseSelectedUserStore((state) => state.selectedUser);
+
+
     socket = useMemo(() =>
         io(`${import.meta.env.VITE_SERVER_URL}`, {
             withCredentials: true,
         })
     ); // connect to the socket server
 
-    const selectedUser = UseSelectedUserStore((state) => state.selectedUser);
 
     useEffect(() => {
         socket.on('connect', () => {
@@ -34,6 +36,7 @@ function App() {
         socket.emit('join-room');
         receiveMessage(toast);
     }, []);
+    
 
     const router = createBrowserRouter(
         createRoutesFromElements(
