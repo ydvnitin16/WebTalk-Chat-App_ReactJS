@@ -54,8 +54,8 @@ io.use(async (socket, next) => {
 io.on('connect', (socket) => {
     console.log(`🟢 New user connected`, socket.id);
 
-    socket.on('join-room', (room) => {
-        socket.join(room);
+    socket.on('join-room', () => {
+        socket.join(socket.user.id);
     });
 
     socket.on('message', ({ message, room }) => {

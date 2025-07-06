@@ -1,17 +1,17 @@
 import React, { useContext, useEffect, useState } from 'react';
 import Loading from '../common/Loading.jsx';
 import Topbar from './Topbar.jsx';
+import Searchbar from './Searchbar.jsx';
 import { fetchUsers } from '../../services/fetchUsers.js';
 import { formatDateTime } from '../../services/utils.js';
-import { roomContext } from '../../App.jsx';
 import { UseAuthStore } from '../../stores/UseAuthStore.jsx';
-import Searchbar from './Searchbar.jsx';
+import { UseSelectedUserStore } from '../../stores/UseSelectedUserStore.jsx';
 
-const Sidebar = ({ selectedUser, setSelectedUser }) => {
+const Sidebar = () => {
     const [users, setUsers] = useState(null);
     const userStore = UseAuthStore((state) => state.userStore);
-
-    const { setRoom } = useContext(roomContext);
+    const selectedUser = UseSelectedUserStore((state) => state.selectedUser)
+    const setSelectedUser = UseSelectedUserStore((state) => state.setSelectedUser);
 
     useEffect(() => {
         async function getUsers() {
@@ -55,7 +55,6 @@ const Sidebar = ({ selectedUser, setSelectedUser }) => {
                                                 user.lastSeen
                                             ),
                                         });
-                                        setRoom(user._id);
                                     }}
                                 >
                                     <img

@@ -17,7 +17,7 @@ import { UseAuthStore } from '../stores/UseAuthStore.jsx';
 const Login = () => {
     const [loading, setLoading] = useState(false);
     const navigate = useNavigate();
-    const loginStore = UseAuthStore((state) => state.loginStore); // stores user auth info in zustand/localstorage
+    const setUserStore = UseAuthStore((state) => state.setUserStore); // stores user auth info in zustand/localstorage
 
     const schema = yup.object({
         email: yup
@@ -51,7 +51,7 @@ const Login = () => {
             }
 
             toast.success(resData.message);
-            loginStore(resData.user);
+            setUserStore(resData.user);
             reset();
             navigate('/');
         } catch (error) {

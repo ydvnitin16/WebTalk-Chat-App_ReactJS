@@ -1,5 +1,5 @@
 import { useEffect } from 'react';
-import { createContext, useMemo, useState } from 'react';
+import { useMemo } from 'react';
 import toast, { Toaster } from 'react-hot-toast';
 import {
     Route,
@@ -13,31 +13,27 @@ import Signup from './pages/Signup.jsx';
 import Login from './pages/Login.jsx';
 import Chat from './pages/Chat.jsx';
 import { receiveMessage } from './services/socket.js';
-import { UseAuthStore } from './stores/UseAuthStore.jsx';
+import { UseSelectedUserStore } from './stores/UseSelectedUserStore.jsx';
 
-export const roomContext = createContext();
 export let socket;
 
 function App() {
-    socket = useMemo(() => io(`${import.meta.env.VITE_SERVER_URL}`, {
-        withCredentials: true
-    })); // connect to the socket server
+    socket = useMemo(() =>
+        io(`${import.meta.env.VITE_SERVER_URL}`, {
+            withCredentials: true,
+        })
+    ); // connect to the socket server
 
-    const [room, setRoom] = useState(null);
-    const userStore = UseAuthStore((state) => state.userStore);
+    const selectedUser = UseSelectedUserStore((state) => state.selectedUser);
 
     useEffect(() => {
         socket.on('connect', () => {
             console.log(`Welcome, `, socket.id);
         });
 
-        socket.emit('join-room', userStore?.id);
+        socket.emit('join-room');
         receiveMessage(toast);
     }, []);
-
-    useEffect(() => {
-        console.log(`Room Changed: `, room);
-    }, [room]);
 
     const router = createBrowserRouter(
         createRoutesFromElements(
@@ -54,9 +50,7 @@ function App() {
     return (
         <>
             <Toaster position="top-right" />
-            <roomContext.Provider value={{ setRoom, room }}>
-                <RouterProvider router={router} />
-            </roomContext.Provider>
+            <RouterProvider router={router} />
         </>
     );
 }

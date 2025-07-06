@@ -3,8 +3,15 @@ import { faPhone } from '@fortawesome/free-solid-svg-icons';
 import { faVideo } from '@fortawesome/free-solid-svg-icons';
 import { faEllipsisVertical } from '@fortawesome/free-solid-svg-icons';
 import { faArrowLeft } from '@fortawesome/free-solid-svg-icons';
+import { UseSelectedUserStore } from '../../stores/UseSelectedUserStore';
 
-const ChatHeader = ({ selectedUser, setSelectedUser }) => {
+const ChatHeader = () => {
+
+    const selectedUser = UseSelectedUserStore((state) => state.selectedUser);
+    const setSelectedUser = UseSelectedUserStore(
+        (state) => state.setSelectedUser
+    );
+
     return (
         <div className="flex items-center justify-between p-4 shadow-sm dark:bg-zinc-800 md:dark:bg-zinc-900 dark:text-white">
             <div className="flex items-center gap-3">

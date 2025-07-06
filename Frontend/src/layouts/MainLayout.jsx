@@ -4,12 +4,12 @@ import { UseAuthStore } from '../stores/UseAuthStore';
 
 const MainLayout = () => {
     const isAuthExpired = UseAuthStore((state) => state.isAuthExpired);
-    const logoutStore = UseAuthStore((state) => state.logoutStore);
+    const clearUserStore = UseAuthStore((state) => state.clearUserStore);
     const navigate = useNavigate();
 
     useEffect(() => {
         if (isAuthExpired()) {
-            logoutStore();
+            clearUserStore();
             navigate('/login');
             toast('Please Login!');
         }

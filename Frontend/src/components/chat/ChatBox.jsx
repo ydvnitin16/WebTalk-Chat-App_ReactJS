@@ -1,14 +1,13 @@
-import React, { useContext, useState } from 'react';
+import React, { useState } from 'react';
 import ChatHeader from './ChatHeader.jsx';
 import MessageInput from './MessageInput.jsx';
-import { sendMessage } from '../../services/socket.js';
-import { roomContext } from '../../App.jsx';
 import ChatBubble from './ChatBubble.jsx';
+import { sendMessage } from '../../services/socket.js';
+import { UseSelectedUserStore } from '../../stores/UseSelectedUserStore.jsx';
 
-const ChatBox = ({ selectedUser, setSelectedUser }) => {
-    const { room } = useContext(roomContext);
-
+const ChatBox = () => {
     const [message, setMessage] = useState('');
+    const selectedUser = UseSelectedUserStore((state) => state.selectedUser);
 
     if (!selectedUser) {
         return (
@@ -21,10 +20,7 @@ const ChatBox = ({ selectedUser, setSelectedUser }) => {
     return (
         <main className="flex flex-col bg-white rounded-2xl md:rounded-none md:rounded-r-4xl flex-1 ">
             {/* Header */}
-            <ChatHeader
-                selectedUser={selectedUser}
-                setSelectedUser={setSelectedUser}
-            />
+            <ChatHeader />
 
             {/* Chats */}
             <div
@@ -70,7 +66,7 @@ const ChatBox = ({ selectedUser, setSelectedUser }) => {
 
             {/* Input */}
             <MessageInput
-                room={room}
+                room={selectedUser.id}
                 message={message}
                 setMessage={setMessage}
                 onSend={sendMessage}

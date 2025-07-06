@@ -9,11 +9,11 @@ const UseAuthStore = create(
             userStore: null,
             loginTime: null,
 
-            loginStore: (userInfo) => {
+            setUserStore: (userInfo) => {
                 set({ userStore: userInfo, loginTime: Date.now() });
             },
 
-            logoutStore: () => {
+            clearUserStore: () => {
                 set({ userStore: null, loginTime: null });
             },
 
