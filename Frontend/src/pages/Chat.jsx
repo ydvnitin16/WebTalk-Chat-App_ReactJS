@@ -1,8 +1,16 @@
+import { useEffect } from 'react';
 import Sidebar from '../components/bars/Sidebar.jsx';
 import ChatBox from '../components/chat/ChatBox.jsx';
 import ProfilePanel from '../components/profile/ProfilePanel.jsx';
+import { UseContactStore } from '../stores/UseContactStore.jsx';
 
 const Chat = () => {
+    const setContacts = UseContactStore(state => state.setContacts)
+
+    useEffect(() => {
+      setContacts()
+    }, [])
+    
 
     return (
         <>

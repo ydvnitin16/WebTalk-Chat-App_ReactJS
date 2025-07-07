@@ -1,40 +1,43 @@
-import React, { useContext, useEffect, useState } from 'react';
 import Loading from '../common/Loading.jsx';
 import Topbar from './Topbar.jsx';
 import Searchbar from './Searchbar.jsx';
-import { fetchUsers } from '../../services/fetchUsers.js';
 import { formatDateTime } from '../../services/utils.js';
 import { UseAuthStore } from '../../stores/UseAuthStore.jsx';
 import { UseSelectedUserStore } from '../../stores/UseSelectedUserStore.jsx';
+import { UseMessagesStore } from '../../stores/UseMessagesStore.jsx';
+import { UseContactStore } from '../../stores/UseContactStore.jsx';
+import { getLastMessage } from '../../services/utils.js';
 
 const Sidebar = () => {
-    const [users, setUsers] = useState(null);
-    const userStore = UseAuthStore((state) => state.userStore);
-    const selectedUser = UseSelectedUserStore((state) => state.selectedUser)
-    const setSelectedUser = UseSelectedUserStore((state) => state.setSelectedUser);
+    const userStore = UseAuthStore((state) => state.userStore); // stores my auth info
+    const selectedUser = UseSelectedUserStore((state) => state.selectedUser); // store selected user info
+    const setSelectedUser = UseSelectedUserStore(
+        //set selected user info
+        (state) => state.setSelectedUser
+    );
+    const messages = UseMessagesStore((state) => state.messages); // stores my messages
+    const contacts = UseContactStore((state) => state.contacts); // stores all the users
 
-    useEffect(() => {
-        async function getUsers() {
-            const res = await fetchUsers();
-            const data = await res.json();
-            setUsers(data.users);
-        }
-        getUsers();
-    }, []);
+
 
     return (
         <>
-            {!users && <Loading />}
+            {!contacts && <Loading />}
             <aside
                 className={`md:w-1/4 w-full bg-white overflow-y-auto scroll-smooth no-scrollbar rounded-2xl md:rounded-none md:rounded-l-4xl ml-1 md:block dark:bg-zinc-900 dark:text-white ${
                     selectedUser ? 'hidden md:block' : 'block'
                 }`}
             >
+                {/* Top Bar */}
                 <Topbar />
+
+                {/* Search Bar */}
                 <Searchbar />
+
+                {/* Contacts */}
                 <div className="space-y-2 p-2 h-screen">
-                    {users &&
-                        users
+                    {contacts &&
+                        contacts
                             .filter((u) => u._id !== userStore.id)
                             .map((user) => (
                                 <div
@@ -67,7 +70,8 @@ const Sidebar = () => {
                                             {user.name}
                                         </p>
                                         <p className="text-xs text-gray-500 truncate dark:text-gray-300">
-                                            Last message...
+                                            {user &&
+                                                getLastMessage(messages, user, userStore)}
                                         </p>
                                     </div>
                                     <span className="text-xs text-gray-400">

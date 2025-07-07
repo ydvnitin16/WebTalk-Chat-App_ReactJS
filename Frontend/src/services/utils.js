@@ -29,3 +29,15 @@ export function formatDateTime(dateString) {
         return `${fullDate}, ${time}`;
     }
 }
+
+export function getLastMessage(messages, user, userStore) {
+    messages = messages.filter(
+        (msg) =>
+            (msg.sender === user._id && msg.receiver === userStore.id) ||
+            (msg.receiver === user._id && msg.sender === userStore.id)
+    );
+    const messageObj = messages[messages.length - 1];
+    const lastMessage = messageObj?.message;
+    const sendedByYou = messageObj?.sender === userStore.id ? 'You: ' : '';
+    return lastMessage ? `${sendedByYou}${lastMessage}` : 'Start a new chat';
+}
