@@ -12,30 +12,33 @@ import MainLayout from './layouts/MainLayout.jsx';
 import Signup from './pages/Signup.jsx';
 import Login from './pages/Login.jsx';
 import Chat from './pages/Chat.jsx';
-import { receiveMessage } from './services/socket.js';
-import { UseSelectedUserStore } from './stores/UseSelectedUserStore.jsx';
+import { useSocketEvents } from './services/useSocketEvents.js';
 
 export let socket;
 
 function App() {
-    const selectedUser = UseSelectedUserStore((state) => state.selectedUser);
-
-
     socket = useMemo(() =>
         io(`${import.meta.env.VITE_SERVER_URL}`, {
             withCredentials: true,
         })
     ); // connect to the socket server
-
+    
+        useSocketEvents(toast);
 
     useEffect(() => {
         socket.on('connect', () => {
             console.log(`Welcome, `, socket.id);
         });
 
+        socket.emit('online');
         socket.emit('join-room');
-        receiveMessage(toast);
+
+        return () => {
+            socket.off('online')
+            socket.off('join-room')
+        }
     }, []);
+
     
 
     const router = createBrowserRouter(

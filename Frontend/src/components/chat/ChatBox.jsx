@@ -2,7 +2,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import ChatHeader from './ChatHeader.jsx';
 import MessageInput from './MessageInput.jsx';
 import ChatBubble from './ChatBubble.jsx';
-import { sendMessage } from '../../services/socket.js';
+import { sendMessage } from '../../services/useSocketEvents.js';
 import { UseSelectedUserStore } from '../../stores/UseSelectedUserStore.jsx';
 import { UseMessagesStore } from '../../stores/UseMessagesStore.jsx';
 import { UseAuthStore } from '../../stores/UseAuthStore.jsx';
@@ -53,8 +53,10 @@ const ChatBox = () => {
                     messages
                         .filter(
                             (msg) =>
-                                msg.sender === selectedUser.id && msg.receiver === userStore.id ||
-                                msg.receiver === selectedUser.id && msg.sender === userStore.id
+                                (msg.sender === selectedUser.id &&
+                                    msg.receiver === userStore.id) ||
+                                (msg.receiver === selectedUser.id &&
+                                    msg.sender === userStore.id)
                         )
                         .map((msg, idx) => (
                             <ChatBubble

@@ -7,6 +7,7 @@ import { createServer } from 'node:http';
 import { Server } from 'socket.io';
 import cookie from 'cookie';
 import jwt from 'jsonwebtoken';
+import { updateStatus } from './controllers/socket.js';
 
 const app = express();
 dotenv.config();
@@ -53,6 +54,10 @@ io.use(async (socket, next) => {
 // Socket Events
 io.on('connect', (socket) => {
     console.log(`🟢 New user connected`, socket.user.name);
+    updateStatus(socket.user.id, 'online')
+    socket.on('online', () => {
+        io.emit('online', socket.user.id)
+    })
 
     socket.on('join-room', () => {
         socket.join(socket.user.id);
@@ -65,6 +70,8 @@ io.on('connect', (socket) => {
 
     socket.on('disconnect', () => {
         console.log(`User disconnected`);
+        io.emit('offline', socket.user.id)
+        updateStatus(socket.user.id, 'offline')
     });
 
     return () => {

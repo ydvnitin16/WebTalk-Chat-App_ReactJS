@@ -18,8 +18,6 @@ const Sidebar = () => {
     const messages = UseMessagesStore((state) => state.messages); // stores my messages
     const contacts = UseContactStore((state) => state.contacts); // stores all the users
 
-
-
     return (
         <>
             {!contacts && <Loading />}
@@ -60,18 +58,25 @@ const Sidebar = () => {
                                         });
                                     }}
                                 >
-                                    <img
-                                        src={user.profilePic.url}
-                                        className="w-12 h-12 rounded-full"
-                                        alt="avatar"
-                                    />
+                                    <div className='relative'>
+                                        <img
+                                            src={user.profilePic.url}
+                                            className="w-12 h-12 rounded-full"
+                                            alt="avatar"
+                                        />
+                                        {user.isOnline && <p className='absolute right-0 bottom-0 bg-green-600 h-3 w-3 rounded-full'></p>}
+                                    </div>
                                     <div className="flex-1">
                                         <p className="font-medium text-gray-800 dark:text-white">
                                             {user.name}
                                         </p>
                                         <p className="text-xs text-gray-500 truncate dark:text-gray-300">
                                             {user &&
-                                                getLastMessage(messages, user, userStore)}
+                                                getLastMessage(
+                                                    messages,
+                                                    user,
+                                                    userStore
+                                                )}
                                         </p>
                                     </div>
                                     <span className="text-xs text-gray-400">
