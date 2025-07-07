@@ -12,7 +12,7 @@ const router = express.Router();
 
 router.post('/register', validateUser('register'), registerUser);
 router.post('/login', validateUser('login'), loginUser);
-router.get('/logout', logoutUser);
+router.delete('/logout', logoutUser);
 router.get('/users', async (req, res) => {
     try {
         const users = await User.find().select(

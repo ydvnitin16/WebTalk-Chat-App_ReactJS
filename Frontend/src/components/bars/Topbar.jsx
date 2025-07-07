@@ -1,12 +1,30 @@
 import React, { useState } from 'react';
 import { UseAuthStore } from '../../stores/UseAuthStore';
+import { logoutUser } from '../../services/auth';
+import ConfirmModal from '../common/ConfirmModal';
+import toast from 'react-hot-toast';
+import { useNavigate } from 'react-router-dom';
 
 const Topbar = () => {
+    const clearUserStore = UseAuthStore(state => state.clearUserStore)
+    const navigate = useNavigate()
+
+    async function handleLogout(){
+        const res = await logoutUser();
+        const data = await res.json()
+        setConfirmModal(false)
+        clearUserStore()
+        navigate('/login')
+        toast.success(data.message)
+    }
 
     const userStore = UseAuthStore(state => state.userStore)
+    const [confirmModal, setConfirmModal] = useState(false)
 
     const [showDropdown, setShowDropdown] = useState(false)
     return (
+        <>
+         <ConfirmModal isOpen={confirmModal} onClose={() => setConfirmModal(false)} onConfirm={handleLogout} title='"Confirm Logout"' description='Are you sure you want to logout?'  />
         <div className="flex justify-between items-center p-3 bg-white mx-1 dark:bg-zinc-900 dark:text-white">
             <h1 className="text-xl font-bold">Chats</h1>
             <div className="relative">
@@ -25,7 +43,7 @@ const Topbar = () => {
                             <li className="p-2 hover:bg-zinc-600 rounded-lg cursor-pointer">
                                 Invite User
                             </li>
-                            <li className="p-2 hover:bg-zinc-600 rounded-lg cursor-pointer">
+                            <li onClick={() => setConfirmModal(true) } className="p-2 hover:bg-zinc-600 rounded-lg cursor-pointer">
                                 Logout
                             </li>
                         </ul>
@@ -33,6 +51,7 @@ const Topbar = () => {
                 )}
             </div>
         </div>
+        </>
     );
 };
 

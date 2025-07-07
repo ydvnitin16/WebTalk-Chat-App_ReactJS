@@ -118,7 +118,7 @@ const Login = () => {
                             </div>
 
                             {/* Submit Button */}
-                            <Button type="submit" name="Sign In" />
+                            <Button type="submit" name="Login" />
                         </form>
 
                         {/* Divider */}
@@ -132,7 +132,7 @@ const Login = () => {
 
                         {/* Sign Up Redirect */}
                         <Button
-                            name="Log in"
+                            name="Sign Up"
                             color="black"
                             bgColor="white"
                             borderColor="black"

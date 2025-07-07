@@ -52,7 +52,7 @@ io.use(async (socket, next) => {
 
 // Socket Events
 io.on('connect', (socket) => {
-    console.log(`🟢 New user connected`, socket.id);
+    console.log(`🟢 New user connected`, socket.user.name);
 
     socket.on('join-room', () => {
         socket.join(socket.user.id);

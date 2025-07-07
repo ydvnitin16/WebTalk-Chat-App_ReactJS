@@ -38,7 +38,7 @@ const Sidebar = () => {
                 <div className="space-y-2 p-2 h-screen">
                     {contacts &&
                         contacts
-                            .filter((u) => u._id !== userStore.id)
+                            .filter((u) => u._id !== userStore?.id)
                             .map((user) => (
                                 <div
                                     key={user._id}

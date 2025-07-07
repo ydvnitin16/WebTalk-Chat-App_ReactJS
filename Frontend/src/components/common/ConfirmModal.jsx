@@ -1,6 +1,6 @@
 import React from 'react';
 
-const ConfirmModal = ({ isOpen, onClose, onConfirm, title = "Are you sure you want to logout?", description }) => {
+const ConfirmModal = ({ isOpen, onClose, onConfirm, title, description }) => {
   if (!isOpen) return null;
 
   return (
@@ -42,13 +42,13 @@ const ConfirmModal = ({ isOpen, onClose, onConfirm, title = "Are you sure you wa
         <div className="flex flex-col space-y-3">
           <button
             onClick={onConfirm}
-            className="px-4 py-2 rounded-lg text-white text-sm font-medium bg-red-500 hover:bg-red-600"
+            className="px-4 py-2 rounded-lg text-white text-sm font-medium bg-red-500 hover:bg-red-600 cursor-pointer"
           >
             Yes, Logout
           </button>
           <button
             onClick={onClose}
-            className="px-4 py-2 rounded-lg text-sm font-medium bg-gray-200 text-slate-900 hover:bg-gray-300"
+            className="px-4 py-2 rounded-lg text-sm font-medium bg-gray-200 text-slate-900 hover:bg-gray-300 cursor-pointer"
           >
             Cancel
           </button>
