@@ -9,9 +9,10 @@ const UseSelectedUserStore = create((set, get) => ({
         set({ selectedUser: user });
     },
 
-    updateSelectedUser: (status) => {
+    updateSelectedUser: (status, id) => {
         const current = get().selectedUser;
         if(!current) return
+        if(current?.id !== id) return
         const isOnline = status === 'online' ? true : false;
         const lastSeen = formatDateTime(Date.now())
         set({ selectedUser: {...current, isOnline: isOnline, lastSeen: lastSeen} });

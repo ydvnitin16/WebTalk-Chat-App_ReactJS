@@ -54,9 +54,9 @@ const ChatBox = () => {
                         .filter(
                             (msg) =>
                                 (msg.sender === selectedUser.id &&
-                                    msg.receiver === userStore.id) ||
+                                    msg.receiver === userStore?.id) ||
                                 (msg.receiver === selectedUser.id &&
-                                    msg.sender === userStore.id)
+                                    msg.sender === userStore?.id)
                         )
                         .map((msg, idx) => (
                             <ChatBubble
@@ -71,6 +71,17 @@ const ChatBox = () => {
                                 message={msg?.message}
                             />
                         ))}
+                <div className={`flex items-start gap-3 pl-11.5`}>
+                    <div className="rounded-xl text-sm max-w-sm p-3 bg-zinc-200 dark:text-black text-left">
+                        {/* <div class="bg-[#E6F8F1] px-7 py-4 rounded-[20px] rounded-bl-[2px] inline-block"> */}
+                            <div className="flex items-center py-0.5 px-2">
+                                <span className="dot w-[7px] h-[7px] bg-[#6CAD96] rounded-full mr-1 animate-mercury delay-[200ms]"></span>
+                                <span className="dot w-[7px] h-[7px] bg-[#6CAD96] rounded-full mr-1 animate-mercury delay-[300ms]"></span>
+                                <span className="dot w-[7px] h-[7px] bg-[#6CAD96] rounded-full animate-mercury delay-[400ms]"></span>
+                            </div>
+                        </div>
+                    {/* </div> */}
+                </div>
                 <div ref={scrollDownRef}></div>
             </div>
 

@@ -1,7 +1,6 @@
 export function formatDateTime(dateString) {
     const date = new Date(dateString);
     const now = new Date();
-    console.log(Date.now);
 
     // Strip time from both to compare just the date part
     const dateOnly = new Date(

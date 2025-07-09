@@ -13,33 +13,33 @@ import Signup from './pages/Signup.jsx';
 import Login from './pages/Login.jsx';
 import Chat from './pages/Chat.jsx';
 import { useSocketEvents } from './services/useSocketEvents.js';
+import { UseAuthStore } from './stores/UseAuthStore.jsx';
 
 export let socket;
 
 function App() {
+    const userStore = UseAuthStore(state => state.userStore)
     socket = useMemo(() =>
         io(`${import.meta.env.VITE_SERVER_URL}`, {
             withCredentials: true,
         })
     ); // connect to the socket server
-    
-        useSocketEvents(toast);
+
+    useSocketEvents(toast);
 
     useEffect(() => {
         socket.on('connect', () => {
             console.log(`Welcome, `, socket.id);
+            
         });
-
         socket.emit('online');
         socket.emit('join-room');
 
         return () => {
-            socket.off('online')
-            socket.off('join-room')
-        }
-    }, []);
-
-    
+            socket.off('online');
+            socket.off('join-room');
+        };
+    }, [userStore?.id]);
 
     const router = createBrowserRouter(
         createRoutesFromElements(

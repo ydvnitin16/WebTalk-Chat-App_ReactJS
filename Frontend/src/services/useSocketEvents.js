@@ -17,13 +17,13 @@ export const useSocketEvents = (toast) => {
         // set online user in fetched contact && selected user for opened chat
         socket.on('online', (id) => {
             setStatus(id, 'online');
-            updateSelectedUser('online');
+            updateSelectedUser('online', id);
         });
 
         // set offline user in fetched contact && selected user for opened chat
         socket.on('offline', (id) => {
             setStatus(id, 'offline');
-            updateSelectedUser('offline');
+            updateSelectedUser('offline', id);
         });
 
         socket.on('message', (message, sender, receiver) => {
@@ -45,7 +45,7 @@ const setMessage = UseMessagesStore.getState().setMessage;
 const userStore = UseAuthStore.getState().userStore;
 
 export function sendMessage(message, room) {
-    const sender = userStore.id;
+    const sender = userStore?.id;
     const receiver = room;
     console.log(
         `Seding message...`,
