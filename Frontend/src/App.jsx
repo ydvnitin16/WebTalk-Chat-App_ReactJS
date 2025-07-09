@@ -1,5 +1,4 @@
 import { useEffect } from 'react';
-import { useMemo } from 'react';
 import toast, { Toaster } from 'react-hot-toast';
 import {
     Route,
@@ -19,11 +18,10 @@ export let socket;
 
 function App() {
     const userStore = UseAuthStore(state => state.userStore)
-    socket = useMemo(() =>
+    socket = 
         io(`${import.meta.env.VITE_SERVER_URL}`, {
             withCredentials: true,
-        })
-    ); // connect to the socket server
+        }) // connect to the socket server
 
     useSocketEvents(toast);
 
@@ -32,14 +30,12 @@ function App() {
             console.log(`Welcome, `, socket.id);
             
         });
-        socket.emit('online');
-        socket.emit('join-room');
 
-        return () => {
-            socket.off('online');
-            socket.off('join-room');
-        };
-    }, [userStore?.id]);
+        socket.on('reconnect', (attempt) => {
+            console.log(`Socket reconnected after: `, attempt, 'attempts')
+        })
+
+    }, []);
 
     const router = createBrowserRouter(
         createRoutesFromElements(

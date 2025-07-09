@@ -53,18 +53,15 @@ io.use(async (socket, next) => {
 
 // Socket Events
 io.on('connect', (socket) => {
-    console.log(`🟢 New user connected`, socket.user.name);
+    console.log(`🟢 `, socket.user.name, 'Connected');
     updateStatus(socket.user.id, 'online')
-    socket.on('online', () => {
+    
         io.emit('online', socket.user.id)
-    })
-
-    socket.on('join-room', () => {
         socket.join(socket.user.id);
-    });
 
     socket.on('message', ({ message, room }) => {
-        console.log(message);
+        console.log(message, socket.user.name, room);
+        console.log(`Socket Id: `, socket.id)
         io.to(room).emit('message', message, socket.user.id, room);
     });
 
@@ -73,12 +70,6 @@ io.on('connect', (socket) => {
         io.emit('offline', socket.user.id)
         updateStatus(socket.user.id, 'offline')
     });
-
-    return () => {
-        socket.off('connect');
-        socket.off('message');
-        socket.off('disconnect');
-    };
 });
 
 // Routes

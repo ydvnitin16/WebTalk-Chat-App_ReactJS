@@ -4,6 +4,7 @@ import { logoutUser } from '../../services/auth';
 import ConfirmModal from '../common/ConfirmModal';
 import toast from 'react-hot-toast';
 import { useNavigate } from 'react-router-dom';
+import { socket } from '../../App.jsx';
 
 const Topbar = () => {
     const clearUserStore = UseAuthStore(state => state.clearUserStore)
@@ -16,6 +17,7 @@ const Topbar = () => {
         clearUserStore()
         navigate('/login')
         toast.success(data.message)
+        socket.disconnect()
     }
 
     const userStore = UseAuthStore(state => state.userStore)
