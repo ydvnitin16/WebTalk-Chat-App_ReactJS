@@ -54,21 +54,33 @@ io.use(async (socket, next) => {
 // Socket Events
 io.on('connect', (socket) => {
     console.log(`🟢 `, socket.user.name, 'Connected');
-    updateStatus(socket.user.id, 'online')
-    
-        io.emit('online', socket.user.id)
-        socket.join(socket.user.id);
+    updateStatus(socket.user.id, 'online');
+
+    io.emit('online', socket.user.id);
+    socket.join(socket.user.id);
 
     socket.on('message', ({ message, room }) => {
         console.log(message, socket.user.name, room);
-        console.log(`Socket Id: `, socket.id)
+        console.log(`Socket Id: `, socket.id);
         io.to(room).emit('message', message, socket.user.id, room);
     });
 
+    socket.on('typing', (to) => {
+        const userId = socket.user.id;
+        io.to(to).emit('typing', userId)
+        console.log(socket.user.name, 'Is Typing To: ', to)
+    });
+
+    socket.on('stop-typing', (to) => {
+        const userId = socket.user.id;
+        io.to(to).emit('stop-typing', userId)
+        console.log(socket.user.name, 'Stopped Typing To: ', to)
+    })
+
     socket.on('disconnect', () => {
         console.log(`User disconnected`);
-        io.emit('offline', socket.user.id)
-        updateStatus(socket.user.id, 'offline')
+        io.emit('offline', socket.user.id);
+        updateStatus(socket.user.id, 'offline');
     });
 });
 

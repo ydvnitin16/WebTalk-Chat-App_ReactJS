@@ -3,7 +3,7 @@ import React from 'react';
 const ChatBubble = ({ user, sender, type, message }) => {
     const isMine = sender === 'me';
     const baseStyles =
-        'rounded-xl text-sm max-w-sm p-3 ' +
+        'rounded-xl text-sm max-w-sm text-pretty p-3 break-words ' +
         (isMine
             ? 'bg-[#301e67] dark:bg-violet-600 text-white ml-auto'
             : 'bg-zinc-200 dark:text-black text-left');

@@ -4,6 +4,7 @@ import { UseAuthStore } from '../stores/UseAuthStore.jsx';
 import { UseSelectedUserStore } from '../stores/UseSelectedUserStore.jsx';
 import { UseContactStore } from '../stores/UseContactStore.jsx';
 import { useEffect } from 'react';
+import { UseTypingStore } from '../stores/UsetypingStore.jsx';
 
 export const useSocketEvents = (toast) => {
     const setMessage = UseMessagesStore((state) => state.setMessage);
@@ -12,6 +13,9 @@ export const useSocketEvents = (toast) => {
         (state) => state.updateSelectedUser
     );
     const setStatus = UseContactStore((state) => state.setStatus);
+    const setTypingStatus = UseTypingStore(state => state.setTypingStatus);
+    const clearTypingStatus = UseTypingStore(state => state.clearTypingStatus);
+    const typingStatus = UseTypingStore(state => state.typingStatus)
 
     useEffect(() => {
         // set online user in fetched contact && selected user for opened chat
@@ -33,10 +37,22 @@ export const useSocketEvents = (toast) => {
             }
         });
 
+        socket.on('typing', (userId) => {
+            setTypingStatus(userId, true);
+            console.log(userId, `Is typing`)
+        });
+
+        socket.on('stop-typing', (userId) => {
+            clearTypingStatus(userId);
+            console.log(userId, `Stopped typing`)
+        })
+
         return () => {
             socket.off('message');
             socket.off('online');
             socket.off('offline');
+            socket.off('typing');
+            socket.off('stop-typing');
         };
     }, [setMessage, setMessage]);
 };

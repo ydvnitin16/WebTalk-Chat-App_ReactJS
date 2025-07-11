@@ -18,10 +18,17 @@ export let socket;
 
 function App() {
     const userStore = UseAuthStore(state => state.userStore)
-    socket = 
+    socket = getSocket() // connect to the socket server
+
+function getSocket(){
+    if(!socket){
+        socket = 
         io(`${import.meta.env.VITE_SERVER_URL}`, {
             withCredentials: true,
-        }) // connect to the socket server
+        }) 
+    }
+    return socket
+}
 
     useSocketEvents(toast);
 
