@@ -3,7 +3,10 @@ import jwt from 'jsonwebtoken';
 // Auth middleware to auth user with jWT
 const auth = async (req, res, next) => {
     // Check is authHeader exits
+    console.log(`Entered....`)
+    console.log(req.cookies)
     const authHeader = req.cookies.authHeader;
+    console.log(authHeader)
     if (!authHeader || !authHeader.startsWith('Bearer '))
         return res.status(401).json({ message: 'Unauthorized' });
 

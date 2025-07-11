@@ -7,6 +7,7 @@ import { UseSelectedUserStore } from '../../stores/UseSelectedUserStore.jsx';
 import { UseMessagesStore } from '../../stores/UseMessagesStore.jsx';
 import { UseContactStore } from '../../stores/UseContactStore.jsx';
 import { getLastMessage } from '../../services/utils.js';
+import { useState } from 'react';
 
 const Sidebar = () => {
     const userStore = UseAuthStore((state) => state.userStore); // stores my auth info
@@ -15,6 +16,8 @@ const Sidebar = () => {
         //set selected user info
         (state) => state.setSelectedUser
     );
+
+
     const messages = UseMessagesStore((state) => state.messages); // stores my messages
     const contacts = UseContactStore((state) => state.contacts); // stores all the users
 
@@ -71,16 +74,18 @@ const Sidebar = () => {
                                             {user.name}
                                         </p>
                                         <p className="text-xs text-gray-500 truncate dark:text-gray-300">
-                                            {user &&
-                                                getLastMessage(
-                                                    messages,
-                                                    user,
-                                                    userStore
-                                                )}
+                                            {(() => {
+                                                const lastMsg = getLastMessage(messages, user, userStore);
+                                                console.log(lastMsg)
+                                                return lastMsg && lastMsg.lastMessage !== undefined ? `${lastMsg.sendedByYou} ${lastMsg.lastMessage}` : 'Start a new chat';
+                                            })()}
                                         </p>
                                     </div>
                                     <span className="text-xs text-gray-400">
-                                        1h
+                                        {(() => {
+                                            const lastMsg = getLastMessage(messages, user, userStore);
+                                            return lastMsg && lastMsg.createdAt ? formatDateTime(lastMsg.createdAt) : '';
+                                        })()}
                                     </span>
                                 </div>
                             ))}

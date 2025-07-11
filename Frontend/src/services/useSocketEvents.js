@@ -15,7 +15,6 @@ export const useSocketEvents = (toast) => {
     const setStatus = UseContactStore((state) => state.setStatus);
     const setTypingStatus = UseTypingStore(state => state.setTypingStatus);
     const clearTypingStatus = UseTypingStore(state => state.clearTypingStatus);
-    const typingStatus = UseTypingStore(state => state.typingStatus)
 
     useEffect(() => {
         // set online user in fetched contact && selected user for opened chat
@@ -30,11 +29,9 @@ export const useSocketEvents = (toast) => {
             updateSelectedUser('offline', id);
         });
 
-        socket.on('message', (message, sender, receiver) => {
-            setMessage({ message, sender, receiver });
-            if (!selectedUser) {
-                toast(`message: ${message}`);
-            }
+        socket.on('message', (content, sender, receiver) => {
+            const createdAt = new Date()
+            setMessage({ content, sender, receiver, createdAt });
         });
 
         socket.on('typing', (userId) => {
@@ -60,18 +57,19 @@ export const useSocketEvents = (toast) => {
 const setMessage = UseMessagesStore.getState().setMessage;
 const userStore = UseAuthStore.getState().userStore;
 
-export function sendMessage(message, room) {
+export function sendMessage(content, room) {
     const sender = userStore?.id;
     const receiver = room;
     console.log(
         `Seding message...`,
-        message,
+        content,
         ': message & ',
         room,
         ': room.',
         sender,
         ': sender'
     );
-    setMessage({ message, sender, receiver });
-    socket.emit('message', { message, room });
+    const createdAt = new Date()
+    setMessage({ content, sender, receiver, createdAt });
+    socket.emit('message', { content, room });
 }

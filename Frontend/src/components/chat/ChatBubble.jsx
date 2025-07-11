@@ -1,6 +1,6 @@
 import React from 'react';
 
-const ChatBubble = ({ user, sender, type, message }) => {
+const ChatBubble = ({ user, sender, type, content }) => {
     const isMine = sender === 'me';
     const baseStyles =
         'rounded-xl text-sm max-w-sm text-pretty p-3 break-words ' +
@@ -24,7 +24,7 @@ const ChatBubble = ({ user, sender, type, message }) => {
                     alt="chat-img"
                 />
             ) : (
-                <div className={baseStyles}>{message}</div>
+                <div className={baseStyles}>{content}</div>
             )}
         </div>
     );

@@ -55,6 +55,7 @@ const ChatBox = () => {
         setIsUserAtBottom(isAtBottom);
     };
 
+
     // If no chat is selected
     if (!selectedUser) {
         return (
@@ -101,7 +102,7 @@ const ChatBox = () => {
                                         : 'other'
                                 }
                                 type="text"
-                                message={msg?.message}
+                                content={msg?.content}
                             />
                         ))}
 

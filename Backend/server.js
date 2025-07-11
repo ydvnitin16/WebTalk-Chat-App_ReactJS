@@ -1,13 +1,16 @@
 import express from 'express';
 import connectDB from './configs/db.js';
 import userRoutes from './routes/userRoutes.js';
+import messageRoutes from './routes/messageRoutes.js'
 import cors from 'cors';
 import dotenv from 'dotenv';
 import { createServer } from 'node:http';
 import { Server } from 'socket.io';
 import cookie from 'cookie';
+import cookieParser from 'cookie-parser';
 import jwt from 'jsonwebtoken';
 import { updateStatus } from './controllers/socket.js';
+import { storeMessageDB } from './controllers/messageContoller.js';
 
 const app = express();
 dotenv.config();
@@ -24,6 +27,7 @@ const io = new Server(server, {
 
 // Middlewares
 app.use(express.json());
+app.use(cookieParser())
 app.use(
     cors({ origin: `http://${process.env.ORIGIN}:5173`, credentials: true })
 );
@@ -59,10 +63,11 @@ io.on('connect', (socket) => {
     io.emit('online', socket.user.id);
     socket.join(socket.user.id);
 
-    socket.on('message', ({ message, room }) => {
-        console.log(message, socket.user.name, room);
+    socket.on('message', ({ content, room }) => {
+        console.log(content, socket.user.name, room);
         console.log(`Socket Id: `, socket.id);
-        io.to(room).emit('message', message, socket.user.id, room);
+        io.to(room).emit('message', content, socket.user.id, room);
+        storeMessageDB(socket.user.id, room, content)
     });
 
     socket.on('typing', (to) => {
@@ -86,6 +91,7 @@ io.on('connect', (socket) => {
 
 // Routes
 app.use('/', userRoutes);
+app.use('/messages', messageRoutes);
 
 const PORT = process.env.PORT || 3000;
 server.listen(PORT, () => {

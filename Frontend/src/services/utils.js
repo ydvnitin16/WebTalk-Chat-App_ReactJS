@@ -36,7 +36,9 @@ export function getLastMessage(messages, user, userStore) {
             (msg.receiver === user._id && msg.sender === userStore?.id)
     );
     const messageObj = messages[messages.length - 1];
-    const lastMessage = messageObj?.message;
+    const lastMessage = messageObj?.content;
     const sendedByYou = messageObj?.sender === userStore?.id ? 'You: ' : '';
-    return lastMessage ? `${sendedByYou}${lastMessage}` : 'Start a new chat';
+    const createdAt = messageObj?.createdAt;
+    return {lastMessage, sendedByYou, createdAt}
 }
+
