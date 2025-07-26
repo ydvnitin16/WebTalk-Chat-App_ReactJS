@@ -1,7 +1,7 @@
 import express from 'express';
 import connectDB from './configs/db.js';
 import userRoutes from './routes/userRoutes.js';
-import messageRoutes from './routes/messageRoutes.js'
+import messageRoutes from './routes/messageRoutes.js';
 import cors from 'cors';
 import dotenv from 'dotenv';
 import { createServer } from 'node:http';
@@ -27,7 +27,7 @@ const io = new Server(server, {
 
 // Middlewares
 app.use(express.json());
-app.use(cookieParser())
+app.use(cookieParser());
 app.use(
     cors({ origin: `http://${process.env.ORIGIN}:5173`, credentials: true })
 );
@@ -67,19 +67,34 @@ io.on('connect', (socket) => {
         console.log(content, socket.user.name, room);
         console.log(`Socket Id: `, socket.id);
         io.to(room).emit('message', content, socket.user.id, room);
-        storeMessageDB(socket.user.id, room, content)
+        storeMessageDB(socket.user.id, room, content);
     });
 
     socket.on('typing', (to) => {
         const userId = socket.user.id;
-        io.to(to).emit('typing', userId)
-        console.log(socket.user.name, 'Is Typing To: ', to)
+        io.to(to).emit('typing', userId);
+        console.log(socket.user.name, 'Is Typing To: ', to);
     });
 
     socket.on('stop-typing', (to) => {
         const userId = socket.user.id;
-        io.to(to).emit('stop-typing', userId)
-        console.log(socket.user.name, 'Stopped Typing To: ', to)
+        io.to(to).emit('stop-typing', userId);
+        console.log(socket.user.name, 'Stopped Typing To: ', to);
+    });
+
+    socket.on('offer', ({ room, offer }) => {
+        console.log('Offer', offer, 'caller:', socket.user.id, 'callie', room);
+        io.to(room).emit('offer', { offer, caller: socket.user.id });
+    });
+
+    socket.on('answer', ({ caller, answer }) => {
+        console.log('Answer', answer, ':Answer');
+        io.to(caller).emit('answer', answer);
+    });
+
+    socket.on('ice-candidate', (data) => {
+        console.log('Ice Candidate', data.candidate);
+        io.to(data.room).emit('ice-candidate', candidate);
     })
 
     socket.on('disconnect', () => {
