@@ -20,7 +20,7 @@ connectDB();
 const server = createServer(app);
 const io = new Server(server, {
     cors: {
-        origin: `http://${process.env.ORIGIN}:5173`,
+        origin: `${process.env.ORIGIN}`,
         credentials: true,
     },
 });
@@ -29,7 +29,7 @@ const io = new Server(server, {
 app.use(express.json());
 app.use(cookieParser());
 app.use(
-    cors({ origin: `http://${process.env.ORIGIN}:5173`, credentials: true })
+    cors({ origin: `${process.env.ORIGIN}`, credentials: true })
 );
 io.use(async (socket, next) => {
     const rawCookie = socket.handshake.headers.cookie;
