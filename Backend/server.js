@@ -94,7 +94,7 @@ io.on('connect', (socket) => {
 
     socket.on('ice-candidate', (data) => {
         console.log('Ice Candidate', data.candidate);
-        io.to(data.room).emit('ice-candidate', candidate);
+        io.to(data.room).emit('ice-candidate', data.candidate);
     })
 
     socket.on('disconnect', () => {
