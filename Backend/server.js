@@ -9,8 +9,8 @@ import { Server } from 'socket.io';
 import cookie from 'cookie';
 import cookieParser from 'cookie-parser';
 import jwt from 'jsonwebtoken';
-import { updateStatus } from './controllers/socket.js';
-import { storeMessageDB } from './controllers/messageContoller.js';
+import { updateStatus } from './controllers/socketController.js';
+import { storeMessageDB } from './controllers/messageController.js';
 
 const app = express();
 dotenv.config();
@@ -50,7 +50,7 @@ io.use(async (socket, next) => {
         socket.user = decoded;
         next();
     } catch (error) {
-        console.log('JWT Verify Error:', err.message);
+        console.log('JWT Verify Error:', error.message);
         next(new Error('Unauthorized'));
     }
 });
@@ -95,7 +95,13 @@ io.on('connect', (socket) => {
     socket.on('ice-candidate', (data) => {
         console.log('Ice Candidate', data.candidate);
         io.to(data.room).emit('ice-candidate', data.candidate);
-    })
+    });
+
+    // Call ended / rejected
+    socket.on('reject', (to) => {
+        if (!to) return;
+        io.to(to).emit('reject', { from: socket.user.id });
+    });
 
     socket.on('disconnect', () => {
         console.log(`User disconnected`);

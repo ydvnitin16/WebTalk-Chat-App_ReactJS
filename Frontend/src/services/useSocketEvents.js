@@ -1,14 +1,13 @@
-import { socket } from '../App.jsx';
+import { socket } from '../lib/socket.js';
 import { UseMessagesStore } from '../stores/UseMessagesStore.jsx';
-import { UseAuthStore } from '../stores/UseAuthStore.jsx';
 import { UseSelectedUserStore } from '../stores/UseSelectedUserStore.jsx';
 import { UseContactStore } from '../stores/UseContactStore.jsx';
 import { useEffect } from 'react';
 import { UseTypingStore } from '../stores/UsetypingStore.jsx';
+import { UseAuthStore } from '../stores/UseAuthStore.jsx';
 
 export const useSocketEvents = (toast) => {
     const setMessage = UseMessagesStore((state) => state.setMessage);
-    const selectedUser = UseSelectedUserStore((state) => state.selectedUser);
     const updateSelectedUser = UseSelectedUserStore(
         (state) => state.updateSelectedUser
     );
@@ -51,14 +50,13 @@ export const useSocketEvents = (toast) => {
             socket.off('typing');
             socket.off('stop-typing');
         };
-    }, [setMessage, setMessage]);
+    }, [setMessage, setStatus, updateSelectedUser, setTypingStatus, clearTypingStatus]);
 };
 
 const setMessage = UseMessagesStore.getState().setMessage;
-const userStore = UseAuthStore.getState().userStore;
 
 export function sendMessage(content, room) {
-    const sender = userStore?.id;
+    const sender = UseAuthStore.getState().userStore?.id;
     const receiver = room;
     console.log(
         `Seding message...`,

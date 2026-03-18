@@ -9,24 +9,36 @@ const ChatBubble = ({ user, sender, type, content }) => {
             : 'bg-zinc-200 dark:text-black text-left');
 
     return (
-        <div className={`flex ${isMine ? 'justify-end' : 'items-start gap-3'}`}>
-            {!isMine && (
-                <img
-                    src={user.img}
-                    className="w-8 h-8 rounded-full"
-                    alt="avatar"
-                />
-            )}
-            {type === 'image' ? (
-                <img
-                    src={user.img} // (this should be an actual media URL later)
-                    className="w-60 rounded-lg"
-                    alt="chat-img"
-                />
-            ) : (
-                <div className={baseStyles}>{content}</div>
-            )}
-        </div>
+        <>
+            <div
+                className={`flex ${
+                    isMine ? 'justify-end' : 'items-start gap-3'
+                }`}
+            >
+                {!isMine && (
+                    <img
+                        src={user.img}
+                        className="w-8 h-8 rounded-full"
+                        alt="avatar"
+                    />
+                )}
+                {type === 'image' ? (
+                    <div>
+                        <img
+                            src={user.img} // (this should be an actual media URL later)
+                            className="w-60 rounded-lg"
+                            alt="chat-img"
+                        />
+                        <div className='text-lg'>23:12</div>
+                    </div>
+                ) : (
+                    <div>
+                        <div className={baseStyles}>{content}</div>
+                        <div className={`text-xs pt-1 text-zinc-300 ${isMine ? 'text-right' : 'text-left'}`}>23:12</div>
+                    </div>
+                )}
+            </div>
+        </>
     );
 };
 

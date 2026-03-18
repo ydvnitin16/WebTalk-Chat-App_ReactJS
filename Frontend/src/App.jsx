@@ -6,42 +6,29 @@ import {
     createRoutesFromElements,
     RouterProvider,
 } from 'react-router-dom';
-import { io } from 'socket.io-client';
 import MainLayout from './layouts/MainLayout.jsx';
 import Signup from './pages/Signup.jsx';
 import Login from './pages/Login.jsx';
 import Chat from './pages/Chat.jsx';
 import { useSocketEvents } from './services/useSocketEvents.js';
-import { UseAuthStore } from './stores/UseAuthStore.jsx';
-
-export let socket;
+import { socket } from './lib/socket.js';
 
 function App() {
-    const userStore = UseAuthStore(state => state.userStore)
-    socket = getSocket() // connect to the socket server
-
-function getSocket(){
-    if(!socket){
-        socket = 
-        io(`${import.meta.env.VITE_SERVER_URL}`, {
-            withCredentials: true,
-        }) 
-    }
-    return socket
-}
-
     useSocketEvents(toast);
 
     useEffect(() => {
         socket.on('connect', () => {
             console.log(`Welcome, `, socket.id);
-            
         });
 
         socket.on('reconnect', (attempt) => {
             console.log(`Socket reconnected after: `, attempt, 'attempts')
         })
 
+        return () => {
+            socket.off('connect');
+            socket.off('reconnect');
+        };
     }, []);
 
     const router = createBrowserRouter(

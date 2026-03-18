@@ -4,8 +4,12 @@ import { faVideo } from '@fortawesome/free-solid-svg-icons';
 import { faEllipsisVertical } from '@fortawesome/free-solid-svg-icons';
 import { faArrowLeft } from '@fortawesome/free-solid-svg-icons';
 import { UseSelectedUserStore } from '../../stores/UseSelectedUserStore';
+import { UseCallStatus } from '../../stores/UseCallStatus';
 
 const ChatHeader = () => {
+
+    const setCallUser = UseCallStatus(state => state.setCallUser)
+    const setCallStatus = UseCallStatus(state => state.setCallStatus)
 
     const selectedUser = UseSelectedUserStore((state) => state.selectedUser);
     const setSelectedUser = UseSelectedUserStore(
@@ -38,7 +42,10 @@ const ChatHeader = () => {
                 </div>
             </div>
             <div className="space-x-6 text-gray-500 flex items-center dark:text-white">
-                <button>
+                <button onClick={() => {
+                    setCallUser(selectedUser)
+                    setCallStatus('calling')
+                }}>
                     <FontAwesomeIcon icon={faVideo} />
                 </button>
                 <button>

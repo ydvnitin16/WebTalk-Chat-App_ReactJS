@@ -6,39 +6,39 @@ export function formatDateTime(dateString) {
     const dateOnly = new Date(
         date.getFullYear(),
         date.getMonth(),
-        date.getDate()
+        date.getDate(),
     );
     const nowOnly = new Date(now.getFullYear(), now.getMonth(), now.getDate());
 
     const diffInDays = Math.floor((nowOnly - dateOnly) / (1000 * 60 * 60 * 24));
 
-    const options = { hour: 'numeric', minute: '2-digit', hour12: true };
-    const time = date.toLocaleTimeString('en-US', options);
+    const options = { hour: "numeric", minute: "2-digit", hour12: true };
+    const time = date.toLocaleTimeString("en-US", options);
 
     if (diffInDays === 0) {
         return time; // today
     } else if (diffInDays === 1) {
-        return `Yesterday at ${time}`;
+        return `Yesterday`;
     } else {
-        const fullDate = date.toLocaleDateString('en-GB', {
-            day: '2-digit',
-            month: 'short',
-            year: 'numeric',
+        const fullDate = date.toLocaleDateString("en-GB", {
+            day: "2-digit",
+            month: "short",
+            year: "numeric",
         });
         return `${fullDate}, ${time}`;
     }
 }
 
 export function getLastMessage(messages, user, userStore) {
-    messages = messages.filter(
+    console.log(messages, user, userStore)
+    messages = messages?.filter(
         (msg) =>
             (msg.sender === user._id && msg.receiver === userStore?.id) ||
-            (msg.receiver === user._id && msg.sender === userStore?.id)
+            (msg.receiver === user._id && msg.sender === userStore?.id),
     );
     const messageObj = messages[messages.length - 1];
     const lastMessage = messageObj?.content;
-    const sendedByYou = messageObj?.sender === userStore?.id ? 'You: ' : '';
+    const sendedByYou = messageObj?.sender === userStore?.id ? "You: " : "";
     const createdAt = messageObj?.createdAt;
-    return {lastMessage, sendedByYou, createdAt}
+    return { lastMessage, sendedByYou, createdAt };
 }
-
