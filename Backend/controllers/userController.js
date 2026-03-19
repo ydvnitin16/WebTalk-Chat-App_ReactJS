@@ -12,21 +12,15 @@ const registerUser = async (req, res) => {
         if (existingUser)
             return res.status(409).json({ message: 'Email already exists!' });
 
-        const answer = securityQuestion.answer;
 
         // hash password & answer using bcrypt
         const hashPwd = await bcrypt.hash(password, 10);
-        const hashAns = await bcrypt.hash(answer, 10);
 
         // Save user info in DB
         const user = await User({
             name,
             email,
             password: hashPwd,
-            securityQuestion: {
-                question: securityQuestion.question,
-                answer: hashAns,
-            },
         });
         await user.save();
 
@@ -99,11 +93,12 @@ const loginUser = async (req, res) => {
 // User Logout
 const logoutUser = (req, res) => {
     const isProd = process.env.NODE_ENV === 'production';
-    res.clearCookie('authHeader', {
-        secure: isProd,
-        sameSite: isProd ? 'none' : 'lax',
-    });
+    res.clearCookie('authHeader');
     res.status(200).json({ message: 'Logout Successfully.' });
 };
 
-export { registerUser, loginUser, logoutUser };
+const getUser = () => {
+
+}
+
+export { registerUser, loginUser, logoutUser, getUser };

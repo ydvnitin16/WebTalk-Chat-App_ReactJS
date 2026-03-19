@@ -1,16 +1,17 @@
-import express from 'express';
-import connectDB from './configs/db.js';
-import userRoutes from './routes/userRoutes.js';
-import messageRoutes from './routes/messageRoutes.js';
-import cors from 'cors';
-import dotenv from 'dotenv';
-import { createServer } from 'node:http';
-import { Server } from 'socket.io';
-import cookie from 'cookie';
-import cookieParser from 'cookie-parser';
-import jwt from 'jsonwebtoken';
-import { updateStatus } from './controllers/socketController.js';
-import { storeMessageDB } from './controllers/messageController.js';
+import express from "express";
+import connectDB from "./configs/db.js";
+import userRoutes from "./routes/userRoutes.js";
+import messageRoutes from "./routes/messageRoutes.js";
+import cors from "cors";
+import dotenv from "dotenv";
+import { createServer } from "node:http";
+import { Server } from "socket.io";
+import cookie from "cookie";
+import cookieParser from "cookie-parser";
+import jwt from "jsonwebtoken";
+import { updateStatus } from "./controllers/socketController.js";
+import { handleMessageSocket } from "./socket/messageSocket.js";
+import { handleCallSocket } from "./socket/callSocket.js";
 
 const app = express();
 dotenv.config();
@@ -28,91 +29,58 @@ const io = new Server(server, {
 // Middlewares
 app.use(express.json());
 app.use(cookieParser());
-app.use(
-    cors({ origin: `${process.env.ORIGIN}`, credentials: true })
-);
+app.use(cors({ origin: `${process.env.ORIGIN}`, credentials: true }));
+
 io.use(async (socket, next) => {
     const rawCookie = socket.handshake.headers.cookie;
     if (!rawCookie) {
-        return next(new Error('No Cookie Found!'));
+        return next(new Error("No Cookie Found!"));
     }
 
     const parsed = cookie.parse(rawCookie);
     const authHeader = parsed.authHeader;
 
-    if (!authHeader || !authHeader.startsWith('Bearer ')) {
-        return next(new Error('No authHeader cookie'));
+    if (!authHeader || !authHeader.startsWith("Bearer ")) {
+        return next(new Error("No authHeader cookie"));
     }
 
     try {
-        const token = authHeader.split(' ')[1];
+        const token = authHeader.split(" ")[1];
         const decoded = await jwt.verify(token, process.env.JWT_SECRET_KEY);
         socket.user = decoded;
         next();
     } catch (error) {
-        console.log('JWT Verify Error:', error.message);
-        next(new Error('Unauthorized'));
+        console.log("JWT Verify Error:", error.message);
+        next(new Error("Unauthorized"));
     }
 });
 
 // Socket Events
-io.on('connect', (socket) => {
-    console.log(`🟢 `, socket.user.name, 'Connected');
-    updateStatus(socket.user.id, 'online');
+io.on("connect", (socket) => {
+    const userId = socket.user.id;
 
-    io.emit('online', socket.user.id);
-    socket.join(socket.user.id);
+    // Join own room and update status
+    socket.join(userId);
 
-    socket.on('message', ({ content, room }) => {
-        console.log(content, socket.user.name, room);
-        console.log(`Socket Id: `, socket.id);
-        io.to(room).emit('message', content, socket.user.id, room);
-        storeMessageDB(socket.user.id, room, content);
-    });
+    updateStatus(userId, "online");
+    io.emit("online", userId);
 
-    socket.on('typing', (to) => {
-        const userId = socket.user.id;
-        io.to(to).emit('typing', userId);
-        console.log(socket.user.name, 'Is Typing To: ', to);
-    });
+    // Message Socket Handler
+    handleMessageSocket(io, socket);
 
-    socket.on('stop-typing', (to) => {
-        const userId = socket.user.id;
-        io.to(to).emit('stop-typing', userId);
-        console.log(socket.user.name, 'Stopped Typing To: ', to);
-    });
+    // Call socket handler
+    handleCallSocket(io, socket);
 
-    socket.on('offer', ({ room, offer }) => {
-        console.log('Offer', offer, 'caller:', socket.user.id, 'callie', room);
-        io.to(room).emit('offer', { offer, caller: socket.user.id });
-    });
-
-    socket.on('answer', ({ caller, answer }) => {
-        console.log('Answer', answer, ':Answer');
-        io.to(caller).emit('answer', answer);
-    });
-
-    socket.on('ice-candidate', (data) => {
-        console.log('Ice Candidate', data.candidate);
-        io.to(data.room).emit('ice-candidate', data.candidate);
-    });
-
-    // Call ended / rejected
-    socket.on('reject', (to) => {
-        if (!to) return;
-        io.to(to).emit('reject', { from: socket.user.id });
-    });
-
-    socket.on('disconnect', () => {
-        console.log(`User disconnected`);
-        io.emit('offline', socket.user.id);
-        updateStatus(socket.user.id, 'offline');
+    // On Disconnect update status
+    socket.on("disconnect", () => {
+        io.emit("offline", userId);
+        updateStatus(userId, "offline");
     });
 });
 
 // Routes
-app.use('/', userRoutes);
-app.use('/messages', messageRoutes);
+app.use("/", userRoutes);
+app.use("/messages", messageRoutes);
 
 const PORT = process.env.PORT || 3000;
 server.listen(PORT, () => {

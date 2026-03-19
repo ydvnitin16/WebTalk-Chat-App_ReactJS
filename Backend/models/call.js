@@ -1,14 +1,14 @@
 import mongoose from "mongoose";
 
-const messageSchema = new mongoose.Schema(
+const callSchema = new mongoose.Schema(
     {
-        conversationId: {
+        conversation: {
             type: mongoose.Schema.Types.ObjectId,
             ref: "Conversation",
             required: true,
         },
 
-        sender: {
+        caller: {
             type: mongoose.Schema.Types.ObjectId,
             ref: "User",
             required: true,
@@ -20,26 +20,24 @@ const messageSchema = new mongoose.Schema(
             required: true,
         },
 
-        content: {
-            type: String,
-            trim: true,
-        },
-
         type: {
             type: String,
-            enum: ["text", "image", "video", "file"],
-            default: "text",
+            enum: ["audio", "video"],
+            default: "audio",
         },
 
         status: {
             type: String,
-            enum: ["sent", "delivered", "seen"],
-            default: "sent",
+            enum: ["missed", "rejected", "connected"],
+            default: "missed",
         },
+
+        startedAt: Date,
+        endedAt: Date,
     },
     { timestamps: true },
 );
 
-const Message = mongoose.model("Message", messageSchema);
+const Call = mongoose.model("Call", callSchema);
 
-export default Message;
+export default Call;
