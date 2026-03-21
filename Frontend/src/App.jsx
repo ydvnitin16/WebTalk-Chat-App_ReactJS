@@ -1,19 +1,14 @@
 import { useEffect } from 'react';
 import toast, { Toaster } from 'react-hot-toast';
 import {
-    Route,
-    createBrowserRouter,
-    createRoutesFromElements,
     RouterProvider,
 } from 'react-router-dom';
-import MainLayout from './layouts/MainLayout.jsx';
-import Signup from './pages/Signup.jsx';
-import Login from './pages/Login.jsx';
-import Chat from './pages/Chat.jsx';
 import { useSocketEvents } from './services/useSocketEvents.js';
 import { socket } from './lib/socket.js';
+import router from './routes.jsx';
 
 function App() {
+
     useSocketEvents(toast);
 
     useEffect(() => {
@@ -31,17 +26,7 @@ function App() {
         };
     }, []);
 
-    const router = createBrowserRouter(
-        createRoutesFromElements(
-            <>
-                <Route path="/login" element={<Login />}></Route>
-                <Route path="/signup" element={<Signup />}></Route>
-                <Route path="/" element={<MainLayout />}>
-                    <Route index element={<Chat />} />
-                </Route>
-            </>
-        )
-    );
+    
 
     return (
         <>

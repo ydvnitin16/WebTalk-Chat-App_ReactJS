@@ -4,14 +4,15 @@ import {
     registerUser,
     loginUser,
     logoutUser,
-    getUser,
+    getUserByUsername,
 } from "../controllers/userController.js";
+import { auth } from "../middlewares/auth.js";
 
 const router = express.Router();
 
 router.post("/register", validateUser("register"), registerUser);
 router.post("/login", validateUser("login"), loginUser);
 router.delete("/logout", logoutUser);
-router.get("/users/search", getUser);
+router.get("/user/search", auth, getUserByUsername);
 
 export default router;

@@ -1,16 +1,16 @@
-import React, { useEffect, useRef, useState } from 'react';
-import { UseCallStatus } from '../stores/UseCallStatus.jsx';
-import OutgoingCallModal from '../components/call/OutgoingCallModal.jsx';
-import { socket } from '../lib/socket.js';
+import React, { useEffect, useRef, useState } from "react";
+import { UseCallStatus } from "../stores/UseCallStatus.jsx";
+import OutgoingCallModal from "@/components/call/OutgoingCallModal.jsx";
+import { socket } from "../lib/socket.js";
 import {
     peerConnection,
     config,
     localStream,
     remoteStream,
-} from '../stores/webrtcStores.jsx';
-import IncomingCallModal from '../components/call/IncomingCallModal.jsx';
-import VideoCallUI from '../components/call/VideoCallUI.jsx';
-import { UseContactStore } from '../stores/UseContactStore.jsx';
+} from "../stores/webrtcStores.jsx";
+import IncomingCallModal from "@/components/call/IncomingCallModal.jsx";
+import VideoCallUI from "@/components/call/VideoCallUI.jsx";
+import { UseContactStore } from "../stores/UseContactStore.jsx";
 
 const VideoCall = () => {
     const contacts = UseContactStore((state) => state.contacts);
@@ -52,21 +52,22 @@ const VideoCall = () => {
 
     // Incoming call listener
     useEffect(() => {
-        socket.on('offer', (data) => {
+        socket.on("offer", (data) => {
             setIncomingCall(true);
             callerIdRef.current = data.caller;
-            callerUserRef.current = contacts.find((cont) => cont._id === data.caller) || null;
+            callerUserRef.current =
+                contacts.find((cont) => cont._id === data.caller) || null;
             window.incomingOffer = data.offer; // save for onAccept
         });
 
         return () => {
-            socket.off('offer');
+            socket.off("offer");
         };
     }, [contacts]);
 
     // ICE candidate handler
     useEffect(() => {
-        socket.on('ice-candidate', async (candidate) => {
+        socket.on("ice-candidate", async (candidate) => {
             if (!candidate || !peerConnection?.current) return;
 
             const rtcCandidate = new RTCIceCandidate(candidate);
@@ -78,15 +79,15 @@ const VideoCall = () => {
         });
 
         return () => {
-            socket.off('ice-candidate');
+            socket.off("ice-candidate");
         };
     }, []);
 
     // Handle answer (from callee)
     useEffect(() => {
-        socket.on('answer', async (answer) => {
+        socket.on("answer", async (answer) => {
             await peerConnection.current.setRemoteDescription(
-                new RTCSessionDescription(answer)
+                new RTCSessionDescription(answer),
             );
             remoteDescSet.current = true;
 
@@ -95,23 +96,23 @@ const VideoCall = () => {
             }
             pendingCandidates.current = [];
 
-            setCallStatus('connected');
+            setCallStatus("connected");
         });
 
         return () => {
-            socket.off('answer');
+            socket.off("answer");
         };
     }, []);
 
     // Handle reject/hangup from remote
     useEffect(() => {
-        socket.on('reject', () => {
+        socket.on("reject", () => {
             setIncomingCall(false);
             cleanupCall();
         });
 
         return () => {
-            socket.off('reject');
+            socket.off("reject");
         };
     }, []);
 
@@ -142,12 +143,12 @@ const VideoCall = () => {
         localStream.current
             .getTracks()
             .forEach((track) =>
-                peerConnection.current.addTrack(track, localStream.current)
+                peerConnection.current.addTrack(track, localStream.current),
             );
 
         // Handle remote track
         peerConnection.current.ontrack = (event) => {
-            console.log('ontrack fired:', event);
+            console.log("ontrack fired:", event);
 
             // Set up the remote stream if not already
             if (!remoteStream.current) {
@@ -168,7 +169,7 @@ const VideoCall = () => {
         // Send ICE candidates
         peerConnection.current.onicecandidate = (event) => {
             if (event.candidate) {
-                socket.emit('ice-candidate', {
+                socket.emit("ice-candidate", {
                     candidate: event.candidate,
                     room: callerId,
                 });
@@ -177,7 +178,7 @@ const VideoCall = () => {
 
         // Set remote offer
         await peerConnection.current.setRemoteDescription(
-            new RTCSessionDescription(offer)
+            new RTCSessionDescription(offer),
         );
         remoteDescSet.current = true;
 
@@ -189,15 +190,15 @@ const VideoCall = () => {
         // Create & send answer
         const answer = await peerConnection.current.createAnswer();
         await peerConnection.current.setLocalDescription(answer);
-        socket.emit('answer', { caller: callerId, answer });
+        socket.emit("answer", { caller: callerId, answer });
 
-        setCallStatus('connected');
+        setCallStatus("connected");
     };
 
     // Reject handler
     const onReject = () => {
         setIncomingCall(false);
-        if (callerIdRef.current) socket.emit('reject', callerIdRef.current);
+        if (callerIdRef.current) socket.emit("reject", callerIdRef.current);
         cleanupCall();
     };
 
@@ -223,22 +224,21 @@ const VideoCall = () => {
 
     // End Call
     const onEndCall = () => {
-        if (callerIdRef.current) socket.emit('reject', callerIdRef.current);
+        if (callerIdRef.current) socket.emit("reject", callerIdRef.current);
         cleanupCall();
     };
 
     const onCanelOutgoingCall = () => {
         const calleeId = callStatus?.user?.id;
-        if (calleeId) socket.emit('reject', calleeId);
+        if (calleeId) socket.emit("reject", calleeId);
         cleanupCall();
     };
 
-
     // Render based on call state
-    if (callStatus?.status === 'connected') {
+    if (callStatus?.status === "connected") {
         return (
             <VideoCallUI
-                calleeName={callerUserRef.current?.name || 'User'}
+                calleeName={callerUserRef.current?.name || "User"}
                 localVideoRef={localVideoRef}
                 remoteVideoRef={remoteVideoRef}
                 onEndCall={onEndCall}
@@ -250,7 +250,7 @@ const VideoCall = () => {
         );
     }
 
-    if (callStatus?.user && callStatus?.status === 'calling') {
+    if (callStatus?.user && callStatus?.status === "calling") {
         return (
             <OutgoingCallModal
                 calleeName={callStatus.user.name}
@@ -267,7 +267,7 @@ const VideoCall = () => {
             <IncomingCallModal
                 onAccept={onAccept}
                 onReject={onReject}
-                callerName={callerUserRef.current?.name || 'Unknown'}
+                callerName={callerUserRef.current?.name || "Unknown"}
                 callerAvatar={callerUserRef.current?.profilePic?.url}
             />
         )

@@ -1,26 +1,26 @@
 import React, { useState } from "react";
-import { UseAuthStore } from "../../stores/UseAuthStore";
-import { logoutUser } from "../../services/auth";
-import ConfirmModal from "../common/ConfirmModal";
+import useAuthStore from "../../../../stores/useAuthStore";
+import { logoutUser } from "../../../auth/services/auth.api.js";
+import ConfirmModal from "../../../../components/ui/ConfirmModal.jsx";
 import toast from "react-hot-toast";
 import { useNavigate } from "react-router-dom";
-import { socket } from "../../lib/socket";
+import { socket } from "../../../../lib/socket";
 
-const Topbar = () => {
-    const clearUserStore = UseAuthStore((state) => state.clearUserStore);
+const SidebarHeader = () => {
+    const { clearAuth } = useAuthStore();
     const navigate = useNavigate();
 
     async function handleLogout() {
         const res = await logoutUser();
         const data = await res.json();
         setConfirmModal(false);
-        clearUserStore();
+        clearAuth();
         navigate("/login");
         toast.success(data.message);
         socket.disconnect();
     }
 
-    const userStore = UseAuthStore((state) => state.userStore);
+    const currentUser = useAuthStore((state) => state.currentUser);
     const [confirmModal, setConfirmModal] = useState(false);
 
     const [showDropdown, setShowDropdown] = useState(false);
@@ -37,7 +37,7 @@ const Topbar = () => {
                 <h1 className='text-xl font-bold'>Chats</h1>
                 <div className='relative'>
                     <img
-                        src={userStore?.picUrl}
+                        src={currentUser?.picUrl}
                         alt='user'
                         className='w-10 h-10 rounded-full cursor-pointer'
                         onClick={() => setShowDropdown(!showDropdown)}
@@ -66,4 +66,4 @@ const Topbar = () => {
     );
 };
 
-export default Topbar;
+export default SidebarHeader;

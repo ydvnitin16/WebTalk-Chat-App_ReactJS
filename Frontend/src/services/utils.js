@@ -29,16 +29,16 @@ export function formatDateTime(dateString) {
     }
 }
 
-export function getLastMessage(messages, user, userStore) {
-    console.log(messages, user, userStore)
+export function getLastMessage(messages, user, currentUser) {
+    console.log(messages, user, currentUser);
     messages = messages?.filter(
         (msg) =>
-            (msg.sender === user._id && msg.receiver === userStore?.id) ||
-            (msg.receiver === user._id && msg.sender === userStore?.id),
+            (msg.sender === user._id && msg.receiver === currentUser?.id) ||
+            (msg.receiver === user._id && msg.sender === currentUser?.id),
     );
     const messageObj = messages[messages.length - 1];
     const lastMessage = messageObj?.content;
-    const sendedByYou = messageObj?.sender === userStore?.id ? "You: " : "";
+    const sendedByYou = messageObj?.sender === currentUser?.id ? "You: " : "";
     const createdAt = messageObj?.createdAt;
     return { lastMessage, sendedByYou, createdAt };
 }

@@ -2,6 +2,7 @@ import express from "express";
 import connectDB from "./configs/db.js";
 import userRoutes from "./routes/userRoutes.js";
 import messageRoutes from "./routes/messageRoutes.js";
+import conversationRoutes from "./routes/conversationRoutes.js";
 import cors from "cors";
 import dotenv from "dotenv";
 import { createServer } from "node:http";
@@ -62,7 +63,7 @@ io.on("connect", (socket) => {
     // Join own room and update status
     socket.join(userId);
 
-    updateStatus(userId, "online");
+    // updateStatus(userId, "online");
     io.emit("online", userId);
 
     // Message Socket Handler
@@ -74,13 +75,14 @@ io.on("connect", (socket) => {
     // On Disconnect update status
     socket.on("disconnect", () => {
         io.emit("offline", userId);
-        updateStatus(userId, "offline");
+        // updateStatus(userId, "offline");
     });
 });
 
 // Routes
 app.use("/", userRoutes);
 app.use("/messages", messageRoutes);
+app.use("/", conversationRoutes);
 
 const PORT = process.env.PORT || 3000;
 server.listen(PORT, () => {

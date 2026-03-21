@@ -1,33 +1,37 @@
-import User from '../models/user.js';
-import bcrypt from 'bcrypt';
-import jwt from 'jsonwebtoken';
+import User from "../models/user.js";
+import bcrypt from "bcrypt";
+import jwt from "jsonwebtoken";
+import { getUserByUsernameService } from "../services/userService.js";
 
 // user register -> Store user info to the DB
 const registerUser = async (req, res) => {
-    const { name, email, password, securityQuestion } = req.body;
+    const { name, email, password } = req.body;
     try {
         // Check is User already exists
         const existingUser = await User.findOne({ email });
 
         if (existingUser)
-            return res.status(409).json({ message: 'Email already exists!' });
-
+            return res.status(409).json({ message: "Email already exists!" });
 
         // hash password & answer using bcrypt
         const hashPwd = await bcrypt.hash(password, 10);
+
+        // create username
+        const username = email.split("@")[0];
 
         // Save user info in DB
         const user = await User({
             name,
             email,
+            username,
             password: hashPwd,
         });
         await user.save();
 
-        res.status(201).json({ message: 'Registered Successfully!' });
+        res.status(201).json({ message: "Registered Successfully!" });
     } catch (error) {
         res.status(500).json({
-            message: 'Server error. Please try again later.',
+            message: "Server error. Please try again later.",
         });
     }
 };
@@ -41,15 +45,15 @@ const loginUser = async (req, res) => {
 
         // If Email not found
         if (!userInfo)
-            return res.status(404).json({ message: 'Invalid Credentials' });
+            return res.status(404).json({ message: "Invalid Credentials" });
 
         const isPasswordCorrect = await bcrypt.compare(
             password,
-            userInfo.password
+            userInfo.password,
         );
 
         if (!isPasswordCorrect)
-            return res.status(404).json({ message: 'Invalid Credentials' });
+            return res.status(404).json({ message: "Invalid Credentials" });
 
         // If correct credentials_ auth user
 
@@ -60,45 +64,58 @@ const loginUser = async (req, res) => {
                 email: userInfo.email,
             },
             process.env.JWT_SECRET_KEY,
-            { expiresIn: '3d' }
+            { expiresIn: "3d" },
         );
 
-        const isProd = process.env.NODE_ENV === 'production';
+        const isProd = process.env.NODE_ENV === "production";
         // NOTE:
         // - SameSite=None requires Secure=true (HTTPS). In local dev (HTTP) browsers will drop the cookie.
         // - For localhost dev, use SameSite=Lax + Secure=false.
-        res.cookie('authHeader', `Bearer ${token}`, {
+        res.cookie("authHeader", `Bearer ${token}`, {
             httpOnly: true,
             secure: isProd,
-            sameSite: isProd ? 'none' : 'lax',
+            sameSite: isProd ? "none" : "lax",
             maxAge: 3 * 24 * 60 * 60 * 1000,
         });
 
         res.status(200).json({
-            message: 'Logged In Successfully.',
+            message: "Logged In Successfully.",
             user: {
                 id: userInfo._id,
                 name: userInfo.name,
                 email: userInfo.email,
-                picUrl: userInfo.profilePic.url
+                avatar: userInfo.avatar.url,
             },
         });
     } catch (error) {
         res.status(500).json({
-            message: 'Server error. Please try again later.',
+            message: "Server error. Please try again later.",
         });
     }
 };
 
 // User Logout
 const logoutUser = (req, res) => {
-    const isProd = process.env.NODE_ENV === 'production';
-    res.clearCookie('authHeader');
-    res.status(200).json({ message: 'Logout Successfully.' });
+    const isProd = process.env.NODE_ENV === "production";
+    res.clearCookie("authHeader");
+    res.status(200).json({ message: "Logout Successfully." });
 };
 
-const getUser = () => {
+const getUserByUsername = async (req, res) => {
+    try {
+        const { username } = req.query;
 
-}
+        const user = await getUserByUsernameService(username);
+        if (!user) {
+            res.status(404).json({ success: false, message: "User not found" });
+            return;
+        }
+        res.status(200).json({ success: true, user });
+    } catch (error) {
+        res.status(500).json({
+            message: "Server error. Please try again later.",
+        });
+    }
+};
 
-export { registerUser, loginUser, logoutUser, getUser };
+export { registerUser, loginUser, logoutUser, getUserByUsername };
