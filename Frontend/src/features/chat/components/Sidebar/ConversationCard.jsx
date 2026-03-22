@@ -1,7 +1,9 @@
 import { formatDateTime } from "@/services/utils";
+import useChatStore from "@/stores/useChatStore";
 import React from "react";
 
 const ConversationCard = ({ user, isSelected, onClick, lastMessage }) => {
+
     return (
         <div
             className={`flex items-center gap-3 p-2 rounded-lg cursor-pointer hover:bg-gray-100 dark:hover:bg-zinc-900 ${

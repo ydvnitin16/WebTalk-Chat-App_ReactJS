@@ -2,12 +2,14 @@ import React, { useRef, useState } from "react";
 import useSearchUser from "../../hooks/useSearchUser";
 import ConversationCard from "./ConversationCard";
 import useChatStore from "@/stores/useChatStore";
+import useAuthStore from "@/stores/useAuthStore";
 
 const SearchUsersInput = () => {
     const { searchUsername, setSearchUsername, users, loading, error } =
         useSearchUser();
 
-    const { setSelectedUser } = useChatStore();
+    const { setSelectedUserId, addConversation, addUser } = useChatStore();
+    const { currentUser } = useAuthStore();
 
     return (
         <div className='p-2 relative'>
@@ -37,8 +39,17 @@ const SearchUsersInput = () => {
                                 key={user._id}
                                 user={user}
                                 onClick={() => {
-                                    console.log("User selecting: ", user);
-                                    setSelectedUser(user);
+                                    const tempId = Date.now();
+                                    addConversation({
+                                        _id: tempId,
+                                        tempId,
+                                        participants: [
+                                            user._id,
+                                            currentUser.id,
+                                        ],
+                                    });
+                                    addUser(user);
+                                    setSelectedUserId(user._id);
                                     setSearchUsername("");
                                 }}
                             />

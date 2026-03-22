@@ -6,8 +6,8 @@ import useChatStore from "@/stores/useChatStore.js";
 
 const MessageInput = () => {
     const { message, setMessage, sendMessage } = useSendMessages();
-    const { selectedUser } = useChatStore();
-    const { handleTyping } = useTyping(selectedUser._id);
+    const { selectedUserId } = useChatStore();
+    const { handleTyping } = useTyping(selectedUserId);
 
     const inputRef = useRef(null);
 

@@ -1,24 +1,127 @@
 import { create } from "zustand";
 
-const useChatStore = create((set) => ({
+const useChatStore = create((set, get) => ({
     conversations: [],
     messages: [],
-    selectedUser: null,
+    selectedUserId: null,
     typingUsers: {},
-    users: [],
+    users: {},
 
-    setConversations: (data) => set({ conversations: data }),
+    setConversations: (conversations) =>
+        set({ conversations: conversations || [] }),
 
-    setMessages: (msgs) => set({ messages: msgs }),
+    addConversation: (newConversation) =>
+        set((state) => {
+            const alreadyExists = state.conversations.some((conversation) => {
+                if (
+                    newConversation._id &&
+                    conversation._id === newConversation._id
+                ) {
+                    return true;
+                }
 
-    addMessage: (msg) =>
-        set((state) => ({ messages: [...state.messages, msg] })),
+                return (
+                    conversation.participants?.includes(
+                        newConversation.participants?.[0],
+                    ) &&
+                    conversation.participants?.includes(
+                        newConversation.participants?.[1],
+                    )
+                );
+            });
 
-    setSelectedUser: (user) => set({ selectedUser: user }),
+            if (alreadyExists) return state;
+
+            return {
+                conversations: [newConversation, ...state.conversations],
+            };
+        }),
+
+    setSelectedUserId: (id) => set({ selectedUserId: id }),
+
+    setMessages: (messages) => set({ messages: messages || [] }),
+
+    addMessage: (message) =>
+        set((state) => {
+            const selectedUserId = get().selectedUserId;
+
+            const shouldShowInCurrentChat =
+                selectedUserId &&
+                (selectedUserId === message.sender ||
+                    selectedUserId === message.receiver);
+
+            if (!shouldShowInCurrentChat) {
+                return state;
+            }
+
+            return {
+                messages: [...state.messages, message],
+            };
+        }),
+
+    updateConversationLastMessage: (message) =>
+        set((state) => {
+            const conversationIndex = state.conversations.findIndex(
+                (conversation) =>
+                    conversation._id === message.conversation ||
+                    (conversation.participants?.includes(message.sender) &&
+                        conversation.participants?.includes(message.receiver)),
+            );
+
+            if (conversationIndex === -1) {
+                const newConversation = {
+                    _id: message.conversation,
+                    participants: [message.sender, message.receiver],
+                    lastMessage: message,
+                };
+
+                return {
+                    conversations: [newConversation, ...state.conversations],
+                };
+            }
+
+            const updatedConversation = {
+                ...state.conversations[conversationIndex],
+                _id:
+                    message.conversation ||
+                    state.conversations[conversationIndex]._id,
+                lastMessage: message,
+            };
+
+            const rest = state.conversations.filter(
+                (_, index) => index !== conversationIndex,
+            );
+
+            return {
+                conversations: [updatedConversation, ...rest],
+            };
+        }),
 
     setTyping: (userId, value) =>
         set((state) => ({
             typingUsers: { ...state.typingUsers, [userId]: value },
         })),
+
+    setUsers: (users) => set({ users: users || {} }),
+
+    addUser: (user) =>
+        set((state) => ({
+            users: { ...state.users, [user._id]: user },
+        })),
+
+    setUserStatus: (userId, isOnline) =>
+        set((state) => ({
+            users: {
+                ...state.users,
+                [userId]: {
+                    ...state.users[userId],
+                    isOnline,
+                    lastSeen: isOnline
+                        ? state.users[userId]?.lastSeen
+                        : new Date().toISOString(),
+                },
+            },
+        })),
 }));
+
 export default useChatStore;

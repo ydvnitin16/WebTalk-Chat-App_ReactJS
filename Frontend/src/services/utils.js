@@ -42,3 +42,32 @@ export function getLastMessage(messages, user, currentUser) {
     const createdAt = messageObj?.createdAt;
     return { lastMessage, sendedByYou, createdAt };
 }
+
+// this fucntion will use for extracting the users from the conversations.participants to have a separate users data without duplicacy
+export const normalizeConversations = (conversations) => {
+    const users = {};
+    const normalizedConversations = [];
+
+    for (const conv of conversations) {
+        const participantIds = [];
+
+        for (const user of conv.participants) {
+            users[user._id] = {
+                ...users[user._id],
+                ...user,
+            };
+
+            participantIds.push(user._id);
+        }
+
+        normalizedConversations.push({
+            ...conv,
+            participants: participantIds,
+        });
+    }
+
+    return {
+        users,
+        conversations: normalizedConversations,
+    };
+};

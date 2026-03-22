@@ -5,10 +5,10 @@ import ChatList from "./ChatList";
 import MessageInput from "./MessageInput";
 
 const ChatBox = () => {
-    const { selectedUser } = useChatStore();
+    const { selectedUserId } = useChatStore();
 
     // If no chat is selected
-    if (!selectedUser) {
+    if (!selectedUserId) {
         return (
             <div className='hidden md:flex flex-1 items-center justify-center h-full text-gray-400 bg-white rounded-4xl border-none md:rounded-none md:rounded-r-4xl dark:bg-zinc-900 dark:text-white'>
                 Select a chat to start messaging

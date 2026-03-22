@@ -7,30 +7,31 @@ import useChatStore from "@/stores/useChatStore";
 import { formatDateTime } from "@/services/utils";
 
 const ChatHeader = () => {
-    const { selectedUser, setSelectedUser } = useChatStore();
+    const { selectedUserId, setSelectedUserId, users } = useChatStore();
+    let user = users[selectedUserId];
 
     return (
         <div className='fixed w-full top-0 md:static flex items-center justify-between border-none md:rounded-tr-4xl p-4 shadow-sm dark:bg-zinc-800 md:dark:bg-zinc-900 dark:text-white'>
             <div className='flex items-center gap-3'>
                 <button
-                    onClick={() => setSelectedUser(null)}
+                    onClick={() => setSelectedUserId(null)}
                     className='md:hidden text-black dark:text-white'
                 >
                     <FontAwesomeIcon icon={faArrowLeft} />
                 </button>
                 <img
-                    src={selectedUser?.avatar?.url}
+                    src={user?.avatar?.url}
                     className='w-10 h-10 rounded-full'
                     alt='avatar'
                 />
                 <div>
                     <p className='font-semibold text-gray-800 dark:text-white'>
-                        {selectedUser.name}
+                        {user.name}
                     </p>
                     <p className={`text-xs text-gray-600 dark:text-zinc-200`}>
-                        {selectedUser.isOnline
+                        {user.isOnline
                             ? "online"
-                            : formatDateTime(selectedUser.lastSeen)}
+                            : formatDateTime(user.lastSeen)}
                     </p>
                 </div>
             </div>

@@ -4,18 +4,41 @@ import useChatStore from "@/stores/useChatStore";
 import { useState } from "react";
 
 const useSendMessages = () => {
-    const { addMessage, selectedUser } = useChatStore();
+    const {
+        addMessage,
+        conversations,
+        selectedUserId,
+        setTyping,
+        updateConversationLastMessage,
+    } = useChatStore();
     const { currentUser } = useAuthStore();
 
     const [message, setMessage] = useState("");
 
     function sendMessage() {
         const sender = currentUser?.id;
-        const receiver = selectedUser._id;
-        const content = message;
-        const createdAt = new Date();
+        const receiver = selectedUserId;
+        const content = message.trim();
+
+        if (!sender || !receiver || !content) {
+            return;
+        }
+
+        const createdAt = new Date().toISOString();
+        const tempId = `temp-${Date.now()}`;
+
+        const conversation = conversations.find(
+            (c) =>
+                c.participants.includes(sender) &&
+                c.participants.includes(receiver),
+        );
+
+        const conversationId = conversation?._id;
 
         const messageObj = {
+            _id: tempId,
+            tempId,
+            conversation: conversationId,
             content,
             sender,
             receiver,
@@ -26,9 +49,11 @@ const useSendMessages = () => {
 
         // add to store
         addMessage(messageObj);
+        updateConversationLastMessage(messageObj);
         setMessage("");
+        setTyping(receiver, false);
 
-        socket.emit("message", { content, sender, sendTo: receiver });
+        socket.emit("message", { content, sendTo: receiver });
     }
 
     return { sendMessage, message, setMessage };

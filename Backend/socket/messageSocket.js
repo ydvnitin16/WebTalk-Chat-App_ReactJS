@@ -6,7 +6,7 @@ export const handleMessageSocket = (io, socket) => {
             const senderId = socket.user.id;
 
             // store in db
-            const { message } = await sendMessageService({
+            const { message, conversation } = await sendMessageService({
                 senderId,
                 receiverId: sendTo,
                 content,

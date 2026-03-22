@@ -1,11 +1,13 @@
 import { socket } from "@/lib/socket";
-import { useRef } from "react";
+import { useEffect, useRef } from "react";
 
 const useTyping = (receiverId) => {
     const typingTimeout = useRef(null);
     const isTyping = useRef(false);
 
     const handleTyping = () => {
+        if (!receiverId) return;
+
         if (!isTyping.current) {
             socket.emit("typing", receiverId);
             isTyping.current = true;
@@ -20,6 +22,19 @@ const useTyping = (receiverId) => {
             isTyping.current = false;
         }, 1000);
     };
+
+    useEffect(() => {
+        return () => {
+            if (typingTimeout.current) {
+                clearTimeout(typingTimeout.current);
+            }
+
+            if (receiverId && isTyping.current) {
+                socket.emit("stop-typing", receiverId);
+                isTyping.current = false;
+            }
+        };
+    }, [receiverId]);
 
     return { handleTyping };
 };

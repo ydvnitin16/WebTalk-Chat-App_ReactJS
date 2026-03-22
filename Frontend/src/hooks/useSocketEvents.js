@@ -2,45 +2,53 @@ import { socket } from "@/lib/socket";
 import useChatStore from "@/stores/useChatStore.js";
 import { useEffect } from "react";
 
-export const useSocketEvents = (toast) => {
-    const { addMessage, setTyping, selectedUser, setSelectedUser } =
-        useChatStore();
+export const useSocketEvents = () => {
+    const {
+        addMessage,
+        setTyping,
+        setUserStatus,
+        updateConversationLastMessage,
+    } = useChatStore();
 
     useEffect(() => {
-        socket.on("user-online", (id) => {
-            if (id === selectedUser?._id) {
-                setSelectedUser({ ...selectedUser, isOnline: true });
-            }
-        });
+        const handleUserOnline = (id) => {
+            setUserStatus(id, true);
+        };
 
-        socket.on("user-offline", (id) => {
-            if (id === selectedUser?._id) {
-                setSelectedUser({
-                    ...selectedUser,
-                    isOnline: false,
-                    lastSeen: new Date(),
-                });
-            }
-        });
+        const handleUserOffline = (id) => {
+            setUserStatus(id, false);
+        };
 
-        socket.on("message", (message) => {
+        const handleIncomingMessage = (message) => {
             addMessage(message);
-        });
+            updateConversationLastMessage(message);
+        };
 
-        socket.on("typing", (userId) => {
+        const handleTyping = (userId) => {
             setTyping(userId, true);
-        });
+        };
 
-        socket.on("stop-typing", (userId) => {
+        const handleStopTyping = (userId) => {
             setTyping(userId, false);
-        });
+        };
+
+        socket.on("user-online", handleUserOnline);
+        socket.on("user-offline", handleUserOffline);
+        socket.on("message", handleIncomingMessage);
+        socket.on("typing", handleTyping);
+        socket.on("stop-typing", handleStopTyping);
 
         return () => {
-            socket.off("message");
-            socket.off("online");
-            socket.off("offline");
-            socket.off("typing");
-            socket.off("stop-typing");
+            socket.off("message", handleIncomingMessage);
+            socket.off("user-online", handleUserOnline);
+            socket.off("user-offline", handleUserOffline);
+            socket.off("typing", handleTyping);
+            socket.off("stop-typing", handleStopTyping);
         };
-    }, [addMessage, setTyping, selectedUser, setSelectedUser]);
+    }, [
+        addMessage,
+        setTyping,
+        setUserStatus,
+        updateConversationLastMessage,
+    ]);
 };

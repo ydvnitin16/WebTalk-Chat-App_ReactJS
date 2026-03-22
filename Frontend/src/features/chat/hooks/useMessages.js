@@ -1,25 +1,34 @@
 import { useEffect } from "react";
 import { fetchMessages } from "../services/chat.api";
 import useChatStore from "@/stores/useChatStore";
+import useAuthStore from "@/stores/useAuthStore";
 
 export const useMessages = () => {
-    const { conversations, selectedUser, setMessages } = useChatStore();
+    const { conversations, selectedUserId, setMessages } = useChatStore();
+    const { currentUser } = useAuthStore();
 
     useEffect(() => {
-        if (!selectedUser) return;
+        if (!selectedUserId) {
+            setMessages([]);
+            return;
+        }
 
         const selectedConversation = conversations.find(
             (conversation) =>
-                conversation.participants[0]._id === selectedUser._id ||
-                conversation.participants[1]._id === selectedUser._id,
+                conversation.participants?.includes(selectedUserId) &&
+                conversation.participants?.includes(currentUser?.id),
         );
+
+        if (!selectedConversation?._id) {
+            setMessages([]);
+            return;
+        }
 
         const load = async () => {
             const data = await fetchMessages(selectedConversation._id);
-            console.log(data);
             setMessages(data.messages);
         };
 
         load();
-    }, [selectedUser]);
+    }, [conversations, currentUser?.id, selectedUserId, setMessages]);
 };
