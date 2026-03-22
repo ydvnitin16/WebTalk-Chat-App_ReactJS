@@ -1,12 +1,7 @@
+import { formatDateTime } from "@/services/utils";
 import React from "react";
 
-const ConversationCard = ({
-    user,
-    isSelected,
-    onClick,
-    lastMessage,
-    lastMessageTime,
-}) => {
+const ConversationCard = ({ user, isSelected, onClick, lastMessage }) => {
     return (
         <div
             className={`flex items-center gap-3 p-2 rounded-lg cursor-pointer hover:bg-gray-100 dark:hover:bg-zinc-900 ${
@@ -33,13 +28,15 @@ const ConversationCard = ({
                 </p>
 
                 <p className='text-xs text-gray-500 truncate dark:text-gray-300'>
-                    {lastMessage ? lastMessage : "Start a new chat"}
+                    {lastMessage ? lastMessage.content : "Start a new chat"}
                 </p>
             </div>
 
             {/* Time */}
-            {lastMessageTime && (
-                <span className='text-xs text-gray-400'>{lastMessageTime}</span>
+            {lastMessage && (
+                <span className='text-xs text-gray-400'>
+                    {formatDateTime(lastMessage.createdAt)}
+                </span>
             )}
         </div>
     );

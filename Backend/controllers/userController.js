@@ -105,12 +105,12 @@ const getUserByUsername = async (req, res) => {
     try {
         const { username } = req.query;
 
-        const user = await getUserByUsernameService(username);
-        if (!user) {
+        const users = await getUserByUsernameService(username);
+        if (!users) {
             res.status(404).json({ success: false, message: "User not found" });
             return;
         }
-        res.status(200).json({ success: true, user });
+        res.status(200).json({ success: true, users });
     } catch (error) {
         res.status(500).json({
             message: "Server error. Please try again later.",

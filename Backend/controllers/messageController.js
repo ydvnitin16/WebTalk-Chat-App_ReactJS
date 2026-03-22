@@ -1,16 +1,13 @@
-import Message from '../models/message.js';
-
+import { getMessagesService } from "../services/messageService.js";
 
 export const getMessages = async (req, res) => {
     try {
-        const messages = await Message.find({
-            $or: [{ sender: req.user.id }, { receiver: req.user.id }],
-        });
-        res.status(200).json({ messages });
+        const { conversationId } = req.params;
+        const messages = await getMessagesService(conversationId);
+        res.status(200).json({ success: true, messages });
     } catch (error) {
-        console.log(`Failed to Fetch Message From DB`);
-        res.status(500).json({ message: 'Failed to fetch messages' });
+        res.status(500).json({
+            message: error.message || "Failed to fetch messages",
+        });
     }
 };
-
-

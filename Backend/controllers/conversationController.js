@@ -8,7 +8,7 @@ export const getUserConversations = async (req, res) => {
 
         res.status(200).json({
             success: true,
-            data: conversations,
+            conversations,
         });
     } catch (error) {
         res.status(500).json({

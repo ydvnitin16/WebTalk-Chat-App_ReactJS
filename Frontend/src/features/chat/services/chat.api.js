@@ -8,8 +8,8 @@ export const fetchConversations = async () => {
     return res.json();
 };
 
-export const fetchMessages = async (selectedUser) => {
-    const res = await fetch(`${BASE_URL}/messages`, {
+export const fetchMessages = async (conversationId) => {
+    const res = await fetch(`${BASE_URL}/messages/${conversationId}`, {
         method: "GET",
         credentials: "include",
     });

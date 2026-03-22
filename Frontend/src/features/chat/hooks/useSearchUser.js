@@ -4,30 +4,37 @@ import { searchUserByUsername } from "../services/user.api";
 const useSearchUser = () => {
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState(null);
-    const [user, setUser] = useState();
+    const [users, setUsers] = useState();
     const [searchUsername, setSearchUsername] = useState("");
 
     useEffect(() => {
-        const searchUser = async () => {
+        if (!searchUsername.trim()) {
+            setUsers(null);
+            setError(null);
+            setLoading(false);
+            return;
+        }
+
+        const searchUsers = async () => {
             try {
                 setLoading(true);
                 setError(null);
                 const data = await searchUserByUsername(searchUsername);
-                console.log(data.user);
-                setUser(data.user);
+                console.log(data.users);
+                setUsers(data.users);
             } catch (err) {
                 console.log(err.message);
                 setError(err.message);
-                setUser(null)
+                setUsers(null)
                 return null;
             } finally {
                 setLoading(false);
             }
         };
-        searchUser();
+        searchUsers();
     }, [searchUsername]);
 
-    return { searchUsername, setSearchUsername, user, loading, error };
+    return { searchUsername, setSearchUsername, users, loading, error };
 };
 
 export default useSearchUser;

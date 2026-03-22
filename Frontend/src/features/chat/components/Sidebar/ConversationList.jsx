@@ -1,13 +1,39 @@
 import { useChatStore } from "@/stores/useChatStore";
 import React from "react";
+import ConversationCard from "./ConversationCard";
+import useAuthStore from "@/stores/useAuthStore";
 
-const ChatList = () => {
+const ConversationList = () => {
     const { conversations, selectedUser, setSelectedUser } = useChatStore();
+    const { currentUser } = useAuthStore();
 
     return (
         <div className='space-y-2 p-2 h-screen'>
-            {conversations.map((conversation) => (
-                <div
+            {conversations?.map((conversation) => {
+                // extract user from participants array
+                const conversationWith =
+                    conversation.participants[0]._id === currentUser.id
+                        ? conversation.participants[1]
+                        : conversation.participants[0];
+
+                return (
+                    <ConversationCard
+                        key={conversation._id}
+                        user={conversationWith}
+                        onClick={() => setSelectedUser(conversationWith)}
+                        isSelected={selectedUser?._id === conversationWith._id}
+                        lastMessage={conversation.lastMessage}
+                    />
+                );
+            })}
+        </div>
+    );
+};
+
+export default ConversationList;
+
+{
+    /* <div
                     key={conversation._id}
                     className={`flex items-center gap-3 p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-zinc-900 cursor-pointer ${
                         selectedUser?.name === user.name
@@ -66,10 +92,5 @@ const ChatList = () => {
                                 : "";
                         })()}
                     </span>
-                </div>
-            ))}
-        </div>
-    );
-};
-
-export default ChatList;
+                </div> */
+}

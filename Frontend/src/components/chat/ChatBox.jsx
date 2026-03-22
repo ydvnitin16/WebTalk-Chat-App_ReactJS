@@ -1,7 +1,7 @@
 import React, { useEffect, useRef, useState } from "react";
-import ChatHeader from "./ChatHeader.jsx";
-import MessageInput from "./MessageInput.jsx";
-import ChatBubble from "./ChatBubble.jsx";
+import ChatHeader from "../../features/chat/components/ChatArea/ChatHeader.jsx";
+import MessageInput from "../../features/chat/components/ChatArea/MessageInput.jsx";
+import ChatBubble from "../../features/chat/components/ChatArea/ChatBubble.jsx";
 import { sendMessage } from "../../services/useSocketEvents.js";
 import { UseSelectedUserStore } from "../../stores/UseSelectedUserStore.jsx";
 import { UseMessagesStore } from "../../stores/UseMessagesStore.jsx";

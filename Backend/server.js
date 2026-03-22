@@ -10,9 +10,9 @@ import { Server } from "socket.io";
 import cookie from "cookie";
 import cookieParser from "cookie-parser";
 import jwt from "jsonwebtoken";
-import { updateStatus } from "./controllers/socketController.js";
 import { handleMessageSocket } from "./socket/messageSocket.js";
 import { handleCallSocket } from "./socket/callSocket.js";
+import { updateUserOnlineStatus } from "./services/userService.js";
 
 const app = express();
 dotenv.config();
@@ -63,8 +63,8 @@ io.on("connect", (socket) => {
     // Join own room and update status
     socket.join(userId);
 
-    // updateStatus(userId, "online");
-    io.emit("online", userId);
+    updateUserOnlineStatus(userId, true);
+    io.emit("user-online", userId);
 
     // Message Socket Handler
     handleMessageSocket(io, socket);
@@ -74,14 +74,14 @@ io.on("connect", (socket) => {
 
     // On Disconnect update status
     socket.on("disconnect", () => {
-        io.emit("offline", userId);
-        // updateStatus(userId, "offline");
+        io.emit("user-offline", userId);
+        updateUserOnlineStatus(userId, false);
     });
 });
 
 // Routes
 app.use("/", userRoutes);
-app.use("/messages", messageRoutes);
+app.use("/", messageRoutes);
 app.use("/", conversationRoutes);
 
 const PORT = process.env.PORT || 3000;
