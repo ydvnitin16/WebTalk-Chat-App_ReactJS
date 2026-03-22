@@ -3,7 +3,7 @@ import { faPhone } from "@fortawesome/free-solid-svg-icons";
 import { faVideo } from "@fortawesome/free-solid-svg-icons";
 import { faEllipsisVertical } from "@fortawesome/free-solid-svg-icons";
 import { faArrowLeft } from "@fortawesome/free-solid-svg-icons";
-import { useChatStore } from "@/stores/useChatStore";
+import useChatStore from "@/stores/useChatStore";
 import { formatDateTime } from "@/services/utils";
 
 const ChatHeader = () => {

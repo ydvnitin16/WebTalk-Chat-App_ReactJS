@@ -1,6 +1,6 @@
 import { useEffect } from "react";
 import { fetchMessages } from "../services/chat.api";
-import { useChatStore } from "@/stores/useChatStore";
+import useChatStore from "@/stores/useChatStore";
 
 export const useMessages = () => {
     const { conversations, selectedUser, setMessages } = useChatStore();
@@ -13,10 +13,10 @@ export const useMessages = () => {
                 conversation.participants[0]._id === selectedUser._id ||
                 conversation.participants[1]._id === selectedUser._id,
         );
-        
+
         const load = async () => {
             const data = await fetchMessages(selectedConversation._id);
-            console.log(data)
+            console.log(data);
             setMessages(data.messages);
         };
 

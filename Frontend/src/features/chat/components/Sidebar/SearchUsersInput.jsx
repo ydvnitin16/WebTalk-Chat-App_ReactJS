@@ -1,7 +1,7 @@
 import React, { useRef, useState } from "react";
 import useSearchUser from "../../hooks/useSearchUser";
 import ConversationCard from "./ConversationCard";
-import { useChatStore } from "@/stores/useChatStore";
+import useChatStore from "@/stores/useChatStore";
 
 const SearchUsersInput = () => {
     const { searchUsername, setSearchUsername, users, loading, error } =

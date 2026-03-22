@@ -2,7 +2,7 @@ import React, { useEffect, useRef } from "react";
 import { SendHorizonal } from "lucide-react";
 import useSendMessages from "../../hooks/useSendMessages.js";
 import useTyping from "../../hooks/useTyping.js";
-import { useChatStore } from "@/stores/useChatStore.js";
+import useChatStore from "@/stores/useChatStore.js";
 
 const MessageInput = () => {
     const { message, setMessage, sendMessage } = useSendMessages();

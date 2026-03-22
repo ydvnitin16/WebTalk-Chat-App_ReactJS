@@ -1,4 +1,4 @@
-import { useChatStore } from "@/stores/useChatStore";
+import useChatStore from "@/stores/useChatStore";
 import React from "react";
 import ChatHeader from "./ChatHeader";
 import ChatList from "./ChatList";

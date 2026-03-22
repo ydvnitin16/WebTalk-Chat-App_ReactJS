@@ -1,10 +1,11 @@
 import { create } from "zustand";
 
-export const useChatStore = create((set) => ({
+const useChatStore = create((set) => ({
     conversations: [],
     messages: [],
     selectedUser: null,
     typingUsers: {},
+    users: [],
 
     setConversations: (data) => set({ conversations: data }),
 
@@ -20,3 +21,4 @@ export const useChatStore = create((set) => ({
             typingUsers: { ...state.typingUsers, [userId]: value },
         })),
 }));
+export default useChatStore;

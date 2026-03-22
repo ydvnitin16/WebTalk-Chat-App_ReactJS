@@ -1,6 +1,6 @@
 import { useEffect } from "react";
 import { fetchConversations } from "../services/chat.api";
-import { useChatStore } from "@/stores/useChatStore";
+import useChatStore from "@/stores/useChatStore";
 
 export const useConversations = () => {
     const { setConversations } = useChatStore();

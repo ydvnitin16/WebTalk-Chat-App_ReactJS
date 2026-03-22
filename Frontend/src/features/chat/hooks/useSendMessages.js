@@ -1,6 +1,6 @@
 import { socket } from "@/lib/socket";
 import useAuthStore from "@/stores/useAuthStore";
-import { useChatStore } from "@/stores/useChatStore";
+import useChatStore from "@/stores/useChatStore";
 import { useState } from "react";
 
 const useSendMessages = () => {

@@ -1,4 +1,4 @@
-import { useChatStore } from "@/stores/useChatStore";
+import useChatStore from "@/stores/useChatStore";
 import React from "react";
 import ConversationCard from "./ConversationCard";
 import useAuthStore from "@/stores/useAuthStore";

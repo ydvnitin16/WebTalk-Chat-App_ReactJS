@@ -1,5 +1,5 @@
 import { socket } from "@/lib/socket";
-import { useChatStore } from "@/stores/useChatStore.js";
+import useChatStore from "@/stores/useChatStore.js";
 import { useEffect } from "react";
 
 export const useSocketEvents = (toast) => {
