@@ -16,13 +16,24 @@ const useCall = () => {
     const { currentUser } = useAuthStore();
     const { conversations, users } = useChatStore();
 
-    // const turnUrls = (import.meta.env.VITE_TURN_URLS || "")
-    //     .split(",")
-    //     .map((url) => url.trim())
-    //     .filter(Boolean);
+    const turnUrls = (import.meta.env.VITE_TURN_URLS || "")
+        .split(",")
+        .map((url) => url.trim())
+        .filter(Boolean);
 
     const servers = {
-        iceServers: [{ urls: "stun:stun.l.google.com:19302" }],
+        iceServers: [
+            { urls: "stun:stun.l.google.com:19302" },
+            ...(turnUrls.length
+                ? [
+                      {
+                          urls: turnUrls,
+                          username: import.meta.env.VITE_TURN_USERNAME,
+                          credential: import.meta.env.VITE_TURN_CREDENTIAL,
+                      },
+                  ]
+                : []),
+        ],
     };
 
     const syncVideoElements = () => {
