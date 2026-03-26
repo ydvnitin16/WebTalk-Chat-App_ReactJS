@@ -1,58 +1,42 @@
 import React, { useState } from "react";
-import useAuthStore from "../../../../stores/useAuthStore";
-import { logoutUser } from "../../../auth/services/auth.api.js";
 import ConfirmModal from "../../../../components/ui/ConfirmModal.jsx";
-import toast from "react-hot-toast";
-import { useNavigate } from "react-router-dom";
-import { socket } from "../../../../lib/socket";
+import { MessageCircle, Send } from "lucide-react";
 
-const SidebarHeader = () => {
-    const { clearAuth } = useAuthStore();
-    const navigate = useNavigate();
-
-    async function handleLogout() {
-        const res = await logoutUser();
-        const data = await res.json();
-        setConfirmModal(false);
-        clearAuth();
-        navigate("/login");
-        toast.success(data.message);
-        socket.disconnect();
-    }
-
-    const currentUser = useAuthStore((state) => state.currentUser);
-    const [confirmModal, setConfirmModal] = useState(false);
-
+const SidebarHeader = ({ user, handleLogout }) => {
+    const [logoutModal, setLogoutModal] = useState(false);
     const [showDropdown, setShowDropdown] = useState(false);
+
     return (
         <>
+            {/* Logout MOdal */}
             <ConfirmModal
-                isOpen={confirmModal}
-                onClose={() => setConfirmModal(false)}
+                isOpen={logoutModal}
+                onClose={() => setLogoutModal(false)}
                 onConfirm={handleLogout}
-                title='"Confirm Logout"'
+                title='Confirm Logout'
                 description='Are you sure you want to logout?'
+                actionTitle={"Yes, Logout"}
             />
+
             <div className='flex justify-between items-center p-3 bg-white mx-1 dark:bg-zinc-900 dark:text-white'>
-                <h1 className='text-xl font-bold'>Chats</h1>
+                <h1 className='flex gap-2 items-center text-xl font-bold'>
+                    <MessageCircle /> ChatX
+                </h1>
                 <div className='relative'>
                     <img
-                        src={currentUser?.picUrl}
-                        alt='user'
+                        src={user?.avatar}
+                        alt={user?.name}
                         className='w-10 h-10 rounded-full cursor-pointer'
                         onClick={() => setShowDropdown(!showDropdown)}
                     />
                     {showDropdown && (
-                        <div className='absolute right-0 mt-2 w-48 bg-white border rounded-lg shadow z-50 dark:bg-zinc-900'>
+                        <div className='absolute right-0 mt-2 w-48 bg-white border border-zinc-300 dark:border-zinc-700 rounded-lg shadow z-50 dark:bg-zinc-900'>
                             <ul className='text-sm'>
                                 <li className='p-2 hover:bg-zinc-600 rounded-lg cursor-pointer'>
                                     Go To Profile
                                 </li>
-                                <li className='p-2 hover:bg-zinc-600 rounded-lg cursor-pointer'>
-                                    Invite User
-                                </li>
                                 <li
-                                    onClick={() => setConfirmModal(true)}
+                                    onClick={() => setLogoutModal(true)}
                                     className='p-2 hover:bg-zinc-600 rounded-lg cursor-pointer'
                                 >
                                     Logout

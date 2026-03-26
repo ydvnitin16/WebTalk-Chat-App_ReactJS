@@ -30,8 +30,13 @@ export const signupUser = async (data) => {
 };
 
 export async function logoutUser() {
-    return await fetch(`${BASE_URL}/logout`, {
+    const res = await fetch(`${BASE_URL}/logout`, {
         method: "DELETE",
         credentials: "include",
     });
+    const data = await res.json();
+    if (!res.ok) {
+        throw new Error(data.message || "Logout failed");
+    }
+    return data;
 }

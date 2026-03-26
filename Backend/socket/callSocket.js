@@ -1,41 +1,50 @@
-import { createCallService, updateCallStatus } from "../services/callService.js";
+import {
+    createCallService,
+    updateCallStatus,
+} from "../services/callService.js";
 
 export const handleCallSocket = async (io, socket) => {
     try {
-        socket.on("offer", async ({ to, offer }) => {
+        socket.on("outgoing-call", async ({ to, offer, callObj }) => {
             const callerId = socket.user.id;
 
-            console.log("Offer", offer, "caller:", callerId, "callie", to);
-
             // Create Call in DB
-            const call = await createCallService({
-                caller: callerId,
-                receiver: to,
-                type: "video",
-            });
+            // const call = await createCallService({
+            //     caller: callerId,
+            //     receiver: to,
+            //     type: "video",
+            // });
 
             // Send offer to receiver
-            io.to(to).emit("offer", {
+            io.to(to).emit("incoming-call", {
                 offer,
-                caller: callerId,
-                callId: call._id,
+                from: callerId,
+                callObj,
             });
         });
 
-        socket.on("answer", async ({ caller, answer, callId }) => {
+        socket.on("call-status", ({ to, status }) => {
+            io.to(to).emit("call-status", { status });
+        });
+
+        socket.on("reject-call", ({ to }) => {
+            io.to(to).emit("reject-call");
+        });
+
+        socket.on("call-accepted", async ({ to, answer }) => {
+            const callerId = socket.user.id;
             // update call as answered
-            await updateCallStatus(callId, {
-                status: "connected",
-                startedAt: new Date(),
-            });
-
-            console.log("Answer", answer, ":Answer");
-            io.to(caller).emit("answer", answer);
+            // await updateCallStatus(callId, {
+            //     status: "connected",
+            //     startedAt: new Date(),
+            // });
+            console.log("call accepted!!");
+            io.to(to).emit("call-accepted", { from: callerId, answer });
         });
 
-        socket.on("ice-candidate", (data) => {
-            console.log("Ice Candidate", data.candidate);
-            io.to(data.room).emit("ice-candidate", data.candidate);
+        socket.on("ice-candidate", ({ to, candidate }) => {
+            // console.log("Ice Candidate", candidate);
+            io.to(to).emit("ice-candidate", { candidate });
         });
 
         // rejected

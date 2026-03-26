@@ -22,10 +22,10 @@ export function formatDateTime(dateString) {
     } else {
         const fullDate = date.toLocaleDateString("en-GB", {
             day: "2-digit",
-            month: "short",
+            month: "numeric",
             year: "numeric",
         });
-        return `${fullDate}, ${time}`;
+        return `${fullDate}`;
     }
 }
 

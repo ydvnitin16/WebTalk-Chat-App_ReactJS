@@ -7,19 +7,10 @@ export const sendMessageService = async ({
     content = "",
     type = "text",
 }) => {
-    console.log(
-        "senderid: ",
-        senderId,
-        "receiverId: ",
-        receiverId,
-        "content: ",
-        content,
-    );
     // check conversation exists or not
     let conversation = await Conversation.findOne({
         participants: { $all: [senderId, receiverId] },
     });
-    console.log("conversation after find : ", conversation);
 
     // create conversation
     if (!conversation) {
@@ -27,7 +18,7 @@ export const sendMessageService = async ({
             participants: [senderId, receiverId],
         });
     }
-    console.log("conversation after creation : ", conversation);
+
     // create message
     const message = await Message.create({
         conversation: conversation._id,
@@ -36,8 +27,8 @@ export const sendMessageService = async ({
         content,
         type,
     });
-    console.log("message after creation : ", message);
 
+    await message.populate("sender receiver", "_id name avatar");
     // update conversation
     conversation.lastMessage = message._id;
     await conversation.save();

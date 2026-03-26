@@ -13,7 +13,7 @@ const IncomingCallModal = ({
             <div className="fixed top-4 left-1/2 transform -translate-x-1/2 z-50 bg-white dark:bg-zinc-900 px-4 py-2 rounded-full shadow-md flex items-center gap-3 border border-zinc-700 w-[70%] sm:max-w-[18rem]">
                 <img
                     src={callerAvatar}
-                    alt="Avatar"
+                    alt="Avatar"z
                     className="w-8 h-8 rounded-full"
                 />
                 <span className="text-sm font-medium text-gray-900 dark:text-white">

@@ -6,7 +6,7 @@ import {
 import Login from "./features/auth/pages/Login";
 import Signup from "./features/auth/pages/Signup";
 import MainLayout from "./layouts/MainLayout";
-import Chat from "./features/chat/pages/Chat";
+import Interface from "./pages/Interface";
 import ProtectedRoute from "@/components/ui/ProtectedRoutes.jsx";
 
 const router = createBrowserRouter(
@@ -16,7 +16,7 @@ const router = createBrowserRouter(
             <Route path='/signup' element={<Signup />}></Route>
             <Route element={<ProtectedRoute />}>
                 <Route path='/' element={<MainLayout />}>
-                    <Route index element={<Chat />} />
+                    <Route index element={<Interface />} />
                 </Route>
             </Route>
         </>,

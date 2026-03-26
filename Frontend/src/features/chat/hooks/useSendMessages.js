@@ -23,7 +23,6 @@ const useSendMessages = () => {
         if (!sender || !receiver || !content) {
             return;
         }
-
         const createdAt = new Date().toISOString();
         const tempId = `temp-${Date.now()}`;
 

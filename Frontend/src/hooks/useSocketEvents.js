@@ -1,4 +1,9 @@
 import { socket } from "@/lib/socket";
+import useCallStore, {
+    currentAnswer,
+    currentOffer,
+    peerConnection,
+} from "@/stores/useCallStore";
 import useChatStore from "@/stores/useChatStore.js";
 import { useEffect } from "react";
 
@@ -8,7 +13,11 @@ export const useSocketEvents = () => {
         setTyping,
         setUserStatus,
         updateConversationLastMessage,
+        users,
+        addUser,
     } = useChatStore();
+
+    const { setCall, updateCallStatus, call } = useCallStore();
 
     useEffect(() => {
         const handleUserOnline = (id) => {
@@ -19,8 +28,17 @@ export const useSocketEvents = () => {
             setUserStatus(id, false);
         };
 
-        const handleIncomingMessage = (message) => {
+        const handleIncomingMessage = ({ message }) => {
             addMessage(message);
+
+            // if conversation is new than sync the user
+            if (!users[message.sender._id]) {
+                addUser(message.sender);
+                setUserStatus(message.sender._id, true);
+            }
+            message.sender = message.sender._id;
+            message.receiver = message.receiver._id;
+
             updateConversationLastMessage(message);
         };
 
@@ -31,6 +49,42 @@ export const useSocketEvents = () => {
         const handleStopTyping = (userId) => {
             setTyping(userId, false);
         };
+
+        const handleIncomingCall = ({ offer, from, callObj }) => {
+            socket.emit("call-status", { to: from, status: "ringing" });
+            currentOffer.current = offer;
+            setCall(callObj);
+        };
+
+        const handleAcceptedCall = async ({ from, answer }) => {
+            socket.emit("call-status", { to: from, status: "connected" });
+            console.log("Call accepted");
+            currentAnswer.current = answer;
+            updateCallStatus("connected");
+
+            await peerConnection.current.setRemoteDescription(answer);
+        };
+
+        const addIceCandidate = async ({ candidate }) => {
+            try {
+                await peerConnection.current?.addIceCandidate(candidate);
+            } catch (err) {
+                console.error("ICE error:", err);
+            }
+        };
+
+        socket.on("incoming-call", handleIncomingCall);
+        socket.on("call-accepted", handleAcceptedCall);
+        socket.on("ice-candidate", addIceCandidate);
+
+        socket.on("call-status", ({ status }) => {
+            console.log(status);
+            updateCallStatus(status);
+        });
+
+        socket.on("reject-call", () => {
+            setCall(null);
+        });
 
         socket.on("user-online", handleUserOnline);
         socket.on("user-offline", handleUserOffline);
@@ -44,11 +98,17 @@ export const useSocketEvents = () => {
             socket.off("user-offline", handleUserOffline);
             socket.off("typing", handleTyping);
             socket.off("stop-typing", handleStopTyping);
+            socket.off("incoming-call", handleIncomingCall);
+            socket.off("call-accepted", handleAcceptedCall);
+            socket.off("ice-candidate", addIceCandidate);
+            socket.off("reject-call");
         };
     }, [
         addMessage,
         setTyping,
         setUserStatus,
         updateConversationLastMessage,
+        users,
+        addUser,
     ]);
 };

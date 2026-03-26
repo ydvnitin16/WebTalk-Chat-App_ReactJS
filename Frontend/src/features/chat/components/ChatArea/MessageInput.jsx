@@ -1,5 +1,5 @@
 import React, { useEffect, useRef } from "react";
-import { SendHorizonal } from "lucide-react";
+import { Paperclip, SendHorizonal } from "lucide-react";
 import useSendMessages from "../../hooks/useSendMessages.js";
 import useTyping from "../../hooks/useTyping.js";
 import useChatStore from "@/stores/useChatStore.js";
@@ -41,14 +41,18 @@ const MessageInput = () => {
                     placeholder='Type your message...'
                     className=' flex-1 bg-transparent  outline-none text-sm md:text-base text-zinc-800 dark:text-zinc-100 placeholder:text-zinc-400 px-2'
                 />
-
+                <Paperclip
+                    className={`${message.trim() ? "translate-x-0" : " translate-x-13"} transition-all duration-300 text-dark dark:text-white cursor-pointer rotate-137`}
+                />
                 {/* Send Button */}
-                <button
-                    type='submit'
-                    className='flex items-center justify-center w-10 h-10 rounded-full bg-blue-600 hover:bg-blue-700 transition cursor-pointer'
-                >
-                    <SendHorizonal className='text-white' size={18} />
-                </button>
+                {
+                    <button
+                        type='submit'
+                        className={` ${message.trim() ? "translate-x-0 opacity-100" : " translate-x-50 opacity-0"} transition-all duration-400 flex items-center justify-center w-10 h-10 rounded-full bg-blue-600 hover:bg-blue-700  cursor-pointer`}
+                    >
+                        <SendHorizonal className='text-white' size={18} />
+                    </button>
+                }
             </div>
         </form>
     );

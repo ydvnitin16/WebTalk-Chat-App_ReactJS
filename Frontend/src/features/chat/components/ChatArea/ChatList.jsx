@@ -24,7 +24,7 @@ const ChatList = () => {
                     [&::-webkit-scrollbar-thumb]:bg-gray-300
                     dark:[&::-webkit-scrollbar-track]:bg-neutral-700
                     dark:[&::-webkit-scrollbar-thumb]:bg-neutral-500
-                    bg-white dark:text-white dark:bg-zinc-900'
+                    bg-white dark:text-white dark:bg-zinc-950'
         >
             {/* Chats appear here */}
 

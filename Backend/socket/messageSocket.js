@@ -14,7 +14,7 @@ export const handleMessageSocket = (io, socket) => {
             });
 
             // send to reciever via socket
-            io.to(sendTo).emit("message", message);
+            io.to(sendTo).emit("message", { message });
         } catch (error) {
             console.log("Message error: ", error.message);
         }

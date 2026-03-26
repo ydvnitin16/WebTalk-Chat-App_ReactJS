@@ -28,7 +28,7 @@ const callSchema = new mongoose.Schema(
 
         status: {
             type: String,
-            enum: ["missed", "rejected", "connected"],
+            enum: ["missed", "rejected", "connected", "completed"],
             default: "missed",
         },
 

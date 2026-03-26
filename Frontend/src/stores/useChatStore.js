@@ -1,5 +1,8 @@
 import { create } from "zustand";
 
+// Currently we have the separate users object we are not getting user populated in conversation or message and if we are getting than we normalise it by keeping only id not avatar and name.
+// So we can keep the user details in the message later
+
 const useChatStore = create((set, get) => ({
     conversations: [],
     messages: [],
@@ -68,18 +71,21 @@ const useChatStore = create((set, get) => ({
                         conversation.participants?.includes(message.receiver)),
             );
 
+            console.log(conversationIndex);
+
             if (conversationIndex === -1) {
+                console.log("Creating conversation");
                 const newConversation = {
                     _id: message.conversation,
                     participants: [message.sender, message.receiver],
                     lastMessage: message,
                 };
-
+                console.log(newConversation);
                 return {
                     conversations: [newConversation, ...state.conversations],
                 };
             }
-
+            console.log("Updating conversation");
             const updatedConversation = {
                 ...state.conversations[conversationIndex],
                 _id:
@@ -110,18 +116,25 @@ const useChatStore = create((set, get) => ({
         })),
 
     setUserStatus: (userId, isOnline) =>
-        set((state) => ({
-            users: {
-                ...state.users,
-                [userId]: {
-                    ...state.users[userId],
-                    isOnline,
-                    lastSeen: isOnline
-                        ? state.users[userId]?.lastSeen
-                        : new Date().toISOString(),
+        set((state) => {
+            const isUserExists = state.users[userId];
+            if (!isUserExists) {
+                return state;
+            }
+
+            return {
+                users: {
+                    ...state.users,
+                    [userId]: {
+                        ...state.users[userId],
+                        isOnline,
+                        lastSeen: isOnline
+                            ? state.users[userId]?.lastSeen
+                            : new Date().toISOString(),
+                    },
                 },
-            },
-        })),
+            };
+        }),
 }));
 
 export default useChatStore;
