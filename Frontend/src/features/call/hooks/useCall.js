@@ -7,17 +7,85 @@ import useCallStore, {
     localVideoRef,
     remoteVideoRef,
     currentOffer,
+    pendingIceCandidates,
 } from "@/stores/useCallStore";
 import useChatStore from "@/stores/useChatStore";
-import React, { useRef } from "react";
 
 const useCall = () => {
     const { setCall, updateCallStatus } = useCallStore();
     const { currentUser } = useAuthStore();
     const { conversations, users } = useChatStore();
 
+    // const turnUrls = (import.meta.env.VITE_TURN_URLS || "")
+    //     .split(",")
+    //     .map((url) => url.trim())
+    //     .filter(Boolean);
+
     const servers = {
         iceServers: [{ urls: "stun:stun.l.google.com:19302" }],
+    };
+
+    const syncVideoElements = () => {
+        if (localVideoRef.current && localStream.current) {
+            localVideoRef.current.srcObject = localStream.current;
+        }
+
+        if (remoteVideoRef.current && remoteStream.current) {
+            remoteVideoRef.current.srcObject = remoteStream.current;
+        }
+    };
+
+    const flushPendingIceCandidates = async () => {
+        if (
+            !peerConnection.current ||
+            !peerConnection.current.remoteDescription
+        ) {
+            return;
+        }
+
+        while (pendingIceCandidates.current.length) {
+            const candidate = pendingIceCandidates.current.shift();
+            try {
+                await peerConnection.current.addIceCandidate(
+                    new RTCIceCandidate(candidate),
+                );
+            } catch (error) {
+                console.error("ICE flush error:", error);
+            }
+        }
+    };
+
+    const createPeerConnection = (to) => {
+        peerConnection.current = new RTCPeerConnection(servers);
+        remoteStream.current = new MediaStream();
+        syncVideoElements();
+
+        peerConnection.current.ontrack = (event) => {
+            const [stream] = event.streams;
+
+            if (stream) {
+                remoteStream.current = stream;
+                syncVideoElements();
+                return;
+            }
+
+            event.track &&
+                !remoteStream.current
+                    .getTracks()
+                    .some((track) => track.id === event.track.id) &&
+                remoteStream.current.addTrack(event.track);
+
+            syncVideoElements();
+        };
+
+        peerConnection.current.onicecandidate = (event) => {
+            if (event.candidate) {
+                socket.emit("ice-candidate", {
+                    to,
+                    candidate: event.candidate.toJSON(),
+                });
+            }
+        };
     };
 
     async function startCall({ callType = "audio", receiverId }) {
@@ -53,38 +121,17 @@ const useCall = () => {
         setCall(callObj);
 
         const to = callObj.receiver._id;
+        pendingIceCandidates.current = [];
         localStream.current = await navigator.mediaDevices.getUserMedia({
             audio: true,
             video: callType === "video",
         });
-        if (callType === "video") {
-            localVideoRef.current.srcObject = localStream.current;
-        }
+        syncVideoElements();
 
-        // Create offer
-        peerConnection.current = new RTCPeerConnection(servers);
-
-        remoteStream.current = new MediaStream();
-        remoteVideoRef.current.srcObject = remoteStream.current;
-
+        createPeerConnection(to);
         localStream.current.getTracks().forEach((track) => {
             peerConnection.current.addTrack(track, localStream.current);
         });
-
-        peerConnection.current.ontrack = (event) => {
-            event.streams[0].getTracks().forEach((track) => {
-                remoteStream.current.addTrack(track);
-            });
-        };
-
-        peerConnection.current.onicecandidate = (event) => {
-            if (event.candidate) {
-                socket.emit("ice-candidate", {
-                    to,
-                    candidate: event.candidate,
-                });
-            }
-        };
         const offer = await peerConnection.current.createOffer();
         await peerConnection.current.setLocalDescription(offer);
 
@@ -106,43 +153,21 @@ const useCall = () => {
         updateCallStatus("connected");
 
         const to = callerId;
+        pendingIceCandidates.current = [];
 
-        peerConnection.current = new RTCPeerConnection(servers);
+        createPeerConnection(to);
 
         // get our medias
         localStream.current = await navigator.mediaDevices.getUserMedia({
-            video: true,
+            video: callType === "video",
             audio: true,
         });
-        if (callType === "video") {
-            localVideoRef.current.srcObject = localStream.current;
-        }
-
-        // get remote stream
-        remoteStream.current = new MediaStream();
-        remoteVideoRef.current.srcObject = remoteStream.current;
+        syncVideoElements();
 
         // Add local tracks
         localStream.current.getTracks().forEach((track) => {
             peerConnection.current.addTrack(track, localStream.current);
         });
-
-        // Receive remote tracks
-        peerConnection.current.ontrack = (event) => {
-            event.streams[0].getTracks().forEach((track) => {
-                remoteStream.current.addTrack(track);
-            });
-        };
-
-        // send ice candidate
-        peerConnection.current.onicecandidate = (event) => {
-            if (event.candidate) {
-                socket.emit("ice-candidate", {
-                    candidate: event.candidate,
-                    to,
-                });
-            }
-        };
 
         if (!offer || !offer.type || !offer.sdp) {
             console.error("Invalid offer:", offer);
@@ -152,6 +177,7 @@ const useCall = () => {
         await peerConnection.current.setRemoteDescription(
             new RTCSessionDescription(offer),
         );
+        await flushPendingIceCandidates();
 
         const answer = await peerConnection.current.createAnswer();
         await peerConnection.current.setLocalDescription(answer);

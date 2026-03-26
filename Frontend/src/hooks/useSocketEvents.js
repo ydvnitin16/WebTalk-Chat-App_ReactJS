@@ -4,6 +4,7 @@ import useCallStore, {
     currentOffer,
     localStream,
     localVideoRef,
+    pendingIceCandidates,
     peerConnection,
     remoteStream,
     remoteVideoRef,
@@ -21,7 +22,7 @@ export const useSocketEvents = () => {
         addUser,
     } = useChatStore();
 
-    const { setCall, updateCallStatus, call } = useCallStore();
+    const { setCall, updateCallStatus } = useCallStore();
 
     useEffect(() => {
         const handleUserOnline = (id) => {
@@ -68,11 +69,28 @@ export const useSocketEvents = () => {
             await peerConnection.current.setRemoteDescription(
                 new RTCSessionDescription(answer),
             );
+
+            while (pendingIceCandidates.current.length) {
+                const candidate = pendingIceCandidates.current.shift();
+                await peerConnection.current.addIceCandidate(
+                    new RTCIceCandidate(candidate),
+                );
+            }
         };
 
         const addIceCandidate = async ({ candidate }) => {
             try {
-                await peerConnection.current?.addIceCandidate(candidate);
+                if (
+                    !peerConnection.current ||
+                    !peerConnection.current.remoteDescription
+                ) {
+                    pendingIceCandidates.current.push(candidate);
+                    return;
+                }
+
+                await peerConnection.current.addIceCandidate(
+                    new RTCIceCandidate(candidate),
+                );
             } catch (err) {
                 console.error("ICE error:", err);
             }
@@ -89,6 +107,7 @@ export const useSocketEvents = () => {
 
         socket.on("reject-call", () => {
             setCall(null);
+            pendingIceCandidates.current = [];
             currentOffer.current =
                 localStream.current =
                 remoteStream.current =
@@ -107,6 +126,7 @@ export const useSocketEvents = () => {
                 remoteVideoRef.current,
                 currentOffer.current,
                 currentAnswer.current,
+                pendingIceCandidates.current,
             );
         });
 

@@ -1,10 +1,25 @@
-import { localVideoRef, remoteVideoRef } from "@/stores/useCallStore";
-import React from "react";
+import {
+    localStream,
+    localVideoRef,
+    remoteStream,
+    remoteVideoRef,
+} from "@/stores/useCallStore";
+import React, { useEffect } from "react";
 import Controls from "./Controls";
 
 const ActiveCallScreen = ({ isCaller, call }) => {
     const user = isCaller ? call.receiver : call.caller;
     console.log(call);
+
+    useEffect(() => {
+        if (localVideoRef.current && localStream.current) {
+            localVideoRef.current.srcObject = localStream.current;
+        }
+
+        if (remoteVideoRef.current && remoteStream.current) {
+            remoteVideoRef.current.srcObject = remoteStream.current;
+        }
+    }, [call]);
 
     return (
         <div className='fixed inset-0 z-50 flex flex-col justify-between bg-white dark:bg-black dark:text-white '>

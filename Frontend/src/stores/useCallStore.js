@@ -7,6 +7,7 @@ export let localVideoRef = { current: null };
 export let remoteVideoRef = { current: null };
 export let currentOffer = { current: null };
 export let currentAnswer = { current: null };
+export let pendingIceCandidates = { current: [] };
 
 const useCallStore = create((set, get) => ({
     call: null,
