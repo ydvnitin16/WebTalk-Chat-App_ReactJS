@@ -11,34 +11,29 @@ import ActiveCallScreen from "./ActiveCallScreen";
 const CallManager = () => {
     const { currentUser } = useAuthStore();
     const { call, setCall } = useCallStore();
-    const { acceptCall } = useCall();
+    const { acceptCall, rejectCall, endCall } = useCall();
 
     if (!call) {
         return null;
     }
-
-    const onCancel = () => {
-        setCall(null);
-        socket.emit("reject-call", { to: call.receiver._id });
-    };
-
-    const onReject = () => {
-        setCall(null);
-        socket.emit("reject-call", { to: call.caller._id });
-    };
 
     if (call.caller._id !== currentUser.id && call.status !== "connected") {
         return (
             <IncomingCallScreen
                 callerName={call.caller.name}
                 callerAvatar={call.caller.avatar}
-                onAccept={acceptCall}
-                onReject={onReject}
+                onAccept={() =>
+                    acceptCall({
+                        offer: currentOffer.current,
+                        callerId: call.caller._id,
+                        callType: call.type,
+                    })
+                }
+                onReject={() => rejectCall({ callerId: call.caller._id })}
             />
         );
     }
 
-    // Remove the media devices and make the complete flow of calling than make the media devices flow.
     return (
         <>
             <ActiveCallScreen

@@ -4,6 +4,7 @@ import Controls from "./Controls";
 
 const ActiveCallScreen = ({ isCaller, call }) => {
     const user = isCaller ? call.receiver : call.caller;
+    console.log(call);
 
     return (
         <div className='fixed inset-0 z-50 flex flex-col justify-between bg-white dark:bg-black dark:text-white '>
@@ -35,13 +36,21 @@ const ActiveCallScreen = ({ isCaller, call }) => {
             </div>
             {call.type === "video" ? (
                 <>
-                    <video ref={remoteVideoRef} autoPlay />
-                    <video ref={localVideoRef} autoPlay muted />
+                    <video
+                        ref={remoteVideoRef}
+                        autoPlay
+                        className='h-40 w-40 border'
+                    />
+                    <video
+                        ref={localVideoRef}
+                        autoPlay
+                        muted
+                        className='h-40 w-40 border'
+                    />
                 </>
             ) : (
                 <>
                     <video ref={remoteVideoRef} autoPlay className='hidden' />
-                    {/* Avatar UI */}
                 </>
             )}
             <Controls />

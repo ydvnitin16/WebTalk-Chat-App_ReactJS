@@ -52,27 +52,27 @@ const IncomingCallScreen = ({
                 </div>
                 <div className='flex gap-2'>
                     <button
-                        onClick={onAccept}
-                        className='flex flex-col items-center gap-1'
-                    >
-                        <div
-                            className='p-3 rounded-full 
-                        bg-green-600 text-white flex items-center justify-center 
-                        shadow-lg hover:bg-emerald-700 active:scale-95 transition'
-                        >
-                            <Phone size={16} />
-                        </div>
-                    </button>
-                    <button
                         onClick={onReject}
                         className='flex flex-col items-center gap-1'
                     >
                         <div
                             className='p-3 rounded-full 
                         bg-red-600 text-white flex items-center justify-center 
-                        shadow-lg hover:bg-red-700 active:scale-95 transition'
+                        shadow-lg hover:opacity-50 active:scale-95 transition cursor-pointer'
                         >
                             <Phone className='rotate-135' size={16} />
+                        </div>
+                    </button>
+                    <button
+                        onClick={onAccept}
+                        className='flex flex-col items-center gap-1'
+                    >
+                        <div
+                            className='p-3 rounded-full 
+                        bg-green-600 text-white flex items-center justify-center 
+                        shadow-lg hover:opacity-50 active:scale-95 transition cursor-pointer'
+                        >
+                            <Phone size={16} />
                         </div>
                     </button>
                 </div>

@@ -6,6 +6,7 @@ import useCallStore, {
     remoteStream,
     localVideoRef,
     remoteVideoRef,
+    currentOffer,
 } from "@/stores/useCallStore";
 import useChatStore from "@/stores/useChatStore";
 import React, { useRef } from "react";
@@ -56,7 +57,9 @@ const useCall = () => {
             audio: true,
             video: callType === "video",
         });
-        localVideoRef.current.srcObject = localStream.current;
+        if (callType === "video") {
+            localVideoRef.current.srcObject = localStream.current;
+        }
 
         // Create offer
         peerConnection.current = new RTCPeerConnection(servers);
@@ -97,7 +100,7 @@ const useCall = () => {
         });
     }
 
-    async function acceptCall({ offer, callerId }) {
+    async function acceptCall({ offer, callerId, callType }) {
         console.log("accpet call fn triggered");
 
         updateCallStatus("connected");
@@ -111,7 +114,9 @@ const useCall = () => {
             video: true,
             audio: true,
         });
-        localVideoRef.current.srcObject = localStream.current;
+        if (callType === "video") {
+            localVideoRef.current.srcObject = localStream.current;
+        }
 
         // get remote stream
         remoteStream.current = new MediaStream();
@@ -139,14 +144,29 @@ const useCall = () => {
             }
         };
 
-        await peerConnection.current.setRemoteDescription(offer);
+        if (!offer || !offer.type || !offer.sdp) {
+            console.error("Invalid offer:", offer);
+            return;
+        }
+
+        await peerConnection.current.setRemoteDescription(
+            new RTCSessionDescription(offer),
+        );
 
         const answer = await peerConnection.current.createAnswer();
         await peerConnection.current.setLocalDescription(answer);
         socket.emit("call-accepted", { to, answer });
     }
 
-    return { startCall, acceptCall };
+    async function rejectCall({ callerId }) {
+        socket.emit("reject-call", { to: callerId });
+        currentOffer.current = null;
+        setCall(null);
+    }
+
+    async function endCall({}) {}
+
+    return { startCall, acceptCall, rejectCall, endCall };
 };
 
 export default useCall;

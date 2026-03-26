@@ -2,7 +2,11 @@ import { socket } from "@/lib/socket";
 import useCallStore, {
     currentAnswer,
     currentOffer,
+    localStream,
+    localVideoRef,
     peerConnection,
+    remoteStream,
+    remoteVideoRef,
 } from "@/stores/useCallStore";
 import useChatStore from "@/stores/useChatStore.js";
 import { useEffect } from "react";
@@ -61,8 +65,9 @@ export const useSocketEvents = () => {
             console.log("Call accepted");
             currentAnswer.current = answer;
             updateCallStatus("connected");
-
-            await peerConnection.current.setRemoteDescription(answer);
+            await peerConnection.current.setRemoteDescription(
+                new RTCSessionDescription(answer),
+            );
         };
 
         const addIceCandidate = async ({ candidate }) => {
@@ -84,6 +89,25 @@ export const useSocketEvents = () => {
 
         socket.on("reject-call", () => {
             setCall(null);
+            currentOffer.current =
+                localStream.current =
+                remoteStream.current =
+                peerConnection.current =
+                localVideoRef.current =
+                remoteVideoRef.current =
+                currentOffer.current =
+                currentAnswer.current =
+                    null;
+            console.log(
+                currentOffer.current,
+                localStream.current,
+                remoteStream.current,
+                peerConnection.current,
+                localVideoRef.current,
+                remoteVideoRef.current,
+                currentOffer.current,
+                currentAnswer.current,
+            );
         });
 
         socket.on("user-online", handleUserOnline);

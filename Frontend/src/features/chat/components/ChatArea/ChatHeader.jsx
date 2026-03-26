@@ -56,7 +56,7 @@ const ChatHeader = () => {
                     variant='outline'
                     onClick={() =>
                         startCall({
-                            callType: "video",
+                            callType: "audio",
                             receiverId: selectedUserId,
                         })
                     }
