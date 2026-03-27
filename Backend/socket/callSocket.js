@@ -15,6 +15,8 @@ export const handleCallSocket = async (io, socket) => {
                 type: callObj.type,
             });
 
+            io.to(callerId).emit("sync-call-id", { callId: call._id });
+
             // Send offer to receiver
             io.to(to).emit("incoming-call", {
                 offer,
