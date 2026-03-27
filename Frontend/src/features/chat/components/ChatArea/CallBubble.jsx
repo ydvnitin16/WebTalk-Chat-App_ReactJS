@@ -50,10 +50,10 @@ const CallBubble = ({
             )}
 
             <div
-                className={`relative flex flex-col rounded-2xl  p-1 pb-0 ${isMine ? "items-end bg-violet-600 text-white dark:bg-violet-500 rounded-br-md rounded-tr-xs" : "items-start bg-zinc-100 text-zinc-800 dark:bg-zinc-800 dark:text-zinc-100 rounded-bl-md"}`}
+                className={`relative flex flex-col rounded-2xl  p-1 pb-0 ${isMine ? "items-end bg-violet-600 text-white dark:bg-violet-500 rounded-br-md rounded-tr-md" : "items-start bg-zinc-100 text-zinc-800 dark:bg-zinc-800 dark:text-zinc-100 rounded-bl-md rounded-tl-md"}`}
             >
                 <div
-                    className={`absolute  h-0 w-0 border-y-[11px] border-y-transparent  ${isMine ? "text-violet-600 dark:text-violet-500 -top-1.5 -right-3 -rotate-30 border-l-[20px]" : "text-zinc-100 dark:text-zinc-800 -top-1.5 -left-3 rotate-30 border-r-[20px]"}`}
+                    className={`absolute  h-0 w-0 border-y-[11px] border-y-transparent  ${isMine ? "text-violet-600 dark:text-violet-500 -top-[7px] -right-3 -rotate-30 border-l-[20px]" : "text-zinc-100 dark:text-zinc-800 -top-[7px] -left-3 rotate-30 border-r-[20px]"}`}
                 />
 
                 <div
