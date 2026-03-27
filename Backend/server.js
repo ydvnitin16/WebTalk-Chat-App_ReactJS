@@ -3,6 +3,7 @@ import connectDB from "./configs/db.js";
 import userRoutes from "./routes/userRoutes.js";
 import messageRoutes from "./routes/messageRoutes.js";
 import conversationRoutes from "./routes/conversationRoutes.js";
+import callRoutes from "./routes/callRoutes.js";
 import cors from "cors";
 import dotenv from "dotenv";
 import { createServer } from "node:http";
@@ -83,6 +84,7 @@ io.on("connect", (socket) => {
 app.use("/", userRoutes);
 app.use("/", messageRoutes);
 app.use("/", conversationRoutes);
+app.use("/", callRoutes);
 
 const PORT = process.env.PORT || 3000;
 server.listen(PORT, () => {

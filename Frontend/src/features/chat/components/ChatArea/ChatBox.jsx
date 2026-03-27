@@ -17,7 +17,7 @@ const ChatBox = () => {
     }
 
     return (
-        <main className='flex flex-col bg-white dark:bg-zinc-900 rounded-2xl md:rounded-none border-none md:rounded-r-4xl flex-1 z-50'>
+        <main className='flex flex-col bg-white dark:bg-zinc-900 rounded-2xl md:rounded-none border-none md:rounded-r-4xl flex-1 z-50 overflow-hidden'>
             <ChatHeader />
             <ChatList />
             <MessageInput />

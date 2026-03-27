@@ -39,6 +39,8 @@ const useCallStore = create((set, get) => ({
 
     callHistory: [],
 
+    setCallHistory: (calls) => set({ callHistory: calls }),
+
     setCall: (callData) => set({ call: callData }),
 
     updateCallStatus: (status) => {

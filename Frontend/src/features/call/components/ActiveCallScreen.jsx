@@ -91,7 +91,7 @@ const ActiveCallScreen = ({ isCaller, call, endCall }) => {
                     </div>
                 )}
 
-                {call.type === "video" && call.status === 'connected' && (
+                {call.type === "video" && call.status === "connected" && (
                     <video
                         ref={localVideoRef}
                         autoPlay

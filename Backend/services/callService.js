@@ -29,8 +29,8 @@ export const createCallService = async ({
         type,
         status: "missed",
     });
-    await call.populate("caller receiver", "_id name avatar")
-    console.log("Call OBJECT: ", call)
+    await call.populate("caller receiver", "_id name avatar");
+    console.log("Call OBJECT: ", call);
     return call;
 };
 
@@ -41,4 +41,24 @@ export const updateCallStatus = async (callId, update) => {
         console.log("Call error: CallId doesn't exists");
     }
     return call;
+};
+
+export const getCallsHistoryService = async (conversationId) => {
+    if (!conversationId) {
+        throw new Error("Conversation ID is required");
+    }
+
+    // 1. Check is conversation exists
+    const conversation = await Conversation.findById(conversationId);
+
+    if (!conversation) {
+        throw new Error("Conversation not found");
+    }
+
+    // 2. Get calls
+    const calls = await Call.find({ conversation: conversationId }).sort({
+        createdAt: 1,
+    });
+    console.log("Calls", calls);
+    return calls;
 };

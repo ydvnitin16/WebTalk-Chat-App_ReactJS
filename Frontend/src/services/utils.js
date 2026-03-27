@@ -72,11 +72,11 @@ export const normalizeConversations = (conversations) => {
     };
 };
 
-export const formatCallDuration = (startTime) => {
-    const now = new Date();
+export const formatCallDuration = (startTime, endTime = null) => {
+    const end = endTime ? new Date(endTime) : new Date();
     const start = new Date(startTime);
 
-    const diffInSeconds = Math.floor((now - start) / 1000);
+    const diffInSeconds = Math.floor((end - start) / 1000);
 
     const hours = Math.floor(diffInSeconds / 3600);
     const minutes = Math.floor((diffInSeconds % 3600) / 60);

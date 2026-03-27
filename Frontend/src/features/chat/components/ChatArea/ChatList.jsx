@@ -3,10 +3,13 @@ import React from "react";
 import ChatBubble from "./ChatBubble";
 import useAuthStore from "@/stores/useAuthStore";
 import TypingIndicator from "./TypingIndicator";
-import { formatDateTime } from "@/services/utils";
+import { formatCallDuration, formatDateTime } from "@/services/utils";
+import useCallStore from "@/stores/useCallStore";
+import CallBubble from "./CallBubble";
 
 const ChatList = () => {
     const { messages, selectedUserId, typingUsers, users } = useChatStore();
+    const { callHistory } = useCallStore();
     const { currentUser } = useAuthStore();
 
     if (!messages) {
@@ -17,7 +20,7 @@ const ChatList = () => {
         <div
             // ref={scrollContainerRef}
             // onScroll={handleScroll}
-            className='flex-1 p-4 space-y-4 overflow-y-auto scroll-smooth [&::-webkit-scrollbar]:w-2 pb-14 md:pb-4
+            className='relative flex-1 p-4 space-y-4 overflow-y-auto scroll-smooth [&::-webkit-scrollbar]:w-2 pb-14 md:pb-4 
                     [&::-webkit-scrollbar-track]:rounded-full
                     [&::-webkit-scrollbar-track]:bg-gray-100
                     [&::-webkit-scrollbar-thumb]:rounded-full
@@ -42,6 +45,19 @@ const ChatList = () => {
                         />
                     );
                 })}
+            {callHistory.length > 0 &&
+                callHistory.map((call) => (
+                    <CallBubble
+                        isMine={call.caller === currentUser.id}
+                        user={currentUser}
+                        time={formatDateTime(call.endedAt)}
+                        type={call.type}
+                        key={call._id}
+                        status={call.status}
+                        duration={formatCallDuration(call.startedAt, call.endedAt)}
+                    />
+                ))}
+
             {typingUsers[selectedUserId] && (
                 <TypingIndicator user={users[selectedUserId]} />
             )}
