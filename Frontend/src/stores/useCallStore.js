@@ -41,10 +41,17 @@ const useCallStore = create((set, get) => ({
 
     setCall: (callData) => set({ call: callData }),
 
-    updateCallStatus: (status) =>
-        set((state) => ({
-            call: { ...state.call, status },
-        })),
+    updateCallStatus: (status) => {
+        if (status === "connected") {
+            set((state) => ({
+                call: { ...state.call, status, startedAt: Date.now() },
+            }));
+        } else {
+            set((state) => ({
+                call: { ...state.call, status },
+            }));
+        }
+    },
 
     clearCall: () =>
         set({

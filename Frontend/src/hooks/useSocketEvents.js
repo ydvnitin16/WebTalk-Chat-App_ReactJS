@@ -96,6 +96,42 @@ export const useSocketEvents = () => {
             }
         };
 
+        const handleCallEnd = () => {
+            if (localStream.current) {
+                localStream.current.getTracks().forEach((track) => {
+                    track.stop();
+                });
+                localStream.current = null;
+            }
+
+            if (remoteStream.current) {
+                remoteStream.current.getTracks().forEach((track) => {
+                    track.stop();
+                });
+                remoteStream.current = null;
+            }
+
+            if (peerConnection.current) {
+                peerConnection.current.close();
+                peerConnection.current = null;
+            }
+
+            if (localVideoRef.current) {
+                localVideoRef.current.srcObject = null;
+            }
+
+            if (remoteVideoRef.current) {
+                remoteVideoRef.current.srcObject = null;
+            }
+
+            pendingIceCandidates.current = [];
+            currentOffer.current = null;
+
+            setCall(null);
+
+            console.log("Call ended cleanly ✅");
+        };
+
         socket.on("incoming-call", handleIncomingCall);
         socket.on("call-accepted", handleAcceptedCall);
         socket.on("ice-candidate", addIceCandidate);
@@ -104,6 +140,7 @@ export const useSocketEvents = () => {
             console.log(status);
             updateCallStatus(status);
         });
+        socket.on("end-active-call", handleCallEnd);
 
         socket.on("reject-call", () => {
             setCall(null);

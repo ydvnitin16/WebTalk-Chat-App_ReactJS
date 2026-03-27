@@ -201,7 +201,45 @@ const useCall = () => {
         setCall(null);
     }
 
-    async function endCall({}) {}
+    async function endCall({ to, callId }) {
+        if (to) {
+            socket.emit("end-active-call", { to, callId });
+        }
+
+        if (localStream.current) {
+            localStream.current.getTracks().forEach((track) => {
+                track.stop();
+            });
+            localStream.current = null;
+        }
+
+        if (remoteStream.current) {
+            remoteStream.current.getTracks().forEach((track) => {
+                track.stop();
+            });
+            remoteStream.current = null;
+        }
+
+        if (peerConnection.current) {
+            peerConnection.current.close();
+            peerConnection.current = null;
+        }
+
+        if (localVideoRef.current) {
+            localVideoRef.current.srcObject = null;
+        }
+
+        if (remoteVideoRef.current) {
+            remoteVideoRef.current.srcObject = null;
+        }
+
+        pendingIceCandidates.current = [];
+        currentOffer.current = null;
+
+        setCall(null);
+
+        console.log("Call ended cleanly ✅");
+    }
 
     return { startCall, acceptCall, rejectCall, endCall };
 };

@@ -17,6 +17,8 @@ const CallManager = () => {
         return null;
     }
 
+    const isCaller = call.caller._id === currentUser.id;
+
     if (call.caller._id !== currentUser.id && call.status !== "connected") {
         return (
             <IncomingCallScreen
@@ -39,9 +41,23 @@ const CallManager = () => {
             <ActiveCallScreen
                 isCaller={call.caller._id === currentUser.id}
                 call={call}
+                endCall={() =>
+                    endCall({
+                        to: isCaller ? call.receiver._id : call.caller._id,
+                        callId: call._id,
+                    })
+                }
             />
         </>
     );
 };
 
 export default CallManager;
+
+// 1. when call is accepted store the date.now() in the started at X Done/
+// 2. implement call end feature X Done/
+// 3. implement mute and speaker feature
+// 4. implement call busy and rejected UI
+// 5. store the call object in the db
+// 6. implement fetch call history
+// 7. show history in the conversation

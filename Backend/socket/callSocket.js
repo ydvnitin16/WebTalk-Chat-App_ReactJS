@@ -57,13 +57,13 @@ export const handleCallSocket = async (io, socket) => {
         });
 
         // Call ended
-        socket.on("end-call", async ({ to, callId }) => {
-            await updateCallStatus(callId, {
-                status: "ended",
-                endedAt: new Date(),
-            });
+        socket.on("end-active-call", async ({ to, callId }) => {
+            // await updateCallStatus(callId, {
+            //     status: "ended",
+            //     endedAt: new Date(),
+            // });
 
-            io.to(to).emit("end-call");
+            io.to(to).emit("end-active-call");
         });
     } catch (error) {}
 };

@@ -7,7 +7,7 @@ import {
     Phone,
 } from "lucide-react";
 
-const Controls = ({ onCancel, speaker, setSpeaker, mic, setMic }) => {
+const Controls = ({ endCall, speaker, setSpeaker, mic, setMic }) => {
     return (
         <div className='py-6 px-4'>
             <div className='flex justify-between items-center max-w-md mx-auto border py-3 px-4 rounded-full bg-zinc-100/80 border-zinc-300 dark:bg-zinc-950/60 dark:border-zinc-800'>
@@ -48,7 +48,7 @@ const Controls = ({ onCancel, speaker, setSpeaker, mic, setMic }) => {
                 </button>
 
                 <button
-                    onClick={onCancel}
+                    onClick={endCall}
                     className='flex flex-col items-center gap-1'
                 >
                     <div
