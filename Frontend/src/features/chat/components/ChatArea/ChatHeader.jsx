@@ -16,7 +16,7 @@ const ChatHeader = () => {
     const { startCall } = useCall();
 
     return (
-        <div className='fixed w-full top-0 md:static flex items-center justify-between border-none md:rounded-tr-4xl px-4 py-3 shadow-sm dark:bg-zinc-900 bg-white dark:text-white'>
+        <div className='fixed w-full top-0 md:static flex items-center justify-between border-none md:rounded-tr-4xl px-4 py-3 shadow-sm dark:backdrop-blur-[2px] dark:bg-black/30 bg-white dark:text-white z-10'>
             <div className='flex items-center gap-3'>
                 <button
                     onClick={() => setSelectedUserId(null)}

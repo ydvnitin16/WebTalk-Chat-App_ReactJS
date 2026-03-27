@@ -35,7 +35,7 @@ const ChatList = () => {
         <div
             // ref={scrollContainerRef}
             // onScroll={handleScroll}
-            className='relative flex-1 p-4 space-y-4 overflow-y-auto overflow-x-hidden scroll-smooth [&::-webkit-scrollbar]:w-2 pb-14 md:pb-4 
+            className='flex-1 p-4 space-y-4 overflow-y-auto overflow-x-hidden scroll-smooth [&::-webkit-scrollbar]:w-2 pb-14 md:pb-4 
                     [&::-webkit-scrollbar-track]:rounded-full
                     [&::-webkit-scrollbar-track]:bg-gray-100
                     [&::-webkit-scrollbar-thumb]:rounded-full
