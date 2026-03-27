@@ -3,6 +3,7 @@ import useSearchUser from "../../hooks/useSearchUser";
 import ConversationCard from "./ConversationCard";
 import useChatStore from "@/stores/useChatStore";
 import useAuthStore from "@/stores/useAuthStore";
+import { Search } from "lucide-react";
 
 const SearchUsersInput = () => {
     const { searchUsername, setSearchUsername, users, loading, error } =
@@ -14,13 +15,16 @@ const SearchUsersInput = () => {
     return (
         <div className='p-2 relative'>
             {/* Search input */}
-            <input
-                type='text'
-                placeholder='Search users by username'
-                value={searchUsername}
-                onChange={(e) => setSearchUsername(e.target.value)}
-                className='w-full px-4 py-2 border border-gray-300 rounded-full text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-zinc-800 dark:border-zinc-700 dark:text-white'
-            />
+            <div className='flex gap-2 items-center w-full px-4 py-2 border border-gray-300 group-focus-within:ring-blue-500 focus:outline-none focus:ring-2  rounded-full dark:bg-zinc-800 dark:border-zinc-700 dark:text-white'>
+                <Search size={22} className='dark:text-zinc-400' />
+                <input
+                    type='text'
+                    placeholder='Search users by username'
+                    value={searchUsername}
+                    onChange={(e) => setSearchUsername(e.target.value)}
+                    className=' text-md w-full focus:outline-none'
+                />
+            </div>
 
             {/* Users dropdown */}
             {searchUsername.length > 0 && (

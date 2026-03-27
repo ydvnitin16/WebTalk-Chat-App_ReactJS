@@ -18,10 +18,10 @@ const SidebarHeader = ({ user, handleLogout }) => {
                 actionTitle={"Yes, Logout"}
             />
 
-            <div className='flex justify-between items-center p-3 bg-white mx-1 dark:bg-zinc-900 dark:text-white'>
+            <div className='flex justify-between items-center px-3 pt-3 pb-1.5 bg-white mx-1 dark:bg-zinc-950 dark:text-white'>
                 <h1 className='flex gap-1 items-center text-xl font-bold'>
                     <div
-                        className='w-10 h-10 dark:bg-white '
+                        className='w-10 h-10 bg-black dark:bg-white '
                         style={{
                             WebkitMaskImage: "url('/sendx-icon-dark.png')",
                             WebkitMaskRepeat: "no-repeat",
