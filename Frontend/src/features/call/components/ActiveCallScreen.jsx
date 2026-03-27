@@ -4,13 +4,15 @@ import {
     remoteStream,
     remoteVideoRef,
 } from "@/stores/useCallStore";
-import React, { useEffect, useState } from "react";
+import React, { useEffect } from "react";
 import Controls from "./Controls";
 import useDurationTimer from "../hooks/useDurationTimer";
 
 const ActiveCallScreen = ({ isCaller, call, endCall }) => {
     const user = isCaller ? call.receiver : call.caller;
     const { duration } = useDurationTimer(call.startedAt);
+
+    console.log(call);
 
     useEffect(() => {
         if (localVideoRef.current && localStream.current) {
@@ -52,7 +54,7 @@ const ActiveCallScreen = ({ isCaller, call, endCall }) => {
                 {(call.type === "audio" || call.status !== "connected") && (
                     <div className='absolute inset-0 flex items-center justify-center z-10'>
                         <img
-                            src={user.avatar}
+                            src={user.avatar?.url || user.avatar}
                             alt='callee'
                             className='w-40 h-40 rounded-full object-cover shadow-2xl'
                         />

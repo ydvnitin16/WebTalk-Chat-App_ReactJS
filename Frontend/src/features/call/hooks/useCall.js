@@ -158,7 +158,7 @@ const useCall = () => {
         });
     }
 
-    async function acceptCall({ offer, callerId, callType }) {
+    async function acceptCall({ offer, callerId, callType, callId }) {
         console.log("accpet call fn triggered");
 
         updateCallStatus("connected");
@@ -192,11 +192,11 @@ const useCall = () => {
 
         const answer = await peerConnection.current.createAnswer();
         await peerConnection.current.setLocalDescription(answer);
-        socket.emit("call-accepted", { to, answer });
+        socket.emit("call-accepted", { to, answer, callId });
     }
 
-    async function rejectCall({ callerId }) {
-        socket.emit("reject-call", { to: callerId });
+    async function rejectCall({ callerId, callId }) {
+        socket.emit("reject-call", { to: callerId, callId });
         currentOffer.current = null;
         setCall(null);
     }

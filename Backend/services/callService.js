@@ -29,7 +29,8 @@ export const createCallService = async ({
         type,
         status: "missed",
     });
-
+    await call.populate("caller receiver", "_id name avatar")
+    console.log("Call OBJECT: ", call)
     return call;
 };
 

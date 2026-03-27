@@ -53,6 +53,9 @@ const useCallStore = create((set, get) => ({
         }
     },
 
+    syncCallId: (callId) =>
+        set((state) => ({ call: { ...state.call, _id: callId } })),
+
     clearCall: () =>
         set({
             call: null,

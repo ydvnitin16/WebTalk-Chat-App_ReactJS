@@ -22,7 +22,7 @@ export const useSocketEvents = () => {
         addUser,
     } = useChatStore();
 
-    const { setCall, updateCallStatus } = useCallStore();
+    const { setCall, updateCallStatus, syncCallId } = useCallStore();
 
     useEffect(() => {
         const handleUserOnline = (id) => {
@@ -55,14 +55,17 @@ export const useSocketEvents = () => {
             setTyping(userId, false);
         };
 
-        const handleIncomingCall = ({ offer, from, callObj }) => {
+        const handleIncomingCall = ({ offer, from, call }) => {
             socket.emit("call-status", { to: from, status: "ringing" });
             currentOffer.current = offer;
-            setCall(callObj);
+            setCall(call);
         };
 
-        const handleAcceptedCall = async ({ from, answer }) => {
+        const handleAcceptedCall = async ({ from, answer, callId }) => {
             socket.emit("call-status", { to: from, status: "connected" });
+            // update the call id in the store here
+
+            syncCallId(callId);
             console.log("Call accepted");
             currentAnswer.current = answer;
             updateCallStatus("connected");

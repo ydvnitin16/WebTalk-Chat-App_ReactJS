@@ -9,59 +9,53 @@ export const handleCallSocket = async (io, socket) => {
             const callerId = socket.user.id;
 
             // Create Call in DB
-            // const call = await createCallService({
-            //     caller: callerId,
-            //     receiver: to,
-            //     type: "video",
-            // });
+            const call = await createCallService({
+                caller: callerId,
+                receiver: to,
+                type: callObj.type,
+            });
 
             // Send offer to receiver
             io.to(to).emit("incoming-call", {
                 offer,
                 from: callerId,
-                callObj,
+                call,
             });
         });
 
-        socket.on("call-status", ({ to, status }) => {
+        socket.on("call-status", async ({ to, status }) => {
             io.to(to).emit("call-status", { status });
         });
 
-        socket.on("reject-call", ({ to }) => {
-            io.to(to).emit("reject-call");
-        });
-
-        socket.on("call-accepted", async ({ to, answer }) => {
-            const callerId = socket.user.id;
-            // update call as answered
-            // await updateCallStatus(callId, {
-            //     status: "connected",
-            //     startedAt: new Date(),
-            // });
-            console.log("call accepted!!");
-            io.to(to).emit("call-accepted", { from: callerId, answer });
-        });
-
-        socket.on("ice-candidate", ({ to, candidate }) => {
-            // console.log("Ice Candidate", candidate);
-            io.to(to).emit("ice-candidate", { candidate });
-        });
-
-        // rejected
-        socket.on("reject", async ({ caller, callId }) => {
+        socket.on("reject-call", async ({ to, callId }) => {
             await updateCallStatus(callId, {
                 status: "rejected",
             });
+            io.to(to).emit("reject-call");
+        });
 
-            io.to(caller).emit("reject");
+        socket.on("call-accepted", async ({ to, answer, callId }) => {
+            const callerId = socket.user.id;
+            // update call as answered
+            await updateCallStatus(callId, {
+                status: "connected",
+                startedAt: new Date(),
+            });
+            console.log("call accepted!!");
+            // send callId because caller has temporaty call id so make the callId in sync
+            io.to(to).emit("call-accepted", { from: callerId, answer, callId });
+        });
+
+        socket.on("ice-candidate", ({ to, candidate }) => {
+            io.to(to).emit("ice-candidate", { candidate });
         });
 
         // Call ended
         socket.on("end-active-call", async ({ to, callId }) => {
-            // await updateCallStatus(callId, {
-            //     status: "ended",
-            //     endedAt: new Date(),
-            // });
+            await updateCallStatus(callId, {
+                status: "completed",
+                endedAt: new Date(),
+            });
 
             io.to(to).emit("end-active-call");
         });
