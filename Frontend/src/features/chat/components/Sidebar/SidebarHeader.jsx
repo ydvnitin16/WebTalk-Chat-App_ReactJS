@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import ConfirmModal from "../../../../components/ui/ConfirmModal.jsx";
-import { MessageCircle, Send } from "lucide-react";
+import { MessageCircle, Send, SendHorizonal } from "lucide-react";
 
 const SidebarHeader = ({ user, handleLogout }) => {
     const [logoutModal, setLogoutModal] = useState(false);
@@ -19,8 +19,19 @@ const SidebarHeader = ({ user, handleLogout }) => {
             />
 
             <div className='flex justify-between items-center p-3 bg-white mx-1 dark:bg-zinc-900 dark:text-white'>
-                <h1 className='flex gap-2 items-center text-xl font-bold'>
-                    <MessageCircle /> ChatX
+                <h1 className='flex gap-1 items-center text-xl font-bold'>
+                    <div
+                        className='w-10 h-10 dark:bg-white '
+                        style={{
+                            WebkitMaskImage: "url('/sendx-icon-dark.png')",
+                            WebkitMaskRepeat: "no-repeat",
+                            WebkitMaskSize: "contain",
+                            maskImage: "url('/sendx-icon-dark.png')",
+                            maskRepeat: "no-repeat",
+                            maskSize: "contain",
+                        }}
+                    />
+                    SendX
                 </h1>
                 <div className='relative'>
                     <img
