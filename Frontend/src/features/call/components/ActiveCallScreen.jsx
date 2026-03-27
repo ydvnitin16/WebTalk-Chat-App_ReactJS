@@ -4,15 +4,45 @@ import {
     remoteStream,
     remoteVideoRef,
 } from "@/stores/useCallStore";
-import React, { useEffect } from "react";
+import React, { useEffect, useRef } from "react";
 import Controls from "./Controls";
 import useDurationTimer from "../hooks/useDurationTimer";
+import ringing from "../../../assets/phone_ring.mp3";
 
 const ActiveCallScreen = ({ isCaller, call, endCall }) => {
     const user = isCaller ? call.receiver : call.caller;
     const { duration } = useDurationTimer(call.startedAt);
 
     console.log(call);
+
+    const audioRef = useRef(null);
+
+    useEffect(() => {
+        const shouldPlay =
+            call.status === "calling" || call.status === "ringing";
+
+        if (!audioRef.current) {
+            const audio = new Audio(ringing);
+            audio.loop = true;
+            audio.volume = 1;
+
+            audioRef.current = audio;
+        }
+        const audio = audioRef.current;
+
+        if (shouldPlay) {
+            audio.play().catch(() => {
+                console.log("Autoplay Blocked");
+            });
+        } else {
+            audio.pause();
+            audio.currentTime = 0;
+        }
+
+        return () => {
+            audio.pause();
+        };
+    }, [call.status]);
 
     useEffect(() => {
         if (localVideoRef.current && localStream.current) {
@@ -25,7 +55,7 @@ const ActiveCallScreen = ({ isCaller, call, endCall }) => {
     }, [call]);
 
     return (
-        <div className='fixed inset-0 z-50 flex flex-col bg-black text-white'>
+        <div className='fixed inset-0 z-50 flex flex-col bg-white dark:bg-black dark:text-white'>
             {/* Name and status always stay fix here */}
             <div className='pt-5 text-center z-20'>
                 <h1 className='text-md font-semibold mt-1'>{user.name}</h1>
@@ -56,17 +86,17 @@ const ActiveCallScreen = ({ isCaller, call, endCall }) => {
                         <img
                             src={user.avatar?.url || user.avatar}
                             alt='callee'
-                            className='w-40 h-40 rounded-full object-cover shadow-2xl'
+                            className='w-52 h-52 rounded-full object-cover shadow-2xl'
                         />
                     </div>
                 )}
 
-                {call.type === "video" && (
+                {call.type === "video" && call.status === 'connected' && (
                     <video
                         ref={localVideoRef}
                         autoPlay
                         muted
-                        className='absolute bottom-24 right-4 w-28 h-40 object-cover rounded-lg border-2 border-white z-20 shadow-lg'
+                        className='absolute bottom-2 right-4 w-28 h-40 object-cover rounded-lg border-2 border-white z-20 shadow-lg'
                     />
                 )}
             </div>

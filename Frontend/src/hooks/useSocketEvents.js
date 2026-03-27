@@ -61,11 +61,14 @@ export const useSocketEvents = () => {
             setCall(call);
         };
 
+        socket.on("sync-call-id", ({ callId }) => {
+            syncCallId(callId);
+        });
+
         const handleAcceptedCall = async ({ from, answer, callId }) => {
             socket.emit("call-status", { to: from, status: "connected" });
             // update the call id in the store here
 
-            syncCallId(callId);
             console.log("Call accepted");
             currentAnswer.current = answer;
             updateCallStatus("connected");
