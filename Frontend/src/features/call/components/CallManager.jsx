@@ -55,6 +55,4 @@ const CallManager = () => {
 export default CallManager;
 
 // 3. implement mute and speaker feature
-// 4. implement call busy and rejected UI
-// 6. implement fetch call history
-// 7. show history in the conversation
+// 4. implement call busy and rejected UI]

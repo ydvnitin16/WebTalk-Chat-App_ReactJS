@@ -6,11 +6,13 @@ import TypingIndicator from "./TypingIndicator";
 import { formatCallDuration, formatDateTime } from "@/services/utils";
 import useCallStore from "@/stores/useCallStore";
 import CallBubble from "./CallBubble";
+import useAutoScroll from "../../hooks/useAutoScroll";
 
 const ChatList = () => {
     const { messages, selectedUserId, typingUsers, users } = useChatStore();
     const { callHistory } = useCallStore();
     const { currentUser } = useAuthStore();
+    const { scrollDownRef } = useAutoScroll();
 
     const chatItems = useMemo(() => {
         return [
@@ -35,7 +37,7 @@ const ChatList = () => {
         <div
             // ref={scrollContainerRef}
             // onScroll={handleScroll}
-            className='flex-1 p-4 space-y-4 overflow-y-auto overflow-x-hidden scroll-smooth [&::-webkit-scrollbar]:w-2 pb-14 md:pb-4 
+            className='flex-1 flex-col-reverse p-3 space-y-4 overflow-y-auto overflow-x-hidden scroll-smooth [&::-webkit-scrollbar]:w-2 py-20 md:pb-2 
                     [&::-webkit-scrollbar-track]:rounded-full
                     [&::-webkit-scrollbar-track]:bg-gray-100
                     [&::-webkit-scrollbar-thumb]:rounded-full
@@ -47,7 +49,14 @@ const ChatList = () => {
             {/* Chats appear here */}
 
             {chatItems.length > 0 &&
-                chatItems.map((item) => {
+                chatItems.map((item, idx) => {
+                    const isSame =
+                        (chatItems[idx]?.data?.sender ||
+                            chatItems[idx]?.data?.caller) ===
+                        (chatItems[idx - 1]?.data?.sender ||
+                            chatItems[idx - 1]?.data?.caller ||
+                            null);
+
                     if (item.type === "message") {
                         return (
                             <ChatBubble
@@ -58,6 +67,7 @@ const ChatList = () => {
                                 type={item.type}
                                 time={formatDateTime(item.data.createdAt)}
                                 status={item.data.status}
+                                isSame={isSame}
                             />
                         );
                     }
@@ -65,7 +75,7 @@ const ChatList = () => {
                         return (
                             <CallBubble
                                 isMine={item.data.caller === currentUser.id}
-                                user={currentUser}
+                                user={users[selectedUserId]}
                                 time={formatDateTime(item.data.endedAt)}
                                 type={item.data.type}
                                 key={item.data._id}
@@ -74,6 +84,7 @@ const ChatList = () => {
                                     item.data.startedAt,
                                     item.data.endedAt,
                                 )}
+                                isSame={isSame}
                             />
                         );
                     }
@@ -82,8 +93,9 @@ const ChatList = () => {
             {typingUsers[selectedUserId] && (
                 <TypingIndicator user={users[selectedUserId]} />
             )}
+
             {/* Scroll anchor */}
-            {/* <div ref={scrollDownRef}></div> */}
+            <div ref={scrollDownRef} />
         </div>
     );
 };

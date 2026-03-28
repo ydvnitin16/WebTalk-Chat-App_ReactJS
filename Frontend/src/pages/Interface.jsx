@@ -14,7 +14,7 @@ const Interface = () => {
 
     return (
         <>
-            <div className='flex flex-col md:flex-row h-screen dark:bg-black md:px-2 font-sans relative'>
+            <div className='flex flex-col md:flex-row h-screen dark:bg-black bg-white md:px-2 font-sans relative'>
                 <Sidebar />
                 <ChatBox />
                 <CallManager />
@@ -47,3 +47,5 @@ export default Interface;
 //             setIsCameraOn((prev) => !prev);
 //         }
 //     };
+
+// 1. App has a bug to fix :- if user calls and reject itself so the socket even end-active-call is triggered which update the call status in the db as completed fix it by adding a condtion if call is not connected and we are rejecting call so dont trigger the db status udpate as completed

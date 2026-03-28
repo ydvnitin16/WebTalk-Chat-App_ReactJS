@@ -1,7 +1,15 @@
 import { Check, CheckCheck } from "lucide-react";
 import React from "react";
 
-const ChatBubble = ({ user, isMine, type, content, time, status = "sent" }) => {
+const ChatBubble = ({
+    user,
+    isMine,
+    type,
+    content,
+    time,
+    status = "sent",
+    isSame,
+}) => {
     const renderStatus = () => {
         if (!isMine) return null;
 
@@ -13,7 +21,7 @@ const ChatBubble = ({ user, isMine, type, content, time, status = "sent" }) => {
 
     return (
         <div
-            className={`flex ${isMine ? "justify-end" : "justify-start"} mb-3`}
+            className={`flex ${isMine ? "justify-end" : "justify-start"} mb-2`}
         >
             {/* Avatar only for opposite user*/}
             {!isMine && (
@@ -25,8 +33,11 @@ const ChatBubble = ({ user, isMine, type, content, time, status = "sent" }) => {
             )}
 
             <div
-                className={`flex flex-col ${isMine ? "items-end" : "items-start"}`}
+                className={`relative flex flex-col ${isMine ? "items-end" : "items-start"}`}
             >
+                {!isSame && <div
+                    className={`absolute  h-0 w-0 border-y-[14px] border-y-transparent  ${isMine ? "text-violet-600 dark:text-violet-500 -top-[8px] -right-3 -rotate-30 border-l-[25px]" : "text-zinc-100 dark:text-zinc-800 -top-[8px] -left-3 rotate-30 border-r-[25px]"}`}
+                />}
                 {/* TEXT MESSAGE */}
                 {type !== "image" && (
                     <div
@@ -35,8 +46,8 @@ const ChatBubble = ({ user, isMine, type, content, time, status = "sent" }) => {
                             shadow-sm
                             ${
                                 isMine
-                                    ? "bg-violet-600 text-white dark:bg-violet-500  rounded-br-md"
-                                    : "bg-zinc-100 text-zinc-800 dark:bg-zinc-800 dark:text-zinc-100  rounded-bl-md"
+                                    ? "bg-violet-600 text-white dark:bg-violet-500  rounded-r-md"
+                                    : "bg-zinc-100 text-zinc-800 dark:bg-zinc-800 dark:text-zinc-100  rounded-l-md"
                             }
                         `}
                     >
