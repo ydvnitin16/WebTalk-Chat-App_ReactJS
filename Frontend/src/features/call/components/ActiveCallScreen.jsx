@@ -78,6 +78,7 @@ const ActiveCallScreen = ({ isCaller, call, endCall }) => {
                 <video
                     ref={remoteVideoRef}
                     autoPlay
+                    playsInline
                     className='absolute inset-0 w-full h-full object-cover z-0'
                 />
 
@@ -95,6 +96,7 @@ const ActiveCallScreen = ({ isCaller, call, endCall }) => {
                     <video
                         ref={localVideoRef}
                         autoPlay
+                        playsInline
                         muted
                         className='absolute bottom-2 right-4 w-28 h-40 object-cover rounded-lg border-2 border-white z-20 shadow-lg'
                     />

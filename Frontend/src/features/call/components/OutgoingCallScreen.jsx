@@ -19,8 +19,19 @@ const OutgoingCallScreen = ({ calleeName, calleeAvatar, onCancel }) => {
                     />
                 </div>
             </div>
-            <video ref={localVideoRef} autoPlay className="h-40 w-40 border" />
-            <video ref={remoteVideoRef} autoPlay className="h-40 w-40 border" />
+            <video
+                ref={localVideoRef}
+                autoPlay
+                playsInline
+                muted
+                className='h-40 w-40 border'
+            />
+            <video
+                ref={remoteVideoRef}
+                autoPlay
+                playsInline
+                className='h-40 w-40 border'
+            />
             <Controls onCancel={onCancel} />
         </div>
     );

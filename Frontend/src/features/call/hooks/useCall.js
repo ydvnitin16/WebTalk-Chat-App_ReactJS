@@ -39,10 +39,23 @@ const useCall = () => {
     const syncVideoElements = () => {
         if (localVideoRef.current && localStream.current) {
             localVideoRef.current.srcObject = localStream.current;
+            localVideoRef.current.muted = true;
+            localVideoRef.current.playsInline = true;
+            localVideoRef.current
+                .play?.()
+                .catch((error) =>
+                    console.warn("Local stream playback blocked:", error),
+                );
         }
 
         if (remoteVideoRef.current && remoteStream.current) {
             remoteVideoRef.current.srcObject = remoteStream.current;
+            remoteVideoRef.current.playsInline = true;
+            remoteVideoRef.current
+                .play?.()
+                .catch((error) =>
+                    console.warn("Remote stream playback blocked:", error),
+                );
         }
     };
 
@@ -97,6 +110,20 @@ const useCall = () => {
                 });
             }
         };
+
+        peerConnection.current.oniceconnectionstatechange = () => {
+            console.log(
+                "ICE connection state:",
+                peerConnection.current?.iceConnectionState,
+            );
+        };
+
+        peerConnection.current.onconnectionstatechange = () => {
+            console.log(
+                "Peer connection state:",
+                peerConnection.current?.connectionState,
+            );
+        };
     };
 
     async function startCall({ callType = "audio", receiverId }) {
@@ -143,7 +170,10 @@ const useCall = () => {
         localStream.current.getTracks().forEach((track) => {
             peerConnection.current.addTrack(track, localStream.current);
         });
-        const offer = await peerConnection.current.createOffer();
+        const offer = await peerConnection.current.createOffer({
+            offerToReceiveAudio: true,
+            offerToReceiveVideo: callType === "video",
+        });
         await peerConnection.current.setLocalDescription(offer);
 
         console.log("Sending the offer: ", {

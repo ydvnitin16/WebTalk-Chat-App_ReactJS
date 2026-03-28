@@ -67,20 +67,31 @@ export const useSocketEvents = () => {
 
         const handleAcceptedCall = async ({ from, answer, callId }) => {
             socket.emit("call-status", { to: from, status: "connected" });
-            // update the call id in the store here
-
-            console.log("Call accepted");
+            syncCallId(callId);
             currentAnswer.current = answer;
             updateCallStatus("connected");
+
+            if (!peerConnection.current || !answer?.type || !answer?.sdp) {
+                console.error("Peer connection or answer missing:", {
+                    hasPeerConnection: !!peerConnection.current,
+                    answer,
+                });
+                return;
+            }
+
             await peerConnection.current.setRemoteDescription(
                 new RTCSessionDescription(answer),
             );
 
             while (pendingIceCandidates.current.length) {
                 const candidate = pendingIceCandidates.current.shift();
-                await peerConnection.current.addIceCandidate(
-                    new RTCIceCandidate(candidate),
-                );
+                try {
+                    await peerConnection.current.addIceCandidate(
+                        new RTCIceCandidate(candidate),
+                    );
+                } catch (error) {
+                    console.error("ICE flush error:", error);
+                }
             }
         };
 
