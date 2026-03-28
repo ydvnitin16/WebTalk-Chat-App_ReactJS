@@ -72,17 +72,18 @@ const ChatList = () => {
                         );
                     }
                     if (item.type === "call") {
+                        console.log(item)
                         return (
                             <CallBubble
                                 isMine={item.data.caller === currentUser.id}
                                 user={users[selectedUserId]}
-                                time={formatDateTime(item.data.endedAt)}
+                                time={formatDateTime(item.data?.endedAt || item.data?.createdAt)}
                                 type={item.data.type}
                                 key={item.data._id}
                                 status={item.data.status}
                                 duration={formatCallDuration(
-                                    item.data.startedAt,
-                                    item.data.endedAt,
+                                    item.data?.startedAt,
+                                    item.data?.endedAt,
                                 )}
                                 isSame={isSame}
                             />

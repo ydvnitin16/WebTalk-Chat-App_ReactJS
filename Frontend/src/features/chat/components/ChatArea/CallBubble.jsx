@@ -14,10 +14,14 @@ const CallBubble = ({
     type = "voice", // "voice" | "video"
     status = "outgoing", // "missed" | "incoming" | "outgoing"
     duration, // "2:14"
-    isSame
+    isSame,
 }) => {
     const getIcon = () => {
-        if (status === "missed" || status === "rejected")
+        if (
+            status === "missed" ||
+            status === "rejected" ||
+            status === "cancelled"
+        )
             return <PhoneMissed size={16} className='text-red-500' />;
         if (status === "completed" && isMine)
             return <PhoneOutgoing size={16} className='text-green-500' />;
@@ -27,13 +31,14 @@ const CallBubble = ({
     };
 
     const getCallLabel = () => {
-        return type === "video" ? "Video call" : "Voice call";
+        return type === "video" ? "Video Call" : "Voice Call";
     };
 
     const getDuration = () => {
-        if (status === "missed") return "Call missed";
-        if (status === "rejected") return "Call rejected";
-        if (status === "connected") return "Active call";
+        if (status === "missed") return "Call Missed";
+        if (status === "rejected") return "Call Rejected";
+        if (status === "connected") return "Active Call";
+        if (status === "cancelled") return "Cancelled";
         if (status === "completed") return duration;
     };
 
@@ -54,9 +59,11 @@ const CallBubble = ({
                 className={`shadow-sm relative flex flex-col rounded-2xl  p-1 pb-0 ${isMine ? "items-end bg-violet-600 text-white dark:bg-violet-500 rounded-br-md rounded-tr-md" : "items-start bg-zinc-100 text-zinc-800 dark:bg-zinc-800 dark:text-zinc-100 rounded-bl-md rounded-tl-md"}`}
             >
                 {/* left-right arrow on top borders */}
-                {!isSame && <div
-                    className={`absolute  h-0 w-0 border-y-[14px] border-y-transparent  ${isMine ? "text-violet-600 dark:text-violet-500 -top-[8px] -right-3 -rotate-30 border-l-[25px]" : "text-zinc-100 dark:text-zinc-800 -top-[8px] -left-3 rotate-30 border-r-[25px]"}`}
-                />}
+                {!isSame && (
+                    <div
+                        className={`absolute  h-0 w-0 border-y-[14px] border-y-transparent  ${isMine ? "text-violet-600 dark:text-violet-500 -top-[8px] -right-3 -rotate-30 border-l-[25px]" : "text-zinc-100 dark:text-zinc-800 -top-[8px] -left-3 rotate-30 border-r-[25px]"}`}
+                    />
+                )}
                 {/* Box to show details */}
                 <div
                     className={`
@@ -71,7 +78,7 @@ const CallBubble = ({
                         {getIcon()}
                     </div>
 
-                    <div className='flex flex-col'>
+                    <div className='flex flex-col gap-0.5'>
                         <span className='text-sm font-medium'>
                             {getCallLabel()}
                         </span>

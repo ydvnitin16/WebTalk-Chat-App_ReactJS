@@ -35,9 +35,11 @@ const ChatBubble = ({
             <div
                 className={`relative flex flex-col ${isMine ? "items-end" : "items-start"}`}
             >
-                {!isSame && <div
-                    className={`absolute  h-0 w-0 border-y-[14px] border-y-transparent  ${isMine ? "text-violet-600 dark:text-violet-500 -top-[8px] -right-3 -rotate-30 border-l-[25px]" : "text-zinc-100 dark:text-zinc-800 -top-[8px] -left-3 rotate-30 border-r-[25px]"}`}
-                />}
+                {!isSame && (
+                    <div
+                        className={`absolute  h-0 w-0 border-y-[14px] border-y-transparent  ${isMine ? "text-violet-600 dark:text-violet-500 -top-[8px] -right-3 -rotate-30 border-l-[25px]" : "text-zinc-100 dark:text-zinc-800 -top-[8px] -left-3 rotate-30 border-r-[25px]"}`}
+                    />
+                )}
                 {/* TEXT MESSAGE */}
                 {type !== "image" && (
                     <div
@@ -52,7 +54,9 @@ const ChatBubble = ({
                         `}
                     >
                         <div className='flex flex-wrap items-end gap-x-2'>
-                            <span className='break-words'>{content}</span>
+                            <span className='break-words text-[15px]'>
+                                {content}
+                            </span>
 
                             <span
                                 className={`
