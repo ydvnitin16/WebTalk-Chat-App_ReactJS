@@ -7,14 +7,14 @@ export const handleCallSocket = async (io, socket) => {
     try {
         socket.on("outgoing-call", async ({ to, offer, callObj }) => {
             const callerId = socket.user.id;
-
+            console.log("call establisng");
             // Create Call in DB
             const call = await createCallService({
                 caller: callerId,
                 receiver: to,
                 type: callObj.type,
             });
-
+            console.log("Call in socket: ", call);
             io.to(callerId).emit("sync-call-id", { callId: call._id });
 
             // Send offer to receiver
@@ -60,6 +60,13 @@ export const handleCallSocket = async (io, socket) => {
             });
 
             io.to(to).emit("end-active-call");
+        });
+
+        socket.on("cancel-call", async ({ to, callId }) => {
+            await updateCallStatus(callId, {
+                status: "cancelled",
+            });
+            io.to(to).emit("cancel-call");
         });
     } catch (error) {}
 };

@@ -171,17 +171,20 @@ export const useSocketEvents = () => {
                 currentOffer.current =
                 currentAnswer.current =
                     null;
-            console.log(
-                currentOffer.current,
-                localStream.current,
-                remoteStream.current,
-                peerConnection.current,
-                localVideoRef.current,
-                remoteVideoRef.current,
-                currentOffer.current,
-                currentAnswer.current,
-                pendingIceCandidates.current,
-            );
+        });
+
+        socket.on("cancel-call", () => {
+            setCall(null);
+            pendingIceCandidates.current = [];
+            currentOffer.current =
+                localStream.current =
+                remoteStream.current =
+                peerConnection.current =
+                localVideoRef.current =
+                remoteVideoRef.current =
+                currentOffer.current =
+                currentAnswer.current =
+                    null;
         });
 
         socket.on("user-online", handleUserOnline);

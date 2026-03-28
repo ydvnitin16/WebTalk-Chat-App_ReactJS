@@ -30,13 +30,14 @@ export const createCallService = async ({
         status: "missed",
     });
     await call.populate("caller receiver", "_id name avatar");
-    console.log("Call OBJECT: ", call);
+  
     return call;
 };
 
 export const updateCallStatus = async (callId, update) => {
     // update call status
     const call = await Call.findByIdAndUpdate(callId, update);
+
     if (!call) {
         console.log("Call error: CallId doesn't exists");
     }

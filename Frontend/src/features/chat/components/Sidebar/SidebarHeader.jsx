@@ -1,6 +1,12 @@
 import React, { useState } from "react";
 import ConfirmModal from "../../../../components/ui/ConfirmModal.jsx";
-import { MessageCircle, Send, SendHorizonal } from "lucide-react";
+import {
+    LogOut,
+    MessageCircle,
+    Send,
+    SendHorizonal,
+    UserRound,
+} from "lucide-react";
 
 const SidebarHeader = ({ user, handleLogout }) => {
     const [logoutModal, setLogoutModal] = useState(false);
@@ -42,15 +48,15 @@ const SidebarHeader = ({ user, handleLogout }) => {
                     />
                     {showDropdown && (
                         <div className='absolute right-0 mt-2 w-48 bg-white border border-zinc-300 dark:border-zinc-700 rounded-lg shadow z-50 dark:bg-zinc-900'>
-                            <ul className='text-sm'>
-                                <li className='p-2 hover:bg-zinc-600 rounded-lg cursor-pointer'>
-                                    Go To Profile
+                            <ul className='text-md p-1'>
+                                <li className='flex gap-2 p-2 hover:bg-zinc-600 rounded-lg cursor-pointer'>
+                                    <UserRound /> Go To Profile
                                 </li>
                                 <li
                                     onClick={() => setLogoutModal(true)}
-                                    className='p-2 hover:bg-zinc-600 rounded-lg cursor-pointer'
+                                    className='flex gap-2 p-2 hover:bg-zinc-600 rounded-lg cursor-pointer'
                                 >
-                                    Logout
+                                    <LogOut /> Logout
                                 </li>
                             </ul>
                         </div>

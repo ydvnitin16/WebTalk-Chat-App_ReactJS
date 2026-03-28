@@ -110,20 +110,6 @@ const useCall = () => {
                 });
             }
         };
-
-        peerConnection.current.oniceconnectionstatechange = () => {
-            console.log(
-                "ICE connection state:",
-                peerConnection.current?.iceConnectionState,
-            );
-        };
-
-        peerConnection.current.onconnectionstatechange = () => {
-            console.log(
-                "Peer connection state:",
-                peerConnection.current?.connectionState,
-            );
-        };
     };
 
     async function startCall({ callType = "audio", receiverId }) {
@@ -170,16 +156,8 @@ const useCall = () => {
         localStream.current.getTracks().forEach((track) => {
             peerConnection.current.addTrack(track, localStream.current);
         });
-        const offer = await peerConnection.current.createOffer({
-            offerToReceiveAudio: true,
-            offerToReceiveVideo: callType === "video",
-        });
+        const offer = await peerConnection.current.createOffer();
         await peerConnection.current.setLocalDescription(offer);
-
-        console.log("Sending the offer: ", {
-            offer,
-            to,
-        });
 
         socket.emit("outgoing-call", {
             offer,
@@ -271,7 +249,13 @@ const useCall = () => {
         console.log("Call ended cleanly ✅");
     }
 
-    return { startCall, acceptCall, rejectCall, endCall };
+    async function cancelCall({ callerId, callId }) {
+        socket.emit("cancel-call", { to: callerId, callId });
+        currentOffer.current = null;
+        setCall(null);
+    }
+
+    return { startCall, acceptCall, rejectCall, endCall, cancelCall };
 };
 
 export default useCall;
