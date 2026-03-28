@@ -8,7 +8,7 @@ import ActiveCallScreen from "./ActiveCallScreen";
 const CallManager = () => {
     const { currentUser } = useAuthStore();
     const { call } = useCallStore();
-    const { acceptCall, rejectCall, endCall } = useCall();
+    const { acceptCall, rejectCall, endCall, cancelCall } = useCall();
 
     if (!call) {
         return null;
@@ -42,10 +42,19 @@ const CallManager = () => {
                 isCaller={call.caller._id === currentUser.id}
                 call={call}
                 endCall={() =>
-                    endCall({
-                        to: isCaller ? call.receiver._id : call.caller._id,
-                        callId: call._id,
-                    })
+                    call.status !== "connected"
+                        ? cancelCall({
+                              to: isCaller
+                                  ? call.receiver._id
+                                  : call.caller._id,
+                              callId: call._id,
+                          })
+                        : endCall({
+                              to: isCaller
+                                  ? call.receiver._id
+                                  : call.caller._id,
+                              callId: call._id,
+                          })
                 }
             />
         </>
