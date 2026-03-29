@@ -11,7 +11,10 @@ import { Server } from "socket.io";
 import cookie from "cookie";
 import cookieParser from "cookie-parser";
 import jwt from "jsonwebtoken";
-import { handleMessageSocket } from "./socket/messageSocket.js";
+import {
+    handleMessageSocket,
+    handleUndeliveredMessages,
+} from "./socket/messageSocket.js";
 import { handleCallSocket } from "./socket/callSocket.js";
 import { updateUserOnlineStatus } from "./services/userService.js";
 
@@ -43,7 +46,6 @@ io.use(async (socket, next) => {
     const authHeader = parsed.authHeader;
 
     if (!authHeader || !authHeader.startsWith("Bearer ")) {
-
         return next(new Error("No authHeader cookie"));
     }
 
@@ -59,11 +61,13 @@ io.use(async (socket, next) => {
 });
 
 // Socket Events
-io.on("connect", (socket) => {
+io.on("connect", async (socket) => {
     const userId = socket.user.id;
 
     // Join own room and update status
     socket.join(userId);
+
+    await handleUndeliveredMessages(io, socket);
 
     updateUserOnlineStatus(userId, true);
     io.emit("user-online", userId);

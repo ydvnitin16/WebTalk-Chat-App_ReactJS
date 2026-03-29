@@ -1,5 +1,4 @@
 import { socket } from "@/lib/socket";
-import useAuthStore from "@/stores/useAuthStore";
 import useCallStore, {
     currentAnswer,
     currentOffer,
@@ -27,30 +26,25 @@ export const useSocketEvents = () => {
     } = useChatStore();
 
     const { setCall, updateCallStatus, syncCallId } = useCallStore();
-    const { currentUser } = useAuthStore();
+
 
     useEffect(() => {
-        socket.emit("messages-delivered");
         if (!selectedUserId) return;
         socket.emit("messages-seen", { senderId: selectedUserId });
 
         return () => {
             socket.off("messages-seen");
         };
-    }, [selectedUserId, currentUser.id]);
+    }, [selectedUserId]);
 
     useEffect(() => {
         const handleUserOnline = (id) => {
             setUserStatus(id, true);
         };
-
         const handleUserOffline = (id) => {
             setUserStatus(id, false);
         };
-
         const handleIncomingMessage = ({ message }) => {
-            console.log("message received");
-
             // if conversation is new than sync the user
             if (!users[message.sender._id]) {
                 addUser(message.sender);
@@ -61,7 +55,12 @@ export const useSocketEvents = () => {
             addMessage(message);
 
             updateConversationLastMessage(message);
-            if (selectedUserId && selectedUserId === message.sender) {
+            console.log(selectedUserId)
+            console.log('selected and sender: ', selectedUserId?.toString(), message.sender?.toString())
+            if (
+                selectedUserId &&
+                selectedUserId?.toString() === message?.sender.toString()
+            ) {
                 socket.emit("message-seen", {
                     messageId: message._id,
                     from: message.sender,
@@ -73,36 +72,39 @@ export const useSocketEvents = () => {
                 });
             }
         };
-
         const handleTyping = (userId) => {
             setTyping(userId, true);
         };
-
         const handleStopTyping = (userId) => {
             setTyping(userId, false);
         };
-
         const handleIncomingCall = ({ offer, from, call }) => {
             socket.emit("call-status", { to: from, status: "ringing" });
             currentOffer.current = offer;
             setCall(call);
         };
-
         socket.on("sync-call-id", ({ callId }) => {
             syncCallId(callId);
+        });
+
+        socket.on("message-sent", ({ messageId, tempId }) => {
+            updateMessageStatus({ tempId, messageId, status: "sent" });
         });
 
         socket.on("message-status-update", ({ messageId, status }) => {
             updateMessageStatus({ messageId, status });
         });
 
-        socket.on("messages-seen", ({ sendTo }) => {
-            console.log("updating seen");
-            updateAllMessagesStatus({ sendTo, status: "seen" });
+        socket.on("messages-seen", ({ sendTo, messageIds }) => {
+            updateAllMessagesStatus({ sendTo, messageIds, status: "seen" });
         });
 
-        socket.on("messages-delivered", ({ sendTo }) => {
-            updateAllMessagesStatus({ sendTo, status: "delivered" });
+        socket.on("messages-delivered", ({ sendTo, messageIds }) => {
+            updateAllMessagesStatus({
+                sendTo,
+                messageIds,
+                status: "delivered",
+            });
         });
 
         const handleAcceptedCall = async ({ from, answer, callId }) => {
@@ -134,7 +136,6 @@ export const useSocketEvents = () => {
                 }
             }
         };
-
         const addIceCandidate = async ({ candidate }) => {
             try {
                 if (
@@ -152,7 +153,6 @@ export const useSocketEvents = () => {
                 console.error("ICE error:", err);
             }
         };
-
         const handleCallEnd = () => {
             if (localStream.current) {
                 localStream.current.getTracks().forEach((track) => {
@@ -187,19 +187,11 @@ export const useSocketEvents = () => {
             setCall(null);
         };
 
-        socket.on("incoming-call", handleIncomingCall);
-        socket.on("call-accepted", handleAcceptedCall);
-        socket.on("ice-candidate", addIceCandidate);
-        socket.on("message-sent", ({ messageId, tempId }) => {
-            updateMessageStatus({ tempId, messageId, status: "sent" });
-        });
-
         socket.on("call-status", ({ status }) => {
-            console.log(status);
+            2;
             updateCallStatus(status);
         });
         socket.on("end-active-call", handleCallEnd);
-
         socket.on("reject-call", () => {
             setCall(null);
             pendingIceCandidates.current = [];
@@ -213,7 +205,6 @@ export const useSocketEvents = () => {
                 currentAnswer.current =
                     null;
         });
-
         socket.on("cancel-call", () => {
             setCall(null);
             pendingIceCandidates.current = [];
@@ -228,6 +219,9 @@ export const useSocketEvents = () => {
                     null;
         });
 
+        socket.on("incoming-call", handleIncomingCall);
+        socket.on("call-accepted", handleAcceptedCall);
+        socket.on("ice-candidate", addIceCandidate);
         socket.on("user-online", handleUserOnline);
         socket.on("user-offline", handleUserOffline);
         socket.on("receive-message", handleIncomingMessage);
@@ -253,5 +247,6 @@ export const useSocketEvents = () => {
         updateConversationLastMessage,
         users,
         addUser,
+        selectedUserId
     ]);
 };

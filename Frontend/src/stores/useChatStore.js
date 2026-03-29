@@ -81,9 +81,9 @@ const useChatStore = create((set, get) => ({
             return { messages: updatedMessageArray };
         }),
 
-    updateAllMessagesStatus: ({ sendTo, status }) =>
+    updateAllMessagesStatus: ({ sendTo, messageIds, status }) =>
         set((state) => {
-            const selectedUserId = get().selectedUserId;
+            const selectedUserId = state.selectedUserId;
 
             const shouldUpdateCurrentMessages =
                 selectedUserId && selectedUserId === sendTo;
@@ -92,12 +92,22 @@ const useChatStore = create((set, get) => ({
                 return state;
             }
 
-            const messages = get().messages;
-            const updatedMessageArray = messages.map((msg) => {
-                return { ...msg, status };
+            const idsSet = new Set(messageIds);
+
+            let hasChanges = false;
+
+            const updatedMessages = state.messages.map((msg) => {
+                if (idsSet.has(msg._id) && msg.status !== status) {
+                    hasChanges = true;
+                    return { ...msg, status };
+                }
+                return msg;
             });
 
-            return { messages: updatedMessageArray };
+            // 🔥 prevent unnecessary state update
+            if (!hasChanges) return state;
+
+            return { messages: updatedMessages };
         }),
 
     updateConversationLastMessage: (message) =>

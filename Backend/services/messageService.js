@@ -52,6 +52,50 @@ export const getMessagesService = async (conversationId) => {
     const messages = await Message.find({ conversation: conversationId }).sort({
         createdAt: 1,
     });
-    
+
     return messages;
+};
+
+export const updateMessageById = async (messageId, update) => {
+    // update call status
+    const message = await Message.findByIdAndUpdate(messageId, update);
+
+    if (!message) {
+        console.log("Message error: message doesn't exists");
+    }
+    return message;
+};
+
+export const updateAllMessagesToSeen = async (sender, receiver) => {
+    const unSeen = await Message.find({
+        sender,
+        receiver,
+        status: { $in: ["seen", "delivered"] },
+    });
+
+    if (!unSeen.length) return;
+
+    const messageIds = unSeen.map((m) => m._id);
+
+    // update all messages status
+    await Message.updateMany({ _id: { $in: messageIds } }, { status: "seen" });
+    return messageIds;
+};
+
+export const updateAllMessagesToDelivered = async (userId) => {
+    const undelivered = await Message.find({
+        receiver: userId,
+        status: "sent",
+    });
+
+    if (!undelivered.length) return;
+
+    const messageIds = undelivered.map((m) => m._id);
+
+    await Message.updateMany(
+        { _id: { $in: messageIds } },
+        { status: "delivered" },
+    );
+
+    return undelivered;
 };
