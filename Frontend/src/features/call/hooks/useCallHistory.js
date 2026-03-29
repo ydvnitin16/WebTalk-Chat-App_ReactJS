@@ -27,10 +27,8 @@ const useCallHistory = () => {
         }
 
         const load = async () => {
-            console.log(selectedConversation);
             const data = await fetchCallsHistory(selectedConversation._id);
             setCallHistory(data.calls);
-            console.log(data);
         };
         load();
     }, [selectedUserId]);

@@ -35,22 +35,17 @@ app.use(cors({ origin: `${process.env.ORIGIN}`, credentials: true }));
 
 io.use(async (socket, next) => {
     const rawCookie = socket.handshake.headers.cookie;
-        console.log('No Cookies founded')
 
     if (!rawCookie) {
         return next(new Error("No Cookie Found!"));
     }
-    console.log('Cookies founded')
     const parsed = cookie.parse(rawCookie);
     const authHeader = parsed.authHeader;
-    console.log('auth header founded')
 
     if (!authHeader || !authHeader.startsWith("Bearer ")) {
-            console.log('No Bearer founded')
 
         return next(new Error("No authHeader cookie"));
     }
-        console.log('Bearer founded')
 
     try {
         const token = authHeader.split(" ")[1];

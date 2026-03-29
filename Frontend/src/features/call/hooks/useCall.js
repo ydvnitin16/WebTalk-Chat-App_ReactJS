@@ -167,7 +167,6 @@ const useCall = () => {
     }
 
     async function acceptCall({ offer, callerId, callType, callId }) {
-        console.log("accpet call fn triggered");
 
         updateCallStatus("connected");
 
@@ -246,7 +245,6 @@ const useCall = () => {
 
         setCall(null);
 
-        console.log("Call ended cleanly ✅");
     }
 
     async function cancelCall({ callerId, callId }) {

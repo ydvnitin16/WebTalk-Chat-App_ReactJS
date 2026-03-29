@@ -26,9 +26,9 @@ const MessageInput = () => {
     return (
         <form
             onSubmit={handleSubmit}
-            className='fixed bottom-5 left-0 right-0 px-3 md:px-6 md:static md:bg-zinc-950 z-10'
+            className='fixed bottom-5 left-0 right-0 px-3 md:px-6 md:static dark:md:bg-zinc-950 z-10'
         >
-            <div className=' flex items-center gap-3 backdrop-blur-[2px] bg-white/20 dark:bg-zinc-900/20 md:dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 rounded-full px-3 py-2 shadow-md '>
+            <div className=' flex items-center gap-3 backdrop-blur-[2px] bg-white/20 dark:bg-zinc-900/20  md:bg-zinc-100 md:dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 rounded-full px-3 py-2 shadow-md '>
                 {/* Input */}
                 <input
                     ref={inputRef}
@@ -42,7 +42,7 @@ const MessageInput = () => {
                     className=' flex-1 outline-none text-sm md:text-base text-zinc-800 dark:text-zinc-100 placeholder:text-zinc-400 px-2'
                 />
                 <Paperclip
-                    className={`${message.trim() ? "translate-x-0" : " translate-x-13"} transition-all duration-200 text-dark dark:text-white cursor-pointer rotate-137`}
+                    className={`${message.trim() ? "translate-x-0" : " translate-x-13"} transition-all duration-200 text-dark dark:text-white text-zinc-600 cursor-pointer rotate-137`}
                 />
                 {/* Send Button */}
                 {

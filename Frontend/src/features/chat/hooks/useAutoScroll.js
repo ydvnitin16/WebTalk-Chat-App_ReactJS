@@ -9,7 +9,7 @@ const useAutoScroll = () => {
 
     useEffect(() => {
         scrollDownRef.current?.scrollIntoView({ behavior: "smooth" });
-    }, [messages, selectedUserId, typingUsers[selectedUserId], callsHistory]);
+    }, [messages.length, selectedUserId, typingUsers[selectedUserId], callsHistory]);
 
     return { scrollDownRef };
 };

@@ -1,4 +1,5 @@
 import { socket } from "@/lib/socket";
+import useAuthStore from "@/stores/useAuthStore";
 import useCallStore, {
     currentAnswer,
     currentOffer,
@@ -20,9 +21,23 @@ export const useSocketEvents = () => {
         updateConversationLastMessage,
         users,
         addUser,
+        updateMessageStatus,
+        selectedUserId,
+        updateAllMessagesStatus,
     } = useChatStore();
 
     const { setCall, updateCallStatus, syncCallId } = useCallStore();
+    const { currentUser } = useAuthStore();
+
+    useEffect(() => {
+        socket.emit("messages-delivered");
+        if (!selectedUserId) return;
+        socket.emit("messages-seen", { senderId: selectedUserId });
+
+        return () => {
+            socket.off("messages-seen");
+        };
+    }, [selectedUserId, currentUser.id]);
 
     useEffect(() => {
         const handleUserOnline = (id) => {
@@ -34,7 +49,7 @@ export const useSocketEvents = () => {
         };
 
         const handleIncomingMessage = ({ message }) => {
-            addMessage(message);
+            console.log("message received");
 
             // if conversation is new than sync the user
             if (!users[message.sender._id]) {
@@ -43,8 +58,20 @@ export const useSocketEvents = () => {
             }
             message.sender = message.sender._id;
             message.receiver = message.receiver._id;
+            addMessage(message);
 
             updateConversationLastMessage(message);
+            if (selectedUserId && selectedUserId === message.sender) {
+                socket.emit("message-seen", {
+                    messageId: message._id,
+                    from: message.sender,
+                });
+            } else {
+                socket.emit("message-delivered", {
+                    messageId: message._id,
+                    from: message.sender,
+                });
+            }
         };
 
         const handleTyping = (userId) => {
@@ -63,6 +90,19 @@ export const useSocketEvents = () => {
 
         socket.on("sync-call-id", ({ callId }) => {
             syncCallId(callId);
+        });
+
+        socket.on("message-status-update", ({ messageId, status }) => {
+            updateMessageStatus({ messageId, status });
+        });
+
+        socket.on("messages-seen", ({ sendTo }) => {
+            console.log("updating seen");
+            updateAllMessagesStatus({ sendTo, status: "seen" });
+        });
+
+        socket.on("messages-delivered", ({ sendTo }) => {
+            updateAllMessagesStatus({ sendTo, status: "delivered" });
         });
 
         const handleAcceptedCall = async ({ from, answer, callId }) => {
@@ -145,13 +185,14 @@ export const useSocketEvents = () => {
             currentOffer.current = null;
 
             setCall(null);
-
-            console.log("Call ended cleanly ✅");
         };
 
         socket.on("incoming-call", handleIncomingCall);
         socket.on("call-accepted", handleAcceptedCall);
         socket.on("ice-candidate", addIceCandidate);
+        socket.on("message-sent", ({ messageId, tempId }) => {
+            updateMessageStatus({ tempId, messageId, status: "sent" });
+        });
 
         socket.on("call-status", ({ status }) => {
             console.log(status);
@@ -189,12 +230,13 @@ export const useSocketEvents = () => {
 
         socket.on("user-online", handleUserOnline);
         socket.on("user-offline", handleUserOffline);
-        socket.on("message", handleIncomingMessage);
+        socket.on("receive-message", handleIncomingMessage);
         socket.on("typing", handleTyping);
         socket.on("stop-typing", handleStopTyping);
 
         return () => {
-            socket.off("message", handleIncomingMessage);
+            socket.off("receive-message", handleIncomingMessage);
+            socket.off("message-sent");
             socket.off("user-online", handleUserOnline);
             socket.off("user-offline", handleUserOffline);
             socket.off("typing", handleTyping);

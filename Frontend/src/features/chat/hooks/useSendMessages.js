@@ -23,7 +23,7 @@ const useSendMessages = () => {
         if (!sender || !receiver || !content) {
             return;
         }
-        const createdAt = new Date().toISOString();
+        const createdAt = new Date();
         const tempId = `temp-${Date.now()}`;
 
         const conversation = conversations.find(
@@ -43,7 +43,7 @@ const useSendMessages = () => {
             receiver,
             createdAt,
             type: "text",
-            status: "sent",
+            status: "pending",
         };
 
         // add to store
@@ -52,7 +52,7 @@ const useSendMessages = () => {
         setMessage("");
         setTyping(receiver, false);
 
-        socket.emit("message", { content, sendTo: receiver });
+        socket.emit("send-message", { content, sendTo: receiver, tempId });
     }
 
     return { sendMessage, message, setMessage };

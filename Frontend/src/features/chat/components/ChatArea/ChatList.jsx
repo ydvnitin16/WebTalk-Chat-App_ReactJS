@@ -23,7 +23,7 @@ const ChatList = () => {
             })),
             ...callHistory.map((call) => ({
                 type: "call",
-                createdAt: call.endedAt || call.startedAt,
+                createdAt: call.createdAt,
                 data: call,
             })),
         ].sort((a, b) => new Date(a.createdAt) - new Date(b.createdAt));
@@ -72,12 +72,14 @@ const ChatList = () => {
                         );
                     }
                     if (item.type === "call") {
-                        console.log(item)
+                        console.log(item);
                         return (
                             <CallBubble
                                 isMine={item.data.caller === currentUser.id}
                                 user={users[selectedUserId]}
-                                time={formatDateTime(item.data?.endedAt || item.data?.createdAt)}
+                                time={formatDateTime(
+                                    item.data?.endedAt || item.data?.createdAt,
+                                )}
                                 type={item.data.type}
                                 key={item.data._id}
                                 status={item.data.status}

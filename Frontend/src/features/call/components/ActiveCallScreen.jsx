@@ -13,8 +13,6 @@ const ActiveCallScreen = ({ isCaller, call, endCall }) => {
     const user = isCaller ? call.receiver : call.caller;
     const { duration } = useDurationTimer(call.startedAt);
 
-    console.log(call);
-
     const audioRef = useRef(null);
 
     useEffect(() => {

@@ -26,6 +26,11 @@ const Interface = () => {
 
 export default Interface;
 
+// 1. Implement message status
+// 2. Implement photos send on real-time no db interference
+// 3. handle edge cases and fix teh architecture bugs needs to solve
+// 4. scale it to a certain level and get ready for interview
+
 // In this architecture we will update the zustand store and get everything from there we will not keep stores
 // Because everything happening in real-time we manage things through socket and api both so at once we update though api then we update the state on socket emits
 

@@ -60,6 +60,6 @@ export const getCallsHistoryService = async (conversationId) => {
     const calls = await Call.find({ conversation: conversationId }).sort({
         createdAt: 1,
     });
-    console.log("Calls", calls);
+    
     return calls;
 };

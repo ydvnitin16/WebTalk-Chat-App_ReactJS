@@ -5,7 +5,7 @@ export const getUserConversations = async (req, res) => {
         const userId = req.user.id;
 
         const conversations = await getUserConversationsService(userId);
-        console.log(conversations)
+        
         res.status(200).json({
             success: true,
             conversations,

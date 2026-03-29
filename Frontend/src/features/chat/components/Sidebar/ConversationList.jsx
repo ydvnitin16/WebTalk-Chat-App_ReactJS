@@ -9,7 +9,7 @@ const ConversationList = () => {
     const { currentUser } = useAuthStore();
 
     return (
-        <div className='space-y-2 p-2 h-screen'>
+        <div className='space-y-2 py-2 px-1.5 h-screen'>
             {conversations.length > 0 ? (
                 conversations?.map((conversation) => {
                     // extract user from participants array
@@ -30,7 +30,9 @@ const ConversationList = () => {
                     );
                 })
             ) : (
-                <p className='flex justify-center items-center h-full'>Start your first conversation</p>
+                <p className='flex justify-center items-center h-full'>
+                    Start your first conversation
+                </p>
             )}
         </div>
     );

@@ -52,6 +52,6 @@ export const getMessagesService = async (conversationId) => {
     const messages = await Message.find({ conversation: conversationId }).sort({
         createdAt: 1,
     });
-    console.log("Messages", messages);
+    
     return messages;
 };

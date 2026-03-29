@@ -30,5 +30,5 @@ export const useMessages = () => {
         };
 
         load();
-    }, [conversations, currentUser?.id, selectedUserId, setMessages]);
+    }, [currentUser?.id, selectedUserId]);
 };

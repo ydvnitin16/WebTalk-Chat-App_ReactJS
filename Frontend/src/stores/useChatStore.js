@@ -62,6 +62,44 @@ const useChatStore = create((set, get) => ({
             };
         }),
 
+    updateMessageStatus: ({ tempId = null, messageId, status }) =>
+        set((state) => {
+            const messages = get().messages;
+            const isMessageExists = messages.some(
+                (msg) => msg._id === messageId || msg._id === tempId,
+            );
+
+            if (!isMessageExists) {
+                return state;
+            }
+            const updatedMessageArray = messages.map((msg) =>
+                msg._id === messageId || msg._id === tempId
+                    ? { ...msg, _id: messageId, status }
+                    : msg,
+            );
+
+            return { messages: updatedMessageArray };
+        }),
+
+    updateAllMessagesStatus: ({ sendTo, status }) =>
+        set((state) => {
+            const selectedUserId = get().selectedUserId;
+
+            const shouldUpdateCurrentMessages =
+                selectedUserId && selectedUserId === sendTo;
+
+            if (!shouldUpdateCurrentMessages) {
+                return state;
+            }
+
+            const messages = get().messages;
+            const updatedMessageArray = messages.map((msg) => {
+                return { ...msg, status };
+            });
+
+            return { messages: updatedMessageArray };
+        }),
+
     updateConversationLastMessage: (message) =>
         set((state) => {
             const conversationIndex = state.conversations.findIndex(
@@ -70,8 +108,6 @@ const useChatStore = create((set, get) => ({
                     (conversation.participants?.includes(message.sender) &&
                         conversation.participants?.includes(message.receiver)),
             );
-
-            console.log(conversationIndex);
 
             if (conversationIndex === -1) {
                 console.log("Creating conversation");

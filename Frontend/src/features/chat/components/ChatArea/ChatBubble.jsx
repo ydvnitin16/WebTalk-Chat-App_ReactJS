@@ -1,4 +1,4 @@
-import { Check, CheckCheck } from "lucide-react";
+import { Check, CheckCheck, Clock3, Timer } from "lucide-react";
 import React from "react";
 
 const ChatBubble = ({
@@ -13,6 +13,7 @@ const ChatBubble = ({
     const renderStatus = () => {
         if (!isMine) return null;
 
+        if(status === 'pending') return <Clock3 size={14} />
         if (status === "sent") return <Check size={14} />;
         if (status === "delivered") return <CheckCheck size={14} />;
         if (status === "seen")
@@ -21,7 +22,7 @@ const ChatBubble = ({
 
     return (
         <div
-            className={`flex ${isMine ? "justify-end" : "justify-start"} mb-2`}
+            className={`flex ${isMine ? "justify-end" : "justify-start"} mb-1`}
         >
             {/* Avatar only for opposite user*/}
             {!isMine && (
