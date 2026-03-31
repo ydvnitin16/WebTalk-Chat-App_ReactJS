@@ -26,8 +26,6 @@ const Interface = () => {
 
 export default Interface;
 
-// 1. Implement message status
-// 2. Implement photos send on real-time no db interference
 // 3. handle edge cases and fix teh architecture bugs needs to solve
 // 4. scale it to a certain level and get ready for interview
 

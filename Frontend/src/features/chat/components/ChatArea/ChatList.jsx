@@ -72,7 +72,6 @@ const ChatList = () => {
                         );
                     }
                     if (item.type === "call") {
-                        console.log(item);
                         return (
                             <CallBubble
                                 isMine={item.data.caller === currentUser.id}
