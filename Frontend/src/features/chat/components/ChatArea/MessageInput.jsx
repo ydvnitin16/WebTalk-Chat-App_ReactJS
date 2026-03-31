@@ -42,7 +42,7 @@ const MessageInput = () => {
                     className=' flex-1 outline-none text-sm md:text-base text-zinc-800 dark:text-zinc-100 placeholder:text-zinc-400 px-2'
                 />
                 <Paperclip
-                    className={`${message.trim() ? "translate-x-0" : " translate-x-13"} transition-all duration-200 text-dark dark:text-white text-zinc-600 cursor-pointer rotate-137`}
+                    className={`${message.trim() ? "translate-x-0" : " translate-x-13"} transition-all duration-200 text-dark dark:text-white text-zinc-600 cursor-pointer rotate-180`}
                 />
                 {/* Send Button */}
                 {

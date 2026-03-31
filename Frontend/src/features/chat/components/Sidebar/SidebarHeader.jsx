@@ -25,7 +25,7 @@ const SidebarHeader = ({ user, handleLogout }) => {
             />
 
             <div className='flex justify-between items-center px-3 pt-3 pb-1.5  mx-1  dark:text-white'>
-                <h1 className='flex gap-1 items-center text-xl font-bold'>
+                <h1 className='flex gap-1 items-center text-2xl font-bold'>
                     <div
                         className='w-10 h-10 bg-black dark:bg-white '
                         style={{
