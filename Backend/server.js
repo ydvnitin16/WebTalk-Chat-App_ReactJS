@@ -66,11 +66,10 @@ io.on("connect", async (socket) => {
 
     // Join own room and update status
     socket.join(userId);
-
-    await handleUndeliveredMessages(io, socket);
-
     updateUserOnlineStatus(userId, true);
     io.emit("user-online", userId);
+
+    await handleUndeliveredMessages(io, socket);
 
     // Message Socket Handler
     handleMessageSocket(io, socket);

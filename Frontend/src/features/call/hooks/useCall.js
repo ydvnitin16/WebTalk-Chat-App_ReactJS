@@ -8,11 +8,14 @@ import useCallStore, {
     remoteVideoRef,
     currentOffer,
     pendingIceCandidates,
+    micState,
+    cameraState,
 } from "@/stores/useCallStore";
 import useChatStore from "@/stores/useChatStore";
 
 const useCall = () => {
-    const { setCall, updateCallStatus } = useCallStore();
+    const { setCall, updateCallStatus, toggleMic, toggleCamera } =
+        useCallStore();
     const { currentUser } = useAuthStore();
     const { conversations, users } = useChatStore();
 
@@ -167,7 +170,6 @@ const useCall = () => {
     }
 
     async function acceptCall({ offer, callerId, callType, callId }) {
-
         updateCallStatus("connected");
 
         const to = callerId;
@@ -244,7 +246,6 @@ const useCall = () => {
         currentOffer.current = null;
 
         setCall(null);
-
     }
 
     async function cancelCall({ callerId, callId }) {
@@ -253,7 +254,35 @@ const useCall = () => {
         setCall(null);
     }
 
-    return { startCall, acceptCall, rejectCall, endCall, cancelCall };
+    async function onToggleMic() {
+        console.log("going to Update ");
+        if (localStream.current) {
+            console.log("updating");
+            localStream.current.getAudioTracks().forEach((track) => {
+                track.enabled = !track.enabled;
+            });
+            toggleMic();
+        }
+    }
+
+    function onToggleCamera() {
+        if (localStream.current) {
+            localStream.current.getVideoTracks().forEach((track) => {
+                track.enabled = !track.enabled;
+            });
+            toggleCamera();
+        }
+    }
+
+    return {
+        startCall,
+        acceptCall,
+        rejectCall,
+        endCall,
+        cancelCall,
+        onToggleMic,
+        onToggleCamera,
+    };
 };
 
 export default useCall;

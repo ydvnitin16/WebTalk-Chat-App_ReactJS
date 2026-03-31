@@ -9,7 +9,15 @@ import Controls from "./Controls";
 import useDurationTimer from "../hooks/useDurationTimer";
 import ringing from "../../../assets/phone_ring.mp3";
 
-const ActiveCallScreen = ({ isCaller, call, endCall }) => {
+const ActiveCallScreen = ({
+    isCaller,
+    call,
+    endCall,
+    onToggleMic,
+    onToggleCamera,
+    mic,
+    camera,
+}) => {
     const user = isCaller ? call.receiver : call.caller;
     const { duration } = useDurationTimer(call.startedAt);
 
@@ -50,7 +58,7 @@ const ActiveCallScreen = ({ isCaller, call, endCall }) => {
         if (remoteVideoRef.current && remoteStream.current) {
             remoteVideoRef.current.srcObject = remoteStream.current;
         }
-    }, [call]);
+    }, [call, mic, camera]);
 
     return (
         <div className='fixed inset-0 z-50 flex flex-col bg-white dark:bg-black dark:text-white'>
@@ -103,7 +111,14 @@ const ActiveCallScreen = ({ isCaller, call, endCall }) => {
 
             {/* Controls ALWAYS ON TOP */}
             <div className='z-30'>
-                <Controls endCall={endCall} />
+                <Controls
+                    endCall={endCall}
+                    callType={call.type}
+                    onToggleMic={onToggleMic}
+                    onToggleCamera={onToggleCamera}
+                    mic={mic}
+                    camera={camera}
+                />
             </div>
         </div>
     );

@@ -8,6 +8,8 @@ export let remoteVideoRef = { current: null };
 export let currentOffer = { current: null };
 export let currentAnswer = { current: null };
 export let pendingIceCandidates = { current: [] };
+export let micState = { current: true };
+export let cameraState = { current: true };
 
 const useCallStore = create((set, get) => ({
     call: null,
@@ -24,17 +26,8 @@ const useCallStore = create((set, get) => ({
     */
 
     media: {
-        localStream: { current: null },
-        remoteStream: { current: null },
-        peerConnection: { current: null },
-        isMuted: false,
-        isCameraOn: true,
-    },
-
-    signaling: {
-        offer: null,
-        answer: null,
-        iceCandidates: [],
+        mic: true,
+        camera: true,
     },
 
     callHistory: [],
@@ -93,11 +86,11 @@ const useCallStore = create((set, get) => ({
             },
         })),
 
-    toggleMute: () =>
+    toggleMic: () =>
         set((state) => ({
             media: {
                 ...state.media,
-                isMuted: !state.media.isMuted,
+                mic: !state.media.mic,
             },
         })),
 
@@ -105,7 +98,7 @@ const useCallStore = create((set, get) => ({
         set((state) => ({
             media: {
                 ...state.media,
-                isCameraOn: !state.media.isCameraOn,
+                camera: !state.media.camera,
             },
         })),
 }));

@@ -31,24 +31,3 @@ export default Interface;
 
 // In this architecture we will update the zustand store and get everything from there we will not keep stores
 // Because everything happening in real-time we manage things through socket and api both so at once we update though api then we update the state on socket emits
-
-// const onToggleMic = () => {
-//         if (localStream.current) {
-//             localStream.current.getAudioTracks().forEach((track) => {
-//                 track.enabled = !track.enabled;
-//             });
-//             setIsMicOn((prev) => !prev);
-//         }
-//     };
-
-//     // Toggle Camera
-//     const onToggleCamera = () => {
-//         if (localStream.current) {
-//             localStream.current.getVideoTracks().forEach((track) => {
-//                 track.enabled = !track.enabled;
-//             });
-//             setIsCameraOn((prev) => !prev);
-//         }
-//     };
-
-// 1. App has a bug to fix :- if user calls and reject itself so the socket even end-active-call is triggered which update the call status in the db as completed fix it by adding a condtion if call is not connected and we are rejecting call so dont trigger the db status udpate as completed

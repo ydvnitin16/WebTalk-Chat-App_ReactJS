@@ -1,14 +1,25 @@
 import React from "react";
 import IncomingCallScreen from "./IncomingCallScreen";
 import useAuthStore from "@/stores/useAuthStore";
-import useCallStore, { currentOffer } from "@/stores/useCallStore";
+import useCallStore, {
+    cameraState,
+    currentOffer,
+    micState,
+} from "@/stores/useCallStore";
 import useCall from "../hooks/useCall";
 import ActiveCallScreen from "./ActiveCallScreen";
 
 const CallManager = () => {
     const { currentUser } = useAuthStore();
-    const { call } = useCallStore();
-    const { acceptCall, rejectCall, endCall, cancelCall } = useCall();
+    const { call, media } = useCallStore();
+    const {
+        acceptCall,
+        rejectCall,
+        endCall,
+        cancelCall,
+        onToggleMic,
+        onToggleCamera,
+    } = useCall();
 
     if (!call) {
         return null;
@@ -56,6 +67,10 @@ const CallManager = () => {
                               callId: call._id,
                           })
                 }
+                mic={media.mic}
+                onToggleMic={onToggleMic}
+                camera={media.camera}
+                onToggleCamera={onToggleCamera}
             />
         </>
     );
