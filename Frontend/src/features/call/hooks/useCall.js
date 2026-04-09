@@ -144,7 +144,6 @@ const useCall = () => {
             status: "calling",
             startedAt,
         };
-        console.log(callObj);
         setCall(callObj);
 
         const to = callObj.receiver._id;
@@ -255,9 +254,7 @@ const useCall = () => {
     }
 
     async function onToggleMic() {
-        console.log("going to Update ");
         if (localStream.current) {
-            console.log("updating");
             localStream.current.getAudioTracks().forEach((track) => {
                 track.enabled = !track.enabled;
             });

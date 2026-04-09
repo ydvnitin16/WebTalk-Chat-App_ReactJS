@@ -120,18 +120,15 @@ const useChatStore = create((set, get) => ({
             );
 
             if (conversationIndex === -1) {
-                console.log("Creating conversation");
                 const newConversation = {
                     _id: message.conversation,
                     participants: [message.sender, message.receiver],
                     lastMessage: message,
                 };
-                console.log(newConversation);
                 return {
                     conversations: [newConversation, ...state.conversations],
                 };
             }
-            console.log("Updating conversation");
             const updatedConversation = {
                 ...state.conversations[conversationIndex],
                 _id:

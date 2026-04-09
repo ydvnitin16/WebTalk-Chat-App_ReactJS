@@ -55,8 +55,6 @@ export const useSocketEvents = () => {
             addMessage(message);
 
             updateConversationLastMessage(message);
-            console.log(selectedUserId)
-            console.log('selected and sender: ', selectedUserId?.toString(), message.sender?.toString())
             if (
                 selectedUserId &&
                 selectedUserId?.toString() === message?.sender.toString()

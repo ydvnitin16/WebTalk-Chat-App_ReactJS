@@ -30,7 +30,6 @@ export function formatDateTime(dateString) {
 }
 
 export function getLastMessage(messages, user, currentUser) {
-    console.log(messages, user, currentUser);
     messages = messages?.filter(
         (msg) =>
             (msg.sender === user._id && msg.receiver === currentUser?.id) ||
