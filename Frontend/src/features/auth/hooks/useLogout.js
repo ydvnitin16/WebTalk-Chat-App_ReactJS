@@ -1,8 +1,7 @@
-import React from "react";
 import { logoutUser } from "../services/auth.api";
 import useAuthStore from "@/stores/useAuthStore";
 import toast from "react-hot-toast";
-import { socket } from "@/lib/socket";
+import { disconnectSocket } from "@/lib/socket";
 import { useNavigate } from "react-router-dom";
 
 const useLogout = () => {
@@ -11,12 +10,12 @@ const useLogout = () => {
 
     async function handleLogout() {
         try {
-            const data = await logoutUser();
+            await logoutUser();
 
             clearAuth();
+            disconnectSocket();
             navigate("/login");
             toast.success("User logout Successfull");
-            socket.disconnect();
         } catch (err) {
             console.log(err.message);
         }

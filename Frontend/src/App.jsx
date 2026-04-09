@@ -1,27 +1,23 @@
 import { useEffect } from "react";
 import toast, { Toaster } from "react-hot-toast";
 import { RouterProvider } from "react-router-dom";
-import { socket } from "./lib/socket.js";
+import { connectSocket, disconnectSocket, socket } from "./lib/socket.js";
 import router from "./routes.jsx";
 import { useSocketEvents } from "./hooks/useSocketEvents.js";
+import useAuthStore from "./stores/useAuthStore.js";
 
 function App() {
+    const currentUser = useAuthStore((state) => state.currentUser);
     useSocketEvents(toast);
 
     useEffect(() => {
-        socket.on("connect", () => {
-            console.log(`Welcome, `, socket.id);
-        });
+        if (currentUser) {
+            connectSocket();
+            return;
+        }
 
-        socket.on("reconnect", (attempt) => {
-            console.log(`Socket reconnected after: `, attempt, "attempts");
-        });
-
-        return () => {
-            socket.off("connect");
-            socket.off("reconnect");
-        };
-    }, []);
+        disconnectSocket();
+    }, [currentUser]);
 
     return (
         <>
