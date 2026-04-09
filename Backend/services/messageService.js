@@ -1,5 +1,6 @@
 import Message from "../models/message.js";
 import Conversation from "../models/conversation.js";
+import Call from "../models/call.js";
 
 export const sendMessageService = async ({
     senderId,
@@ -36,24 +37,90 @@ export const sendMessageService = async ({
     return { message, conversation };
 };
 
-export const getMessagesService = async (conversationId) => {
+export const getMessagesService = async (conversationId, { cursor, limit }) => {
     if (!conversationId) {
         throw new Error("Conversation ID is required");
     }
 
-    // 1. Check is conversation exists
     const conversation = await Conversation.findById(conversationId);
-
     if (!conversation) {
         throw new Error("Conversation not found");
     }
 
-    // 2. Get messages
-    const messages = await Message.find({ conversation: conversationId }).sort({
-        createdAt: 1,
-    });
+    const query = { conversation: conversationId };
 
-    return messages;
+    // cursor = oldest message's createdAt
+    if (cursor) {
+        query.createdAt = { $lt: new Date(cursor) };
+    }
+
+    const messages = await Message.find(query)
+        .sort({ createdAt: -1 }) // newest first
+        .limit(limit);
+
+    const orderedMessages = messages.reverse();
+
+    return {
+        messages: orderedMessages, // send oldest -> newest
+        nextCursor: orderedMessages.length
+            ? orderedMessages[0].createdAt
+            : null,
+        hasMore: messages.length === limit,
+    };
+};
+
+export const getConversationTimelineService = async (
+    conversationId,
+    { cursor, limit },
+) => {
+    if (!conversationId) {
+        throw new Error("Conversation ID is required");
+    }
+
+    const conversation = await Conversation.findById(conversationId);
+    if (!conversation) {
+        throw new Error("Conversation not found");
+    }
+
+    const createdAtFilter = cursor ? { createdAt: { $lt: new Date(cursor) } } : {};
+    const messageQuery = { conversation: conversationId, ...createdAtFilter };
+    const callQuery = { conversation: conversationId, ...createdAtFilter };
+
+    const [messages, calls] = await Promise.all([
+        Message.find(messageQuery).sort({ createdAt: -1 }).limit(limit),
+        Call.find(callQuery).sort({ createdAt: -1 }).limit(limit),
+    ]);
+
+    const timeline = [
+        ...messages.map((message) => ({
+            itemType: "message",
+            createdAt: message.createdAt,
+            data: message,
+        })),
+        ...calls.map((call) => ({
+            itemType: "call",
+            createdAt: call.createdAt,
+            data: call,
+        })),
+    ]
+        .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
+        .slice(0, limit);
+
+    const orderedTimeline = timeline.reverse();
+
+    return {
+        timeline: orderedTimeline,
+        messages: orderedTimeline
+            .filter((item) => item.itemType === "message")
+            .map((item) => item.data),
+        calls: orderedTimeline
+            .filter((item) => item.itemType === "call")
+            .map((item) => item.data),
+        nextCursor: orderedTimeline.length
+            ? orderedTimeline[0].createdAt
+            : null,
+        hasMore: messages.length === limit || calls.length === limit,
+    };
 };
 
 export const updateMessageById = async (messageId, update) => {

@@ -3,12 +3,60 @@ import { create } from "zustand";
 // Currently we have the separate users object we are not getting user populated in conversation or message and if we are getting than we normalise it by keeping only id not avatar and name.
 // So we can keep the user details in the message later
 
+const sortMessages = (messages = []) =>
+    [...messages].sort((a, b) => {
+        const timeDiff =
+            new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime();
+
+        if (timeDiff !== 0) return timeDiff;
+
+        return String(a._id || a.tempId || "").localeCompare(
+            String(b._id || b.tempId || ""),
+        );
+    });
+
+const mergeMessages = (messages = []) => {
+    const uniqueMessages = new Map();
+
+    for (const message of messages) {
+        const existingMessage =
+            uniqueMessages.get(message._id) ||
+            (message.tempId && uniqueMessages.get(message.tempId));
+
+        const mergedMessage = { ...existingMessage, ...message };
+
+        if (mergedMessage._id) {
+            uniqueMessages.set(mergedMessage._id, mergedMessage);
+        }
+
+        if (mergedMessage.tempId) {
+            uniqueMessages.set(mergedMessage.tempId, mergedMessage);
+        }
+    }
+
+    return sortMessages(
+        Array.from(new Set(uniqueMessages.values())).filter(Boolean),
+    );
+};
+
 const useChatStore = create((set, get) => ({
     conversations: [],
     messages: [],
     selectedUserId: null,
     typingUsers: {},
     users: {},
+    cursor: null,
+    hasMore: true,
+    isFetching: false,
+
+    setPagination: ({ cursor, hasMore }) => set({ cursor, hasMore }),
+
+    prependMessages: (olderMessages) =>
+        set((state) => ({
+            messages: mergeMessages([...olderMessages, ...state.messages]),
+        })),
+
+    setFetching: (value) => set({ isFetching: value }),
 
     setConversations: (conversations) =>
         set({ conversations: conversations || [] }),
@@ -42,7 +90,7 @@ const useChatStore = create((set, get) => ({
 
     setSelectedUserId: (id) => set({ selectedUserId: id }),
 
-    setMessages: (messages) => set({ messages: messages || [] }),
+    setMessages: (messages) => set({ messages: mergeMessages(messages || []) }),
 
     addMessage: (message) =>
         set((state) => {
@@ -58,7 +106,7 @@ const useChatStore = create((set, get) => ({
             }
 
             return {
-                messages: [...state.messages, message],
+                messages: mergeMessages([...state.messages, message]),
             };
         }),
 
@@ -72,13 +120,25 @@ const useChatStore = create((set, get) => ({
             if (!isMessageExists) {
                 return state;
             }
-            const updatedMessageArray = messages.map((msg) =>
-                msg._id === messageId || msg._id === tempId
-                    ? { ...msg, _id: messageId, status }
-                    : msg,
-            );
+            const updatedMessageArray = messages.map((msg) => {
+                const matchesMessageId = msg._id === messageId;
+                const matchesTempId =
+                    (tempId && msg._id === tempId) ||
+                    (tempId && msg.tempId === tempId);
 
-            return { messages: updatedMessageArray };
+                if (!matchesMessageId && !matchesTempId) {
+                    return msg;
+                }
+
+                return {
+                    ...msg,
+                    _id: messageId || msg._id,
+                    tempId: msg.tempId || tempId || null,
+                    status,
+                };
+            });
+
+            return { messages: mergeMessages(updatedMessageArray) };
         }),
 
     updateAllMessagesStatus: ({ sendTo, messageIds, status }) =>
@@ -104,7 +164,7 @@ const useChatStore = create((set, get) => ({
                 return msg;
             });
 
-            // 🔥 prevent unnecessary state update
+            // prevent unnecessary state update
             if (!hasChanges) return state;
 
             return { messages: updatedMessages };

@@ -8,10 +8,27 @@ export const fetchConversations = async () => {
     return res.json();
 };
 
-export const fetchMessages = async (conversationId) => {
-    const res = await fetch(`${BASE_URL}/messages/${conversationId}`, {
-        method: "GET",
-        credentials: "include",
-    });
+
+export const fetchConversationTimeline = async (
+    conversationId,
+    cursor,
+    limit = 20,
+) => {
+    const params = new URLSearchParams();
+
+    if (cursor) {
+        params.append("cursor", cursor);
+    }
+
+    params.append("limit", limit);
+
+    const res = await fetch(
+        `${BASE_URL}/timeline/${conversationId}?${params.toString()}`,
+        {
+            method: "GET",
+            credentials: "include",
+        },
+    );
+
     return res.json();
 };

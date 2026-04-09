@@ -36,12 +36,28 @@ export const createCallService = async ({
 
 export const updateCallStatus = async (callId, update) => {
     // update call status
-    const call = await Call.findByIdAndUpdate(callId, update);
+    const call = await Call.findByIdAndUpdate(callId, update, { new: true });
 
     if (!call) {
         console.log("Call error: CallId doesn't exists");
     }
     return call;
+};
+
+export const getCallById = async (callId) => {
+    if (!callId) return null;
+    return Call.findById(callId);
+};
+
+export const updateCallStatusIfNeeded = async (callId, update, allowedStatuses = []) => {
+    if (!callId) return null;
+
+    const query = { _id: callId };
+    if (allowedStatuses.length) {
+        query.status = { $in: allowedStatuses };
+    }
+
+    return Call.findOneAndUpdate(query, update, { new: true });
 };
 
 export const getCallsHistoryService = async (conversationId) => {

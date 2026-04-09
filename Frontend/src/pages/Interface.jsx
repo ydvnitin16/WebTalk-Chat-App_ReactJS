@@ -1,16 +1,12 @@
 import ProfilePanel from "@/components/profile/ProfilePanel";
 import CallManager from "@/features/call/components/CallManager";
-import useCallHistory from "@/features/call/hooks/useCallHistory";
 import ChatBox from "@/features/chat/components/ChatArea/ChatBox";
 import Sidebar from "@/features/chat/components/Sidebar/Sidebar";
 import { useConversations } from "@/features/chat/hooks/useConversations";
-import { useMessages } from "@/features/chat/hooks/useMessages";
 
 const Interface = () => {
     // Load conversations when component mounts
     useConversations();
-    useMessages();
-    useCallHistory();
 
     return (
         <>

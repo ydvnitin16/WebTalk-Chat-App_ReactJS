@@ -7,12 +7,14 @@ import { formatCallDuration, formatDateTime } from "@/services/utils";
 import useCallStore from "@/stores/useCallStore";
 import CallBubble from "./CallBubble";
 import useAutoScroll from "../../hooks/useAutoScroll";
+import { useMessages } from "../../hooks/useMessages";
 
 const ChatList = () => {
     const { messages, selectedUserId, typingUsers, users } = useChatStore();
     const { callHistory } = useCallStore();
     const { currentUser } = useAuthStore();
-    const { scrollDownRef } = useAutoScroll();
+    const { scrollDownRef, containerRef } = useAutoScroll();
+    const { loadMore } = useMessages();
 
     const chatItems = useMemo(() => {
         return [
@@ -33,11 +35,26 @@ const ChatList = () => {
         return <p className=''>Start a chat</p>;
     }
 
+    const handleScroll = async () => {
+        const el = containerRef.current;
+
+        if (el.scrollTop === 0) {
+            const prevHeight = el.scrollHeight;
+
+            await loadMore(); // fetch older messages
+
+            requestAnimationFrame(() => {
+                const newHeight = el.scrollHeight;
+                el.scrollTop = newHeight - prevHeight;
+            });
+        }
+    };
+
     return (
         <div
-            // ref={scrollContainerRef}
-            // onScroll={handleScroll}
-            className='flex-1 flex-col-reverse p-3 space-y-4 overflow-y-auto overflow-x-hidden scroll-smooth [&::-webkit-scrollbar]:w-2 py-20 md:pb-2 
+            ref={containerRef}
+            onScroll={handleScroll}
+            className='flex-1 flex-col p-3 space-y-4 overflow-y-auto overflow-x-hidden scroll-smooth [&::-webkit-scrollbar]:w-2 py-20 md:pb-2 
                     [&::-webkit-scrollbar-track]:rounded-full
                     [&::-webkit-scrollbar-track]:bg-gray-100
                     [&::-webkit-scrollbar-thumb]:rounded-full

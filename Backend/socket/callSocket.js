@@ -1,23 +1,95 @@
 import {
     createCallService,
+    getCallById,
     updateCallStatus,
+    updateCallStatusIfNeeded,
 } from "../services/callService.js";
 
 export const handleCallSocket = async (io, socket) => {
     try {
+        socket.data.pendingCallIds = socket.data.pendingCallIds || new Map();
+        socket.data.activeCall = socket.data.activeCall || null;
+
+        const rememberCallForSocket = ({ tempId, callId, peerId, role }) => {
+            if (tempId && callId) {
+                socket.data.pendingCallIds.set(tempId, callId.toString());
+            }
+
+            socket.data.activeCall = {
+                callId: callId?.toString?.() || callId,
+                peerId,
+                role,
+            };
+        };
+
+        const resolveCallId = ({ callId, tempId }) => {
+            if (callId && !String(callId).startsWith("temp-")) {
+                return callId;
+            }
+
+            if (tempId && socket.data.pendingCallIds.has(tempId)) {
+                return socket.data.pendingCallIds.get(tempId);
+            }
+
+            if (callId && socket.data.pendingCallIds.has(callId)) {
+                return socket.data.pendingCallIds.get(callId);
+            }
+
+            return socket.data.activeCall?.callId || null;
+        };
+
+        const clearCallTracking = (tempIdOrCallId) => {
+            if (tempIdOrCallId) {
+                socket.data.pendingCallIds.delete(tempIdOrCallId);
+            }
+
+            socket.data.activeCall = null;
+        };
+
+        const clearPeerCallTracking = async (peerId, callId) => {
+            if (!peerId || !callId) return;
+
+            const peerSockets = await io.in(peerId).fetchSockets();
+            peerSockets.forEach((peerSocket) => {
+                if (peerSocket.data.activeCall?.callId === String(callId)) {
+                    peerSocket.data.activeCall = null;
+                    peerSocket.data.pendingCallIds?.clear?.();
+                }
+            });
+        };
+
         socket.on("outgoing-call", async ({ to, offer, callObj }) => {
             const callerId = socket.user.id;
-            console.log("call establisng");
-            // Create Call in DB
+
             const call = await createCallService({
                 caller: callerId,
                 receiver: to,
                 type: callObj.type,
             });
-            console.log("Call in socket: ", call);
-            io.to(callerId).emit("sync-call-id", { callId: call._id });
 
-            // Send offer to receiver
+            rememberCallForSocket({
+                tempId: callObj?.tempId,
+                callId: call._id,
+                peerId: to,
+                role: "caller",
+            });
+
+            const receiverSockets = await io.in(to).fetchSockets();
+            receiverSockets.forEach((receiverSocket) => {
+                receiverSocket.data.pendingCallIds =
+                    receiverSocket.data.pendingCallIds || new Map();
+                receiverSocket.data.activeCall = {
+                    callId: call._id.toString(),
+                    peerId: callerId,
+                    role: "receiver",
+                };
+            });
+
+            io.to(callerId).emit("sync-call-id", {
+                callId: call._id,
+                tempId: callObj?.tempId,
+            });
+
             io.to(to).emit("incoming-call", {
                 offer,
                 from: callerId,
@@ -29,44 +101,123 @@ export const handleCallSocket = async (io, socket) => {
             io.to(to).emit("call-status", { status });
         });
 
-        socket.on("reject-call", async ({ to, callId }) => {
-            await updateCallStatus(callId, {
+        socket.on("reject-call", async ({ to, callId, tempId }) => {
+            const resolvedCallId = resolveCallId({ callId, tempId });
+
+            await updateCallStatus(resolvedCallId, {
                 status: "rejected",
+                endedAt: new Date(),
             });
+
+            clearCallTracking(tempId || callId);
+            await clearPeerCallTracking(to, resolvedCallId);
             io.to(to).emit("reject-call");
         });
 
-        socket.on("call-accepted", async ({ to, answer, callId }) => {
+        socket.on("call-accepted", async ({ to, answer, callId, tempId }) => {
             const callerId = socket.user.id;
-            // update call as answered
-            await updateCallStatus(callId, {
+            const resolvedCallId = resolveCallId({ callId, tempId });
+
+            await updateCallStatus(resolvedCallId, {
                 status: "connected",
                 startedAt: new Date(),
             });
-            console.log("call accepted!!");
-            // send callId because caller has temporaty call id so make the callId in sync
-            io.to(to).emit("call-accepted", { from: callerId, answer, callId });
+
+            rememberCallForSocket({
+                tempId: tempId || callId,
+                callId: resolvedCallId,
+                peerId: to,
+                role: "receiver",
+            });
+
+            io.to(to).emit("call-accepted", {
+                from: callerId,
+                answer,
+                callId: resolvedCallId,
+            });
         });
 
         socket.on("ice-candidate", ({ to, candidate }) => {
             io.to(to).emit("ice-candidate", { candidate });
         });
 
-        // Call ended
-        socket.on("end-active-call", async ({ to, callId }) => {
-            await updateCallStatus(callId, {
-                status: "completed",
-                endedAt: new Date(),
-            });
+        socket.on("end-active-call", async ({ to, callId, tempId }) => {
+            const resolvedCallId = resolveCallId({ callId, tempId });
 
+            await updateCallStatusIfNeeded(
+                resolvedCallId,
+                {
+                    status: "completed",
+                    endedAt: new Date(),
+                },
+                ["connected"],
+            );
+
+            clearCallTracking(tempId || callId);
+            await clearPeerCallTracking(to, resolvedCallId);
             io.to(to).emit("end-active-call");
         });
 
-        socket.on("cancel-call", async ({ to, callId }) => {
-            await updateCallStatus(callId, {
-                status: "cancelled",
-            });
+        socket.on("cancel-call", async ({ to, callId, tempId }) => {
+            const resolvedCallId = resolveCallId({ callId, tempId });
+
+            await updateCallStatusIfNeeded(
+                resolvedCallId,
+                {
+                    status: "cancelled",
+                    endedAt: new Date(),
+                },
+                ["missed", "cancelled", "rejected"],
+            );
+
+            clearCallTracking(tempId || callId);
+            await clearPeerCallTracking(to, resolvedCallId);
             io.to(to).emit("cancel-call");
         });
-    } catch (error) {}
+
+        socket.on("disconnect", async () => {
+            const activeCallId = socket.data.activeCall?.callId;
+            const peerId = socket.data.activeCall?.peerId;
+
+            if (!activeCallId || !peerId) {
+                return;
+            }
+
+            const activeCall = await getCallById(activeCallId);
+            if (!activeCall) {
+                socket.data.activeCall = null;
+                socket.data.pendingCallIds.clear();
+                return;
+            }
+
+            if (activeCall.status === "connected") {
+                await updateCallStatusIfNeeded(
+                    activeCallId,
+                    {
+                        status: "completed",
+                        endedAt: new Date(),
+                    },
+                    ["connected"],
+                );
+
+                io.to(peerId).emit("end-active-call");
+            } else {
+                await updateCallStatusIfNeeded(
+                    activeCallId,
+                    {
+                        status: "cancelled",
+                        endedAt: new Date(),
+                    },
+                    ["missed", "cancelled", "rejected"],
+                );
+
+                io.to(peerId).emit("cancel-call");
+            }
+
+            socket.data.activeCall = null;
+            socket.data.pendingCallIds.clear();
+        });
+    } catch (error) {
+        console.log("Call socket error:", error.message);
+    }
 };

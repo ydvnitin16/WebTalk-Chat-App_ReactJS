@@ -32,7 +32,27 @@ const useCallStore = create((set, get) => ({
 
     callHistory: [],
 
-    setCallHistory: (calls) => set({ callHistory: calls }),
+    setCallHistory: (calls) =>
+        set({
+            callHistory: [...(calls || [])].sort(
+                (a, b) => new Date(a.createdAt) - new Date(b.createdAt),
+            ),
+        }),
+
+    prependCallHistory: (calls) =>
+        set((state) => {
+            const uniqueCalls = new Map();
+
+            [...calls, ...state.callHistory].forEach((call) => {
+                uniqueCalls.set(call._id, call);
+            });
+
+            return {
+                callHistory: Array.from(uniqueCalls.values()).sort(
+                    (a, b) => new Date(a.createdAt) - new Date(b.createdAt),
+                ),
+            };
+        }),
 
     setCall: (callData) => set({ call: callData }),
 
