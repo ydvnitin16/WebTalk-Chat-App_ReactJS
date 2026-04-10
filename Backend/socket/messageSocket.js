@@ -7,9 +7,8 @@ import {
 
 export const handleMessageSocket = (io, socket) => {
     socket.on("send-message", async ({ content, sendTo, tempId }) => {
+        const senderId = socket.user.id;
         try {
-            const senderId = socket.user.id;
-
             // store in db
             const { message, conversation } = await sendMessageService({
                 senderId,
@@ -27,6 +26,11 @@ export const handleMessageSocket = (io, socket) => {
                 tempId,
             });
         } catch (error) {
+            io.to(senderId).emit("message-failed", {
+                messageId: tempId,
+                tempId,
+                status: "failed",
+            });
             console.log("Message error: ", error.message);
         }
     });
@@ -87,7 +91,7 @@ export const handleUndeliveredMessages = async (io, socket) => {
 
 const groupMessagesBySender = (messages = []) => {
     const map = new Map();
-    
+
     for (let msg of messages) {
         const senderId = msg.sender.toString();
 

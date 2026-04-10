@@ -1,4 +1,12 @@
-import { Check, CheckCheck, Clock3, Timer } from "lucide-react";
+import {
+    BadgeInfo,
+    Check,
+    CheckCheck,
+    Clock3,
+    Info,
+    RotateCw,
+    Timer,
+} from "lucide-react";
 import React from "react";
 
 const ChatBubble = ({
@@ -9,10 +17,12 @@ const ChatBubble = ({
     time,
     status = "sent",
     isSame,
+    resend,
 }) => {
     const renderStatus = () => {
         if (!isMine) return null;
-
+        if (status === "failed")
+            return <BadgeInfo size={14} className='text-red-500' />;
         if (status === "pending") return <Clock3 size={14} />;
         if (status === "sent") return <Check size={14} />;
         if (status === "delivered") return <CheckCheck size={14} />;
@@ -34,8 +44,9 @@ const ChatBubble = ({
                 )}
 
                 {type !== "image" && (
-                    <div
-                        className={`
+                    <>
+                        <div
+                            className={`
                             px-3 py-2 rounded-2xl max-w-xs text-sm
                             shadow-sm
                             ${
@@ -44,14 +55,14 @@ const ChatBubble = ({
                                     : "px-3 py-2 rounded-2xl max-w-xs text-sm backdrop-blur-md bg-white/20 dark:bg-zinc-700/30 border border-white/20 dark:border-zinc-600/30 shadow-sm"
                             }
                         `}
-                    >
-                        <div className='flex flex-wrap items-end gap-x-2'>
-                            <span className='break-words text-[15px]'>
-                                {content}
-                            </span>
+                        >
+                            <div className='flex flex-wrap items-end gap-x-2'>
+                                <span className='break-words text-[15px]'>
+                                    {content}
+                                </span>
 
-                            <span
-                                className={`
+                                <span
+                                    className={`
                                     flex items-center gap-1 text-[10px] whitespace-nowrap
                                     ${
                                         isMine
@@ -59,12 +70,21 @@ const ChatBubble = ({
                                             : "text-zinc-500 dark:text-zinc-400"
                                     }
                                 `}
-                            >
-                                {time || "23:12"}
-                                {isMine && renderStatus()}
-                            </span>
+                                >
+                                    {time || "23:12"}
+                                    {isMine && renderStatus()}
+                                </span>
+                            </div>
                         </div>
-                    </div>
+                        {status === "failed" && (
+                            <div
+                                className='cursor-pointer hover:opacity-70'
+                                onClick={resend}
+                            >
+                                <RotateCw size={16} />
+                            </div>
+                        )}
+                    </>
                 )}
 
                 {type === "image" && (

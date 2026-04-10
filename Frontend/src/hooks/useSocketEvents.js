@@ -26,7 +26,6 @@ export const useSocketEvents = () => {
 
     const { setCall, updateCallStatus, syncCallId } = useCallStore();
 
-
     useEffect(() => {
         if (!selectedUserId) return;
         socket.emit("messages-seen", { senderId: selectedUserId });
@@ -93,6 +92,9 @@ export const useSocketEvents = () => {
 
         const handleMessageStatusUpdate = ({ messageId, status }) => {
             updateMessageStatus({ messageId, status });
+        };
+        const handleMessageFailed = ({ messageId, tempId, status }) => {
+            updateMessageStatus({ messageId, tempId, status });
         };
 
         const handleMessagesSeen = ({ sendTo, messageIds }) => {
@@ -226,6 +228,7 @@ export const useSocketEvents = () => {
         socket.on("end-active-call", handleCallEnd);
         socket.on("reject-call", handleRejectCall);
         socket.on("cancel-call", handleCancelCall);
+        socket.on("message-failed", handleMessageFailed);
 
         socket.on("incoming-call", handleIncomingCall);
         socket.on("call-accepted", handleAcceptedCall);

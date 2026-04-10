@@ -1,4 +1,5 @@
 import { socket } from "@/lib/socket";
+import { addToQueue } from "@/services/offlineQueue";
 import useAuthStore from "@/stores/useAuthStore";
 import useChatStore from "@/stores/useChatStore";
 import { useState } from "react";
@@ -12,6 +13,7 @@ const useSendMessages = () => {
         updateConversationLastMessage,
     } = useChatStore();
     const { currentUser } = useAuthStore();
+    const { updateMessageStatus } = useChatStore();
 
     const [message, setMessage] = useState("");
 
@@ -48,11 +50,21 @@ const useSendMessages = () => {
 
         // add to store
         addMessage(messageObj);
+        if (!navigator.onLine) {
+            addToQueue(messageObj);
+            return;
+        }
         updateConversationLastMessage(messageObj);
         setMessage("");
-        setTyping(receiver, false);
-
-        socket.emit("send-message", { content, sendTo: receiver, tempId });
+        try {
+            socket.emit("send-message", { content, sendTo: receiver, tempId });
+        } catch (err) {
+            updateMessageStatus({
+                tempId,
+                messageId: null,
+                status: "failed",
+            });
+        }
     }
 
     return { sendMessage, message, setMessage };

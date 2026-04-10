@@ -8,6 +8,7 @@ import useCallStore from "@/stores/useCallStore";
 import CallBubble from "./CallBubble";
 import useAutoScroll from "../../hooks/useAutoScroll";
 import { useMessages } from "../../hooks/useMessages";
+import useResendMessage from "../../hooks/useResendMessage";
 
 const ChatList = () => {
     const { messages, selectedUserId, typingUsers, users } = useChatStore();
@@ -15,6 +16,7 @@ const ChatList = () => {
     const { currentUser } = useAuthStore();
     const { scrollDownRef, containerRef } = useAutoScroll();
     const { loadMore } = useMessages();
+    const { resendMessage } = useResendMessage();
 
     const chatItems = useMemo(() => {
         return [
@@ -30,7 +32,6 @@ const ChatList = () => {
             })),
         ].sort((a, b) => new Date(a.createdAt) - new Date(b.createdAt));
     }, [messages, callHistory]);
-
     if (!messages) {
         return <p className=''>Start a chat</p>;
     }
@@ -85,6 +86,7 @@ const ChatList = () => {
                                 time={formatDateTime(item.data.createdAt)}
                                 status={item.data.status}
                                 isSame={isSame}
+                                resend={()=>resendMessage(item.data)}
                             />
                         );
                     }
