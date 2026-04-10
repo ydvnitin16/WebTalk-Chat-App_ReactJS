@@ -18,7 +18,7 @@ const ConversationCard = ({
             }`}
             onClick={onClick}
         >
-            <div className='relative'>
+            <div className='relative flex-shrink-0'>
                 <img
                     src={user.avatar?.url}
                     className='w-12 h-12 rounded-full bg-contain'
@@ -29,7 +29,7 @@ const ConversationCard = ({
                 )}
             </div>
 
-            <div className='flex-1'>
+            <div className='flex-1 min-w-0'>
                 <p className='flex justify-between items-center text-lg font-medium text-gray-800 dark:text-white'>
                     <span>{user.name}</span>
                     <div className='flex items-center gap-2'>
@@ -46,7 +46,7 @@ const ConversationCard = ({
                     </div>
                 </p>
 
-                <p className='text-sm text-gray-500 truncate dark:text-gray-300'>
+                <p className='text-sm text-gray-500 truncate dark:text-gray-300 w-full'>
                     {lastMessage
                         ? `${lastMessage.sender === currentUser?.id ? "You: " : ""}${lastMessage.content}`
                         : "Start a new chat"}
