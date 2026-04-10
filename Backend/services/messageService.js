@@ -17,6 +17,10 @@ export const sendMessageService = async ({
     if (!conversation) {
         conversation = await Conversation.create({
             participants: [senderId, receiverId],
+            unreadCounts: {
+                [senderId]: 0,
+                [receiverId]: 0,
+            },
         });
     }
 
@@ -30,6 +34,15 @@ export const sendMessageService = async ({
     });
 
     await message.populate("sender receiver", "_id name avatar");
+
+    // increment unread for receiver
+    const currentUnread =
+        conversation.unreadCounts.get(receiverId.toString()) || 0;
+    const senderUnread = conversation.unreadCounts.get(senderId.toString()) || 0;
+
+    conversation.unreadCounts.set(senderId.toString(), senderUnread);
+    conversation.unreadCounts.set(receiverId.toString(), currentUnread + 1);
+    
     // update conversation
     conversation.lastMessage = message._id;
     await conversation.save();
@@ -82,7 +95,9 @@ export const getConversationTimelineService = async (
         throw new Error("Conversation not found");
     }
 
-    const createdAtFilter = cursor ? { createdAt: { $lt: new Date(cursor) } } : {};
+    const createdAtFilter = cursor
+        ? { createdAt: { $lt: new Date(cursor) } }
+        : {};
     const messageQuery = { conversation: conversationId, ...createdAtFilter };
     const callQuery = { conversation: conversationId, ...createdAtFilter };
 
@@ -146,7 +161,20 @@ export const updateAllMessagesToSeen = async (sender, receiver) => {
 
     // update all messages status
     await Message.updateMany({ _id: { $in: messageIds } }, { status: "seen" });
-    return messageIds;
+    const conversation = await Conversation.findOne({
+        participants: { $all: [sender, receiver] },
+    });
+
+    if (conversation) {
+        conversation.unreadCounts.set(receiver.toString(), 0);
+        await conversation.save();
+    }
+
+    return {
+        messageIds,
+        conversationId: conversation?._id || null,
+        unreadCount: 0,
+    };
 };
 
 export const updateAllMessagesToDelivered = async (userId) => {

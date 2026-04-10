@@ -1,7 +1,16 @@
+import useAuthStore from "@/stores/useAuthStore";
 import { formatDateTime } from "@/services/utils";
 import React from "react";
 
-const ConversationCard = ({ user, isSelected, onClick, lastMessage }) => {
+const ConversationCard = ({
+    user,
+    isSelected,
+    onClick,
+    lastMessage,
+    unreadCount = 0,
+}) => {
+    const { currentUser } = useAuthStore();
+
     return (
         <div
             className={`flex items-center gap-3 p-2 rounded-lg cursor-pointer hover:bg-gray-100 dark:hover:bg-zinc-900 ${
@@ -23,15 +32,24 @@ const ConversationCard = ({ user, isSelected, onClick, lastMessage }) => {
             <div className='flex-1'>
                 <p className='flex justify-between items-center text-lg font-medium text-gray-800 dark:text-white'>
                     <span>{user.name}</span>
-                    {lastMessage && (
-                        <span className='text-xs text-gray-400'>
-                            {formatDateTime(lastMessage.createdAt)}
-                        </span>
-                    )}
+                    <div className='flex items-center gap-2'>
+                        {lastMessage && (
+                            <span className='text-xs text-gray-400'>
+                                {formatDateTime(lastMessage.createdAt)}
+                            </span>
+                        )}
+                        {unreadCount > 0 && (
+                            <span className='min-w-5 h-5 px-1 rounded-full bg-blue-600 text-white text-[11px] flex items-center justify-center'>
+                                {unreadCount > 99 ? "99+" : unreadCount}
+                            </span>
+                        )}
+                    </div>
                 </p>
 
                 <p className='text-sm text-gray-500 truncate dark:text-gray-300'>
-                    {lastMessage ? lastMessage.content : "Start a new chat"}
+                    {lastMessage
+                        ? `${lastMessage.sender === currentUser?.id ? "You: " : ""}${lastMessage.content}`
+                        : "Start a new chat"}
                 </p>
             </div>
         </div>

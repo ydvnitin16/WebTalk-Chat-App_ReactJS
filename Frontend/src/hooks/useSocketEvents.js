@@ -22,6 +22,7 @@ export const useSocketEvents = () => {
         updateMessageStatus,
         selectedUserId,
         updateAllMessagesStatus,
+        updateConversationUnreadCount,
     } = useChatStore();
 
     const { setCall, updateCallStatus, syncCallId } = useCallStore();
@@ -107,6 +108,9 @@ export const useSocketEvents = () => {
                 messageIds,
                 status: "delivered",
             });
+        };
+        const handleUnreadCountUpdated = ({ conversationId, userId, count }) => {
+            updateConversationUnreadCount({ conversationId, userId, count });
         };
 
         const handleAcceptedCall = async ({ from, answer, callId }) => {
@@ -224,6 +228,7 @@ export const useSocketEvents = () => {
         socket.on("message-status-update", handleMessageStatusUpdate);
         socket.on("messages-seen", handleMessagesSeen);
         socket.on("messages-delivered", handleMessagesDelivered);
+        socket.on("unread-count-updated", handleUnreadCountUpdated);
         socket.on("call-status", handleCallStatus);
         socket.on("end-active-call", handleCallEnd);
         socket.on("reject-call", handleRejectCall);
@@ -246,6 +251,7 @@ export const useSocketEvents = () => {
             socket.off("message-status-update", handleMessageStatusUpdate);
             socket.off("messages-seen", handleMessagesSeen);
             socket.off("messages-delivered", handleMessagesDelivered);
+            socket.off("unread-count-updated", handleUnreadCountUpdated);
             socket.off("user-online", handleUserOnline);
             socket.off("user-offline", handleUserOffline);
             socket.off("typing", handleTyping);
@@ -266,6 +272,7 @@ export const useSocketEvents = () => {
         addUser,
         updateMessageStatus,
         updateAllMessagesStatus,
+        updateConversationUnreadCount,
         setCall,
         updateCallStatus,
         syncCallId,

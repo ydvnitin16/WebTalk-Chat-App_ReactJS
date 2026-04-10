@@ -20,6 +20,13 @@ export const handleMessageSocket = (io, socket) => {
 
             // send to reciever via socket
             io.to(sendTo).emit("receive-message", { message });
+            io.to(sendTo).emit("unread-count-updated", {
+                conversationId: conversation._id,
+                userId: sendTo,
+                count:
+                    conversation.unreadCounts.get(sendTo.toString?.() || sendTo) ||
+                    0,
+            });
 
             io.to(senderId).emit("message-sent", {
                 messageId: message._id,
@@ -55,13 +62,20 @@ export const handleMessageSocket = (io, socket) => {
 
     // update all messages when user seen all the messages
     socket.on("messages-seen", async ({ senderId }) => {
-        const messageIds = await updateAllMessagesToSeen(
+        const result = await updateAllMessagesToSeen(
             senderId,
             socket.user.id,
         );
+        if (!result?.messageIds?.length) return;
+
         io.to(senderId).emit("messages-seen", {
             sendTo: socket.user.id,
-            messageIds,
+            messageIds: result.messageIds,
+        });
+        io.to(socket.user.id).emit("unread-count-updated", {
+            conversationId: result.conversationId,
+            userId: socket.user.id,
+            count: result.unreadCount,
         });
     });
 

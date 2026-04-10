@@ -207,6 +207,34 @@ const useChatStore = create((set, get) => ({
             };
         }),
 
+    updateConversationUnreadCount: ({ conversationId, userId, count }) =>
+        set((state) => {
+            const conversationIndex = state.conversations.findIndex(
+                (conversation) => conversation._id === conversationId,
+            );
+
+            if (conversationIndex === -1) {
+                return state;
+            }
+
+            const conversation = state.conversations[conversationIndex];
+            const updatedConversation = {
+                ...conversation,
+                unreadCounts: {
+                    ...(conversation.unreadCounts || {}),
+                    [userId]: count,
+                },
+            };
+
+            const rest = state.conversations.filter(
+                (_, index) => index !== conversationIndex,
+            );
+
+            return {
+                conversations: [updatedConversation, ...rest],
+            };
+        }),
+
     setTyping: (userId, value) =>
         set((state) => ({
             typingUsers: { ...state.typingUsers, [userId]: value },

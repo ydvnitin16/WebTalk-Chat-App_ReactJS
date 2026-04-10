@@ -62,6 +62,10 @@ export const normalizeConversations = (conversations = []) => {
         normalizedConversations.push({
             ...conv,
             participants: participantIds,
+            unreadCounts:
+                conv.unreadCounts instanceof Map
+                    ? Object.fromEntries(conv.unreadCounts)
+                    : { ...(conv.unreadCounts || {}) },
         });
     }
 

@@ -26,6 +26,9 @@ const ConversationList = () => {
                             onClick={() => setSelectedUserId(conversationWith)}
                             isSelected={selectedUserId === conversationWith}
                             lastMessage={conversation.lastMessage}
+                            unreadCount={
+                                conversation.unreadCounts?.[currentUser.id] || 0
+                            }
                         />
                     );
                 })
