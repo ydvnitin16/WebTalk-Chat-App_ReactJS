@@ -3,11 +3,25 @@ import { Paperclip, SendHorizonal } from "lucide-react";
 import useSendMessages from "../../hooks/useSendMessages.js";
 import useTyping from "../../hooks/useTyping.js";
 import useChatStore from "@/stores/useChatStore.js";
+import useDraft from "../../hooks/useDraft.js";
+import useAuthStore from "@/stores/useAuthStore.js";
 
 const MessageInput = () => {
     const { message, setMessage, sendMessage } = useSendMessages();
-    const { selectedUserId } = useChatStore();
+    const { selectedUserId, conversations } = useChatStore();
     const { handleTyping } = useTyping(selectedUserId);
+    const { currentUser } = useAuthStore();
+    const conversation = conversations.find(
+        (c) =>
+            c.participants.includes(currentUser.id) &&
+            c.participants.includes(selectedUserId),
+    );
+
+    const conversationId = conversation?._id;
+    const { handleDraftChange, clearCurrentDraft } = useDraft({
+        conversationId,
+        setMessage,
+    });
 
     const inputRef = useRef(null);
 
@@ -15,6 +29,7 @@ const MessageInput = () => {
         e.preventDefault();
         if (message.trim() !== "") {
             sendMessage();
+            clearCurrentDraft();
             if (inputRef.current) inputRef.current.focus();
         }
     };
@@ -35,6 +50,7 @@ const MessageInput = () => {
                     type='text'
                     value={message}
                     onChange={(e) => {
+                        handleDraftChange(e.target.value);
                         setMessage(e.target.value);
                         handleTyping();
                     }}

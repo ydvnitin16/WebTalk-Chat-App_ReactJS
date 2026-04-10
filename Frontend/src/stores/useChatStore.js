@@ -45,6 +45,7 @@ const useChatStore = create((set, get) => ({
     selectedUserId: null,
     typingUsers: {},
     users: {},
+    draftsByConversation: {},
     cursor: null,
     hasMore: true,
     isFetching: false,
@@ -237,6 +238,24 @@ const useChatStore = create((set, get) => ({
                     },
                 },
             };
+        }),
+    setDraft: (conversationId, text) =>
+        set((state) => ({
+            draftsByConversation: {
+                ...state.draftsByConversation,
+                [conversationId]: text,
+            },
+        })),
+
+    getDraft: (conversationId) => {
+        return get().draftsByConversation[conversationId] || "";
+    },
+
+    clearDraft: (conversationId) =>
+        set((state) => {
+            const updatedDrafts = { ...state.draftsByConversation };
+            delete updatedDrafts[conversationId];
+            return { draftsByConversation: updatedDrafts };
         }),
 }));
 
