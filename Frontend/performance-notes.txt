@@ -1,0 +1,28 @@
+ALL TESTS ARE PERFORMED ON THE PRODUCTION APP DEPLOYED ON HTTPS://SENDX.VERCEL.APP
+
+- Tested on the conversation list page
+Lighthouse Score: 97
+FCP: 1.9s
+LCP: 1.9s
+TBT: 130ms
+
+- Tested on the conversation list page with chat opened
+Lighthouse Score: 100
+FCP: 0.5s
+LCP: 0.5s
+TBT: 30ms
+
+Total Size: 7.2 MB
+Requests: 19
+
+Profiler
+- does not supporting.
+
+Build cmd
+- doesn't give any build folder it gives dist folder which has no static folder
+
+
+Full Load Time: ~2.4 min (3G) (Reference we have three images wihtout optimization i directly stored in the cloudinary and its url in the avatar)
+
+UX:
+Blank screen before load

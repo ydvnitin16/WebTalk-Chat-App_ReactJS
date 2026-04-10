@@ -7,13 +7,21 @@ import {
     SendHorizonal,
     UserRound,
 } from "lucide-react";
+import ProfileModal from "@/features/auth/pages/ProfileModal.jsx";
 
 const SidebarHeader = ({ user, handleLogout }) => {
     const [logoutModal, setLogoutModal] = useState(false);
     const [showDropdown, setShowDropdown] = useState(false);
 
+    const [isProfileModalOpen, setIsProfileModalOpen] = useState();
+
     return (
         <>
+            <ProfileModal
+                isOpen={isProfileModalOpen}
+                onClose={() => setIsProfileModalOpen(false)}
+                user={user}
+            />
             {/* Logout MOdal */}
             <ConfirmModal
                 isOpen={logoutModal}
@@ -41,7 +49,7 @@ const SidebarHeader = ({ user, handleLogout }) => {
                 </h1>
                 <div className='relative'>
                     <img
-                        src={user?.avatar}
+                        src={user?.avatar?.url || user?.avatar}
                         alt={user?.name}
                         className='w-10 h-10 rounded-full cursor-pointer'
                         onClick={() => setShowDropdown(!showDropdown)}
@@ -49,11 +57,20 @@ const SidebarHeader = ({ user, handleLogout }) => {
                     {showDropdown && (
                         <div className='absolute right-0 mt-2 w-48 bg-white border border-zinc-300 dark:border-zinc-700 rounded-lg shadow z-50 dark:bg-zinc-900'>
                             <ul className='text-md p-1'>
-                                <li className='flex gap-2 p-2 hover:bg-zinc-600 rounded-lg cursor-pointer'>
+                                <li
+                                    onClick={() => {
+                                        setIsProfileModalOpen(true);
+                                        setShowDropdown(false);
+                                    }}
+                                    className='flex gap-2 p-2 hover:bg-zinc-600 rounded-lg cursor-pointer'
+                                >
                                     <UserRound /> Go To Profile
                                 </li>
                                 <li
-                                    onClick={() => setLogoutModal(true)}
+                                    onClick={() => {
+                                        setLogoutModal(true);
+                                        setShowDropdown(false);
+                                    }}
                                     className='flex gap-2 p-2 hover:bg-zinc-600 rounded-lg cursor-pointer'
                                 >
                                     <LogOut /> Logout

@@ -1,7 +1,28 @@
 import User from "../models/user.js";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
-import { getUserByUsernameService } from "../services/userService.js";
+import { getUserByUsernameService, updateProfileService } from "../services/userService.js";
+import { cloudinary } from "../configs/cloudinary.js";
+
+const uploadBufferToCloudinary = (fileBuffer, folder = "sendx/profile") =>
+    new Promise((resolve, reject) => {
+        const uploadStream = cloudinary.uploader.upload_stream(
+            {
+                folder,
+                resource_type: "image",
+            },
+            (error, result) => {
+                if (error) {
+                    reject(error);
+                    return;
+                }
+
+                resolve(result);
+            },
+        );
+
+        uploadStream.end(fileBuffer);
+    });
 
 // user register -> Store user info to the DB
 const registerUser = async (req, res) => {
@@ -84,7 +105,9 @@ const loginUser = async (req, res) => {
                 id: userInfo._id,
                 name: userInfo.name,
                 email: userInfo.email,
-                avatar: userInfo.avatar.url,
+                username: userInfo.username,
+                avatar: userInfo.avatar,
+                bio: userInfo.bio,
             },
         });
     } catch (error) {
@@ -118,4 +141,45 @@ const getUserByUsername = async (req, res) => {
     }
 };
 
-export { registerUser, loginUser, logoutUser, getUserByUsername };
+const updateProfile = async (req, res) => {
+    try {
+        const userId = req.user.id;
+
+        const { name, username } = req.body;
+        const file = req.file;
+        let avatar = null;
+
+        if (file) {
+            const uploadedImage = await uploadBufferToCloudinary(file.buffer);
+            avatar = {
+                url: uploadedImage.secure_url,
+                public_id: uploadedImage.public_id,
+            };
+        }
+
+        const updatedUser = await updateProfileService({
+            userId,
+            name,
+            username,
+            avatar,
+        });
+
+        res.status(200).json({
+            success: true,
+            user: {
+                id: updatedUser._id,
+                name: updatedUser.name,
+                email: updatedUser.email,
+                username: updatedUser.username,
+                avatar: updatedUser.avatar,
+                bio: updatedUser.bio,
+            },
+        });
+    } catch (err) {
+        res.status(400).json({
+            message: err.message,
+        });
+    }
+};
+
+export { registerUser, loginUser, logoutUser, getUserByUsername, updateProfile };

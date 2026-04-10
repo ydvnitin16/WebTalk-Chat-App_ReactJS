@@ -13,8 +13,8 @@ const ConfirmModal = ({
     if (!isOpen) return null;
 
     return (
-        <div className='fixed inset-0 z-[1000] flex items-center justify-center p-4 overflow-auto'>
-            <div className='fixed inset-0 bg-black/50 backdrop-blur-sm'></div>
+        <div className='fixed inset-0 z-[1001] flex items-center justify-center p-4 overflow-auto'>
+            <div className='fixed inset-0 bg-black/50 backdrop-blur-[2px]'></div>
 
             <div className='relative w-full max-w-md bg-white dark:bg-zinc-900 text-gray-900 dark:text-white shadow-lg rounded-lg p-6 z-10'>
                 <div className='text-center my-8'>

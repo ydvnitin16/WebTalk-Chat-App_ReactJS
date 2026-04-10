@@ -16,6 +16,10 @@ const useAuthStore = create(
                 });
             },
 
+            updateCurrentUser: (user) => {
+                set({ currentUser: user });
+            },
+
             clearAuth: () => {
                 set({
                     currentUser: null,
