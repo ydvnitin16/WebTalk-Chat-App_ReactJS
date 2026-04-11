@@ -1,7 +1,7 @@
 // User Sign-up/in -> Validate fields
 const validateUser = (type = "register") => {
     return (req, res, next) => {
-        const { name, email, password } = req.body;
+        const { name, email, password, username } = req.body;
 
         if (!email || !password)
             return res
@@ -21,6 +21,27 @@ const validateUser = (type = "register") => {
             return res.status(400).json({
                 message: "Name is required and must be at least 2 characters.",
             });
+
+        if (
+            type === "register" &&
+            (!username || username.trim().length < 3)
+        ) {
+            return res.status(400).json({
+                message:
+                    "Username is required and must be at least 3 characters.",
+            });
+        }
+
+        if (type === "register") {
+            const usernameRegex = /^[a-z0-9_]+$/;
+
+            if (!usernameRegex.test(username.trim().toLowerCase())) {
+                return res.status(400).json({
+                    message:
+                        "Username can only contain lowercase letters, numbers, and underscores.",
+                });
+            }
+        }
 
         next();
     };

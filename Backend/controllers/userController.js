@@ -1,7 +1,10 @@
 import User from "../models/user.js";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
-import { getUserByUsernameService, updateProfileService } from "../services/userService.js";
+import {
+    getUserByUsernameService,
+    updateProfileService,
+} from "../services/userService.js";
 import { cloudinary } from "../configs/cloudinary.js";
 
 const uploadBufferToCloudinary = (fileBuffer, folder = "sendx/profile") =>
@@ -26,30 +29,47 @@ const uploadBufferToCloudinary = (fileBuffer, folder = "sendx/profile") =>
 
 // user register -> Store user info to the DB
 const registerUser = async (req, res) => {
-    const { name, email, password } = req.body;
+    const { name, email, password, username } = req.body;
     try {
         // Check is User already exists
-        const existingUser = await User.findOne({ email });
+        const normalizedUsername = username.trim().toLowerCase();
+        const existingUser = await User.findOne({
+            $or: [{ email }, { username: normalizedUsername }],
+        });
 
         if (existingUser)
-            return res.status(409).json({ message: "Email already exists!" });
+            return res.status(409).json({
+                message:
+                    existingUser.email === email
+                        ? "Email already exists!"
+                        : "Username already exists!",
+            });
 
         // hash password & answer using bcrypt
         const hashPwd = await bcrypt.hash(password, 10);
-
-        // create username
-        const username = email.split("@")[0];
 
         // Save user info in DB
         const user = await User({
             name,
             email,
-            username,
+            username: normalizedUsername,
             password: hashPwd,
         });
         await user.save();
 
-        res.status(201).json({ message: "Registered Successfully!" });
+        // store token
+        storeToken(res, user);
+
+        res.status(201).json({
+            message: "Registered Successfully!",
+            user: {
+                id: user._id,
+                name: user.name,
+                email: user.email,
+                username: user.username,
+                avatar: user.avatar,
+            },
+        });
     } catch (error) {
         res.status(500).json({
             message: "Server error. Please try again later.",
@@ -77,27 +97,7 @@ const loginUser = async (req, res) => {
             return res.status(404).json({ message: "Invalid Credentials" });
 
         // If correct credentials_ auth user
-
-        const token = jwt.sign(
-            {
-                id: userInfo._id,
-                name: userInfo.name,
-                email: userInfo.email,
-            },
-            process.env.JWT_SECRET_KEY,
-            { expiresIn: "3d" },
-        );
-
-        const isProd = process.env.NODE_ENV === "production";
-        // NOTE:
-        // - SameSite=None requires Secure=true (HTTPS). In local dev (HTTP) browsers will drop the cookie.
-        // - For localhost dev, use SameSite=Lax + Secure=false.
-        res.cookie("authHeader", `Bearer ${token}`, {
-            httpOnly: true,
-            secure: isProd,
-            sameSite: isProd ? "none" : "lax",
-            maxAge: 3 * 24 * 60 * 60 * 1000,
-        });
+        storeToken(res, userInfo);
 
         res.status(200).json({
             message: "Logged In Successfully.",
@@ -106,8 +106,7 @@ const loginUser = async (req, res) => {
                 name: userInfo.name,
                 email: userInfo.email,
                 username: userInfo.username,
-                avatar: userInfo.avatar,
-                bio: userInfo.bio,
+                avatar: userInfo.avatar
             },
         });
     } catch (error) {
@@ -117,9 +116,33 @@ const loginUser = async (req, res) => {
     }
 };
 
+const storeToken = (res, userInfo) => {
+    const tokenAge = 30 * 24 * 60 * 60 * 1000; //30 days
+    const token = jwt.sign(
+        {
+            id: userInfo._id,
+            name: userInfo.name,
+            email: userInfo.email,
+            username: userInfo.username,
+        },
+        process.env.JWT_SECRET_KEY,
+        { expiresIn: "30d" },
+    );
+
+    const isProd = process.env.NODE_ENV === "production";
+    // NOTE:
+    // - SameSite=None requires Secure=true (HTTPS). In local dev (HTTP) browsers will drop the cookie.
+    // - For localhost dev, use SameSite=Lax + Secure=false.
+    res.cookie("authHeader", `Bearer ${token}`, {
+        httpOnly: true,
+        secure: isProd,
+        sameSite: isProd ? "none" : "lax",
+        maxAge: tokenAge,
+    });
+};
+
 // User Logout
 const logoutUser = (req, res) => {
-    const isProd = process.env.NODE_ENV === "production";
     res.clearCookie("authHeader");
     res.status(200).json({ message: "Logout Successfully." });
 };
@@ -172,7 +195,6 @@ const updateProfile = async (req, res) => {
                 email: updatedUser.email,
                 username: updatedUser.username,
                 avatar: updatedUser.avatar,
-                bio: updatedUser.bio,
             },
         });
     } catch (err) {
@@ -182,4 +204,10 @@ const updateProfile = async (req, res) => {
     }
 };
 
-export { registerUser, loginUser, logoutUser, getUserByUsername, updateProfile };
+export {
+    registerUser,
+    loginUser,
+    logoutUser,
+    getUserByUsername,
+    updateProfile,
+};

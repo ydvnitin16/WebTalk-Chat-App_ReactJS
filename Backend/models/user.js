@@ -30,10 +30,6 @@ const userSchema = new mongoose.Schema(
                 public_id: "DefautlImage_ge0rul",
             },
         },
-        bio: {
-            type: String,
-            default: "",
-        },
         isOnline: { type: Boolean, default: false },
         lastSeen: { type: Date, default: Date.now },
     },

@@ -4,7 +4,7 @@ import { useForm } from "react-hook-form";
 import * as yup from "yup";
 import { yupResolver } from "@hookform/resolvers/yup";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faEnvelope, faUser } from "@fortawesome/free-solid-svg-icons";
+import { faAt, faEnvelope, faUser } from "@fortawesome/free-solid-svg-icons";
 import FormInput from "@/components/ui/FormInput.jsx";
 import Button from "@/components/ui/Button.jsx";
 import { useAuthHandle } from "../hooks/useAuthForm.js";
@@ -13,6 +13,15 @@ const Signup = () => {
     // Validation schema
     const schema = yup.object({
         name: yup.string().trim().required("Name is required"),
+        username: yup
+            .string()
+            .trim()
+            .min(3, "Username must be at least 3 characters")
+            .matches(
+                /^[a-z0-9_]+$/,
+                "Username can only contain lowercase letters, numbers, and underscores",
+            )
+            .required("Username is required"),
         email: yup
             .string()
             .trim()
@@ -56,6 +65,16 @@ const Signup = () => {
                                 errors={errors}
                                 name='name'
                                 icon={<FontAwesomeIcon icon={faUser} />}
+                            />
+
+                            <FormInput
+                                label='Username (Allows others to find you)'
+                                placeholder='Choose a unique username'
+                                type='text'
+                                register={register}
+                                errors={errors}
+                                name='username'
+                                icon={<FontAwesomeIcon icon={faAt} />}
                             />
 
                             {/* Email */}

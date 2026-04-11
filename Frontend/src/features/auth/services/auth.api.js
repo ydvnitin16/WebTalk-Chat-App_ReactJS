@@ -18,6 +18,7 @@ export const loginUser = async (data) => {
 export const signupUser = async (data) => {
     const res = await fetch(`${BASE_URL}/register`, {
         method: "POST",
+        credentials: "include",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(data),
     });
