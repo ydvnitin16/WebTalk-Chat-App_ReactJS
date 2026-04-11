@@ -5,7 +5,7 @@ export const getUserByUsernameService = async (username) => {
     const normalisedUsername = username.trim().toLowerCase();
     const users = await User.find({
         username: { $regex: normalisedUsername },
-    });
+    }).select("_id name avatar username");
     return users;
 };
 
@@ -44,7 +44,7 @@ export const updateProfileService = async ({
         }
     }
 
-    const user = await User.findById(userId);
+    const user = await User.findById(userId).select("_id name username avatar");
     if (!user) {
         if (avatar?.public_id) {
             await cloudinary.uploader.destroy(avatar.public_id);

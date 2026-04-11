@@ -30,7 +30,7 @@ export const createCallService = async ({
         status: "missed",
     });
     await call.populate("caller receiver", "_id name avatar");
-  
+
     return call;
 };
 
@@ -49,7 +49,11 @@ export const getCallById = async (callId) => {
     return Call.findById(callId);
 };
 
-export const updateCallStatusIfNeeded = async (callId, update, allowedStatuses = []) => {
+export const updateCallStatusIfNeeded = async (
+    callId,
+    update,
+    allowedStatuses = [],
+) => {
     if (!callId) return null;
 
     const query = { _id: callId };
@@ -76,6 +80,6 @@ export const getCallsHistoryService = async (conversationId) => {
     const calls = await Call.find({ conversation: conversationId }).sort({
         createdAt: 1,
     });
-    
+
     return calls;
 };

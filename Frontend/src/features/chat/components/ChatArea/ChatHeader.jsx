@@ -36,7 +36,7 @@ const ChatHeader = () => {
                     <p className={`text-xs text-gray-600 dark:text-zinc-200`}>
                         {user.isOnline
                             ? "online"
-                            : formatDateTime(user.lastSeen)}
+                            : user.lastSeen ? formatDateTime(user.lastSeen): ''}
                     </p>
                 </div>
             </div>

@@ -7,7 +7,7 @@ export const getUserConversationsService = async (userId) => {
         })
             .populate("participants")
             .populate("lastMessage")
-            .sort({ updatedAt: -1 });
+            .sort({ lastMessage: -1 });
             
         return conversations;
     } catch (error) {
