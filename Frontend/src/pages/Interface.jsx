@@ -3,8 +3,27 @@ import CallManager from "@/features/call/components/CallManager";
 import ChatBox from "@/features/chat/components/ChatArea/ChatBox";
 import Sidebar from "@/features/chat/components/Sidebar/Sidebar";
 import { useConversations } from "@/features/chat/hooks/useConversations";
+import useOfflineSync from "@/features/chat/hooks/useOfflineSync";
+import { useSocketEvents } from "@/hooks/useSocketEvents";
+import { connectSocket, disconnectSocket } from "@/lib/socket";
+import useAuthStore from "@/stores/useAuthStore";
+import { useEffect } from "react";
+import toast from "react-hot-toast";
 
 const Interface = () => {
+    const currentUser = useAuthStore((state) => state.currentUser);
+    useSocketEvents(toast);
+    useOfflineSync();
+
+    useEffect(() => {
+        if (currentUser) {
+            connectSocket();
+            return;
+        }
+
+        disconnectSocket();
+    }, [currentUser]);
+
     // Load conversations when component mounts
     useConversations();
 
