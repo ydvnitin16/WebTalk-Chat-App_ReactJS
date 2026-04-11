@@ -5,7 +5,7 @@ export const getUserConversationsService = async (userId) => {
         const conversations = await Conversation.find({
             participants: userId,
         })
-            .populate("participants")
+            .populate("participants", "_id name avatar usename isOnline lastSeen")
             .populate("lastMessage")
             .sort({ lastMessage: -1 });
             
