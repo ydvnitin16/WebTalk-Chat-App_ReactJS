@@ -39,7 +39,7 @@ const ProfileModal = ({ isOpen, onClose, user, onSave }) => {
     };
 
     return (
-        <div className='fixed inset-0 z-1001 flex items-center justify-center bg-black/50 backdrop-blur-sm'>
+        <div className='fixed inset-0 z-10 flex items-center justify-center bg-black/50 backdrop-blur-[2px]'>
             <div className='w-full max-w-md bg-white dark:bg-zinc-900 rounded-2xl shadow-xl p-6 relative'>
                 <Button
                     onClick={onClose}
