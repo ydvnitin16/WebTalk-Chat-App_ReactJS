@@ -1,22 +1,52 @@
+import { lazy, Suspense } from "react";
 import {
     createBrowserRouter,
     createRoutesFromElements,
     Route,
 } from "react-router-dom";
-import Login from "./features/auth/pages/Login";
-import Signup from "./features/auth/pages/Signup";
-import MainLayout from "./layouts/MainLayout";
-import Interface from "./pages/Interface";
+const Login = lazy(() => import("./features/auth/pages/Login"));
+const Signup = lazy(() => import("./features/auth/pages/Signup"));
+const MainLayout = lazy(() => import("./layouts/MainLayout"));
+const Interface = lazy(() => import("./pages/Interface"));
 import ProtectedRoute from "@/components/ui/ProtectedRoutes.jsx";
+import Loading from "./components/ui/Loading";
 
 const router = createBrowserRouter(
     createRoutesFromElements(
         <>
-            <Route path='/login' element={<Login />}></Route>
-            <Route path='/signup' element={<Signup />}></Route>
+            <Route
+                path='/login'
+                element={
+                    <Suspense fallback={<Loading />}>
+                        <Login />
+                    </Suspense>
+                }
+            ></Route>
+            <Route
+                path='/signup'
+                element={
+                    <Suspense fallback={<Loading />}>
+                        <Signup />
+                    </Suspense>
+                }
+            ></Route>
             <Route element={<ProtectedRoute />}>
-                <Route path='/' element={<MainLayout />}>
-                    <Route index element={<Interface />} />
+                <Route
+                    path='/'
+                    element={
+                        <Suspense fallback={<Loading />}>
+                            <MainLayout />
+                        </Suspense>
+                    }
+                >
+                    <Route
+                        index
+                        element={
+                            <Suspense fallback={<Loading />}>
+                                <Interface />
+                            </Suspense>
+                        }
+                    />
                 </Route>
             </Route>
         </>,

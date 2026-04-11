@@ -1,13 +1,10 @@
-import React from "react";
-import IncomingCallScreen from "./IncomingCallScreen";
+import React, { lazy, Suspense } from "react";
 import useAuthStore from "@/stores/useAuthStore";
-import useCallStore, {
-    cameraState,
-    currentOffer,
-    micState,
-} from "@/stores/useCallStore";
+import useCallStore, { currentOffer } from "@/stores/useCallStore";
 import useCall from "../hooks/useCall";
-import ActiveCallScreen from "./ActiveCallScreen";
+import Loading from "@/components/ui/Loading";
+const IncomingCallScreen = lazy(() => import("./IncomingCallScreen"));
+const ActiveCallScreen = lazy(() => import("./ActiveCallScreen"));
 
 const CallManager = () => {
     const { currentUser } = useAuthStore();
@@ -29,49 +26,56 @@ const CallManager = () => {
 
     if (call.caller._id !== currentUser.id && call.status !== "connected") {
         return (
-            <IncomingCallScreen
-                callerName={call.caller.name}
-                callerAvatar={call.caller.avatar?.url || call.caller.avatar}
-                onAccept={() =>
-                    acceptCall({
-                        offer: currentOffer.current,
-                        callerId: call.caller._id,
-                        callType: call.type,
-                        callId: call._id,
-                    })
-                }
-                onReject={() =>
-                    rejectCall({ callerId: call.caller._id, callId: call._id })
-                }
-            />
+            <Suspense fallback={<Loading />}>
+                <IncomingCallScreen
+                    callerName={call.caller.name}
+                    callerAvatar={call.caller.avatar?.url || call.caller.avatar}
+                    onAccept={() =>
+                        acceptCall({
+                            offer: currentOffer.current,
+                            callerId: call.caller._id,
+                            callType: call.type,
+                            callId: call._id,
+                        })
+                    }
+                    onReject={() =>
+                        rejectCall({
+                            callerId: call.caller._id,
+                            callId: call._id,
+                        })
+                    }
+                />
+            </Suspense>
         );
     }
 
     return (
         <>
-            <ActiveCallScreen
-                isCaller={call.caller._id === currentUser.id}
-                call={call}
-                endCall={() =>
-                    call.status !== "connected"
-                        ? cancelCall({
-                              to: isCaller
-                                  ? call.receiver._id
-                                  : call.caller._id,
-                              callId: call._id,
-                          })
-                        : endCall({
-                              to: isCaller
-                                  ? call.receiver._id
-                                  : call.caller._id,
-                              callId: call._id,
-                          })
-                }
-                mic={media.mic}
-                onToggleMic={onToggleMic}
-                camera={media.camera}
-                onToggleCamera={onToggleCamera}
-            />
+            <Suspense fallback={<Loading />}>
+                <ActiveCallScreen
+                    isCaller={call.caller._id === currentUser.id}
+                    call={call}
+                    endCall={() =>
+                        call.status !== "connected"
+                            ? cancelCall({
+                                  to: isCaller
+                                      ? call.receiver._id
+                                      : call.caller._id,
+                                  callId: call._id,
+                              })
+                            : endCall({
+                                  to: isCaller
+                                      ? call.receiver._id
+                                      : call.caller._id,
+                                  callId: call._id,
+                              })
+                    }
+                    mic={media.mic}
+                    onToggleMic={onToggleMic}
+                    camera={media.camera}
+                    onToggleCamera={onToggleCamera}
+                />
+            </Suspense>
         </>
     );
 };
