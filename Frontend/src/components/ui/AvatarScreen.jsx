@@ -1,5 +1,6 @@
 import React, { useEffect } from "react";
 import { X } from "lucide-react";
+import { optimizeUrl } from "@/services/imageOptimization";
 
 const AvatarScreen = ({ isOpen, onClose, src }) => {
     if (!isOpen || !src) return null;
@@ -17,7 +18,8 @@ const AvatarScreen = ({ isOpen, onClose, src }) => {
             </button>
 
             <img
-                src={src}
+                loading='lazy'
+                src={optimizeUrl(src, "large")}
                 alt='avatar'
                 onClick={(e) => e.stopPropagation()}
                 className='max-w-[90%] max-h-[90%] object-contain rounded-lg shadow-lg'

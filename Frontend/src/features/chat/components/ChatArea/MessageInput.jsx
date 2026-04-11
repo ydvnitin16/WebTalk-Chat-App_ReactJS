@@ -45,17 +45,27 @@ const MessageInput = () => {
         >
             <div className=' flex items-center gap-3 backdrop-blur-[2px] bg-white/20 dark:bg-zinc-900/20  md:bg-zinc-100 md:dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 rounded-full px-3 py-2 shadow-md '>
                 {/* Input */}
-                <input
+                <textarea
+                    onKeyDown={(e) => {
+                        if (e.key === "Enter" && !e.shiftKey) {
+                            e.preventDefault();
+                            handleSubmit(e);
+                        }
+                    }}
                     ref={inputRef}
-                    type='text'
+                    rows={1}
                     value={message}
                     onChange={(e) => {
                         handleDraftChange(e.target.value);
                         setMessage(e.target.value);
                         handleTyping();
+
+                        const el = e.target;
+                        el.style.height = "auto";
+                        el.style.height = Math.min(el.scrollHeight, 120) + "px"; // max height
                     }}
                     placeholder='Type your message...'
-                    className=' flex-1 outline-none text-sm md:text-base text-zinc-800 dark:text-zinc-100 placeholder:text-zinc-400 px-2'
+                    className='flex-1 resize-none overflow-y-auto outline-none text-sm md:text-base text-zinc-800 dark:text-zinc-100 placeholder:text-zinc-400 px-2 py-1 max-h-[120px]'
                 />
                 <Paperclip
                     className={`${message.trim() ? "translate-x-0" : " translate-x-13"} transition-all duration-200 text-dark dark:text-white text-zinc-600 cursor-pointer rotate-180`}

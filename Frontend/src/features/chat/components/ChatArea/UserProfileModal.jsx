@@ -3,6 +3,7 @@ import { X } from "lucide-react";
 import Button from "@/components/ui/Button";
 import { formatDateTime } from "@/services/utils";
 import AvatarScreen from "@/components/ui/AvatarScreen";
+import { optimizeUrl } from "@/services/imageOptimization";
 
 const UserProfileModal = ({ isOpen, onClose, user }) => {
     if (!isOpen || !user) return null;
@@ -25,14 +26,13 @@ const UserProfileModal = ({ isOpen, onClose, user }) => {
                         <X />
                     </Button>
 
-                    <div
-                        onClick={() => setIsAvatarOpen(true)}
-                        className='flex flex-col items-center mb-4 cursor-pointer'
-                    >
+                    <div className='flex flex-col items-center mb-4 cursor-pointer'>
                         <img
-                            src={user.avatar?.url}
+                            onClick={() => setIsAvatarOpen(true)}
+                            loading='lazy'
+                            src={optimizeUrl(user.avatar?.url, "medium")}
                             alt='avatar'
-                            className='w-24 h-24 rounded-full object-cover border-2 border-zinc-200 dark:border-zinc-700'
+                            className='w-35 h-35 rounded-full object-cover border-2 border-zinc-200 dark:border-zinc-700'
                         />
                     </div>
 
@@ -45,7 +45,9 @@ const UserProfileModal = ({ isOpen, onClose, user }) => {
                             @{user.username}
                         </p>
 
-                        <p className='text-xs text-zinc-400'>
+                        <p
+                            className={`text-xs ${user.isOnline ? "text-emerald-500" : " text-zinc-400"}`}
+                        >
                             {user.isOnline
                                 ? "Online"
                                 : user.lastSeen

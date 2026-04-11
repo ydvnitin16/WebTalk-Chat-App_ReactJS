@@ -12,6 +12,7 @@ import { UserRound } from "lucide-react";
 import { useState } from "react";
 import ChatHeaderDropdown from "./ChatHeaderDropdown";
 import UserProfileModal from "./UserProfileModal";
+import { optimizeUrl } from "@/services/imageOptimization";
 
 const ChatHeader = () => {
     const [showDropdown, setShowDropdown] = useState(false);
@@ -25,7 +26,7 @@ const ChatHeader = () => {
     return (
         <>
             <div className='fixed w-full top-0 md:static flex items-center justify-between md:rounded-tr-4xl px-4 py-3 shadow-sm backdrop-blur-[2px] dark:bg-black/30 md:dark:bg-zinc-950 md:dark:border-zinc-900 border-b border-zinc-200 dark:border-zinc-700 bg-white/30 dark:text-white z-10'>
-                <div className='flex items-center gap-3'>
+                <div className='flex items-center gap-3 min-w-0'>
                     <button
                         onClick={() => setSelectedUserId(null)}
                         className='md:hidden text-lg text-black dark:text-white'
@@ -33,12 +34,12 @@ const ChatHeader = () => {
                         <FontAwesomeIcon icon={faArrowLeft} />
                     </button>
                     <img
-                        src={user?.avatar?.url}
+                        src={optimizeUrl(user?.avatar?.url, "small")}
                         className='w-10 h-10 rounded-full'
                         alt='avatar'
                     />
-                    <div>
-                        <p className='font-semibold text-gray-800 dark:text-white'>
+                    <div className='min-w-0 flex-1'>
+                        <p className='font-semibold text-gray-800 dark:text-white truncate'>
                             {user.name}
                         </p>
                         <p
@@ -93,7 +94,7 @@ const ChatHeader = () => {
             </div>
             <UserProfileModal
                 isOpen={isProfileOpen}
-                onClose={()=>setIsProfileOpen(false)}
+                onClose={() => setIsProfileOpen(false)}
                 user={user}
             />
         </>

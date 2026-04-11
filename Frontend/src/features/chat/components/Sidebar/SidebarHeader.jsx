@@ -8,6 +8,7 @@ import {
     UserRound,
 } from "lucide-react";
 import ProfileModal from "@/features/auth/pages/ProfileModal.jsx";
+import { optimizeUrl } from "@/services/imageOptimization.js";
 
 const SidebarHeader = ({ user, handleLogout }) => {
     const [logoutModal, setLogoutModal] = useState(false);
@@ -49,7 +50,8 @@ const SidebarHeader = ({ user, handleLogout }) => {
                 </h1>
                 <div className='relative'>
                     <img
-                        src={user?.avatar?.url || user?.avatar}
+                        loading="lazy"
+                        src={optimizeUrl(user?.avatar?.url || user?.avatar, "small")}
                         alt={user?.name}
                         className='w-10 h-10 rounded-full cursor-pointer'
                         onClick={() => setShowDropdown(!showDropdown)}

@@ -1,4 +1,3 @@
-import ProfilePanel from "@/components/profile/ProfilePanel";
 import CallManager from "@/features/call/components/CallManager";
 import ChatBox from "@/features/chat/components/ChatArea/ChatBox";
 import Sidebar from "@/features/chat/components/Sidebar/Sidebar";
@@ -33,7 +32,6 @@ const Interface = () => {
                 <Sidebar />
                 <ChatBox />
                 <CallManager />
-                <ProfilePanel />
             </div>
         </>
     );

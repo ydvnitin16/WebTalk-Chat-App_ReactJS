@@ -1,6 +1,7 @@
 import useAuthStore from "@/stores/useAuthStore";
 import { formatDateTime } from "@/services/utils";
 import React from "react";
+import { optimizeUrl } from "@/services/imageOptimization";
 
 const ConversationCard = ({
     user,
@@ -20,7 +21,8 @@ const ConversationCard = ({
         >
             <div className='relative flex-shrink-0'>
                 <img
-                    src={user.avatar?.url}
+                    loading='lazy'
+                    src={optimizeUrl(user.avatar?.url, "medium")}
                     className='w-12 h-12 rounded-full bg-contain'
                     alt='avatar'
                 />
