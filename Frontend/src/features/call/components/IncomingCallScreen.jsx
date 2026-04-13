@@ -1,6 +1,7 @@
 import React, { useEffect, useRef, useState } from "react";
 import { ChevronDown, ChevronUp, Phone, PhoneOff } from "lucide-react";
 import ringtone from "../../../assets/ringtone.mp3";
+import { optimizeUrl } from "@/services/imageOptimization";
 
 const IncomingCallScreen = ({
     callerName,
@@ -38,7 +39,7 @@ const IncomingCallScreen = ({
                 className={`fixed top-4 left-1/2 -translate-x-1/2 z-100 min-w-70 flex items-center justify-between gap-3 px-2 py-1 rounded-full bg-white/90 dark:bg-zinc-900/90 backdrop-blur-lg shadow-lg border border-zinc-200 dark:border-zinc-700 cursor-pointer`}
             >
                 <img
-                    src={callerAvatar}
+                    src={optimizeUrl(callerAvatar, "medium")}
                     alt='avatar'
                     className='w-11 h-11 rounded-full object-cover'
                 />
@@ -94,7 +95,7 @@ const IncomingCallScreen = ({
                 <div className='flex flex-col items-center justify-center flex-1'>
                     <div className='relative'>
                         <img
-                            src={callerAvatar}
+                            src={optimizeUrl(callerAvatar, "medium")}
                             alt='callee'
                             className='w-52 h-52 rounded-full object-cover shadow-2xl'
                         />

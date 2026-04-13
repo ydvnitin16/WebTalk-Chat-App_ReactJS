@@ -109,7 +109,11 @@ export const useSocketEvents = () => {
                 status: "delivered",
             });
         };
-        const handleUnreadCountUpdated = ({ conversationId, userId, count }) => {
+        const handleUnreadCountUpdated = ({
+            conversationId,
+            userId,
+            count,
+        }) => {
             updateConversationUnreadCount({ conversationId, userId, count });
         };
 

@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import { X, Camera } from "lucide-react";
 import Button from "@/components/ui/Button";
 import useProfile from "../hooks/useProfile";
+import { optimizeUrl } from "@/services/imageOptimization";
 
 const ProfileModal = ({ isOpen, onClose, user, onSave }) => {
     const [name, setName] = useState(user?.name || "");
@@ -55,7 +56,7 @@ const ProfileModal = ({ isOpen, onClose, user, onSave }) => {
                 <div className='flex flex-col items-center mb-6'>
                     <div className='relative'>
                         <img
-                            src={preview}
+                            src={optimizeUrl(preview, "medium")}
                             alt='avatar'
                             className='w-24 h-24 rounded-full object-cover border-2 border-zinc-200 dark:border-zinc-700'
                         />

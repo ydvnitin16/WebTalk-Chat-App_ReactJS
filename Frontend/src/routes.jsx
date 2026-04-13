@@ -10,6 +10,7 @@ const MainLayout = lazy(() => import("./layouts/MainLayout"));
 const Interface = lazy(() => import("./pages/Interface"));
 import ProtectedRoute from "@/components/ui/ProtectedRoutes.jsx";
 import Loading from "./components/ui/Loading";
+import AppShellSkeleton from "./components/skeletons/AppShellSkeleton";
 
 const router = createBrowserRouter(
     createRoutesFromElements(
@@ -34,7 +35,7 @@ const router = createBrowserRouter(
                 <Route
                     path='/'
                     element={
-                        <Suspense fallback={<Loading />}>
+                        <Suspense fallback={<AppShellSkeleton />}>
                             <MainLayout />
                         </Suspense>
                     }
@@ -42,7 +43,7 @@ const router = createBrowserRouter(
                     <Route
                         index
                         element={
-                            <Suspense fallback={<Loading />}>
+                            <Suspense fallback={<AppShellSkeleton />}>
                                 <Interface />
                             </Suspense>
                         }

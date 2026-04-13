@@ -8,6 +8,7 @@ import React, { useEffect, useRef } from "react";
 import Controls from "./Controls";
 import useDurationTimer from "../hooks/useDurationTimer";
 import ringing from "../../../assets/phone_ring.mp3";
+import { optimizeUrl } from "@/services/imageOptimization";
 
 const ActiveCallScreen = ({
     isCaller,
@@ -91,7 +92,10 @@ const ActiveCallScreen = ({
                 {(call.type === "audio" || call.status !== "connected") && (
                     <div className='absolute inset-0 flex items-center justify-center z-10'>
                         <img
-                            src={user.avatar?.url || user.avatar}
+                            src={optimizeUrl(
+                                user.avatar?.url || user.avatar,
+                                "medium",
+                            )}
                             alt='callee'
                             className='w-52 h-52 rounded-full object-cover shadow-2xl'
                         />

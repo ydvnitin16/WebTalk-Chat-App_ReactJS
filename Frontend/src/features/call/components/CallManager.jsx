@@ -2,7 +2,7 @@ import React, { lazy, Suspense } from "react";
 import useAuthStore from "@/stores/useAuthStore";
 import useCallStore, { currentOffer } from "@/stores/useCallStore";
 import useCall from "../hooks/useCall";
-import Loading from "@/components/ui/Loading";
+import CallConnectingSkeleton from "@/components/skeletons/CallConnectingSkeleton";
 const IncomingCallScreen = lazy(() => import("./IncomingCallScreen"));
 const ActiveCallScreen = lazy(() => import("./ActiveCallScreen"));
 
@@ -26,7 +26,7 @@ const CallManager = () => {
 
     if (call.caller._id !== currentUser.id && call.status !== "connected") {
         return (
-            <Suspense fallback={<Loading />}>
+            <Suspense fallback={<CallConnectingSkeleton />}>
                 <IncomingCallScreen
                     callerName={call.caller.name}
                     callerAvatar={call.caller.avatar?.url || call.caller.avatar}
@@ -51,7 +51,7 @@ const CallManager = () => {
 
     return (
         <>
-            <Suspense fallback={<Loading />}>
+            <Suspense fallback={<CallConnectingSkeleton />}>
                 <ActiveCallScreen
                     isCaller={call.caller._id === currentUser.id}
                     call={call}

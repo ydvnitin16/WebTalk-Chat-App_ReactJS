@@ -1,14 +1,14 @@
-import React, { useState } from "react";
-import ConfirmModal from "../../../../components/ui/ConfirmModal.jsx";
-import {
-    LogOut,
-    MessageCircle,
-    Send,
-    SendHorizonal,
-    UserRound,
-} from "lucide-react";
-import ProfileModal from "@/features/auth/pages/ProfileModal.jsx";
+import React, { lazy, Suspense, useState } from "react";
+import { LogOut, UserRound } from "lucide-react";
 import { optimizeUrl } from "@/services/imageOptimization.js";
+import ModalSkeleton from "@/components/skeletons/ModalSkeleton.jsx";
+
+const ProfileModal = lazy(
+    () => import("@/features/auth/pages/ProfileModal.jsx"),
+);
+const ConfirmModal = lazy(
+    () => import("../../../../components/ui/ConfirmModal.jsx"),
+);
 
 const SidebarHeader = ({ user, handleLogout }) => {
     const [logoutModal, setLogoutModal] = useState(false);
@@ -18,20 +18,27 @@ const SidebarHeader = ({ user, handleLogout }) => {
 
     return (
         <>
-            <ProfileModal
-                isOpen={isProfileModalOpen}
-                onClose={() => setIsProfileModalOpen(false)}
-                user={user}
-            />
-            {/* Logout MOdal */}
-            <ConfirmModal
-                isOpen={logoutModal}
-                onClose={() => setLogoutModal(false)}
-                onConfirm={handleLogout}
-                title='Confirm Logout'
-                description='Are you sure you want to logout?'
-                actionTitle={"Yes, Logout"}
-            />
+            {isProfileModalOpen && (
+                <Suspense fallback={<ModalSkeleton />}>
+                    <ProfileModal
+                        isOpen={isProfileModalOpen}
+                        onClose={() => setIsProfileModalOpen(false)}
+                        user={user}
+                    />
+                </Suspense>
+            )}
+            {logoutModal && (
+                <Suspense fallback={<ModalSkeleton />}>
+                    <ConfirmModal
+                        isOpen={logoutModal}
+                        onClose={() => setLogoutModal(false)}
+                        onConfirm={handleLogout}
+                        title='Confirm Logout'
+                        description='Are you sure you want to logout?'
+                        actionTitle={"Yes, Logout"}
+                    />
+                </Suspense>
+            )}
 
             <div className='flex justify-between items-center px-3 pt-3 pb-1.5  mx-1  dark:text-white'>
                 <h1 className='flex gap-1 items-center text-2xl font-bold'>
@@ -50,8 +57,11 @@ const SidebarHeader = ({ user, handleLogout }) => {
                 </h1>
                 <div className='relative'>
                     <img
-                        loading="lazy"
-                        src={optimizeUrl(user?.avatar?.url || user?.avatar, "small")}
+                        loading='lazy'
+                        src={optimizeUrl(
+                            user?.avatar?.url || user?.avatar,
+                            "small",
+                        )}
                         alt={user?.name}
                         className='w-10 h-10 rounded-full cursor-pointer'
                         onClick={() => setShowDropdown(!showDropdown)}
