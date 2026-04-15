@@ -25,7 +25,12 @@ export const useSocketEvents = () => {
         updateConversationUnreadCount,
     } = useChatStore();
 
-    const { setCall, updateCallStatus, syncCallId } = useCallStore();
+    const {
+        setCall,
+        updateCallStatus,
+        syncCallId,
+        call: activeCall,
+    } = useCallStore();
 
     useEffect(() => {
         if (!selectedUserId) return;
@@ -79,6 +84,9 @@ export const useSocketEvents = () => {
             setTyping(userId, false);
         };
         const handleIncomingCall = ({ offer, from, call }) => {
+            if (activeCall) {
+                return;
+            }
             socket.emit("call-status", { to: from, status: "ringing" });
             currentOffer.current = offer;
             setCall(call);

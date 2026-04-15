@@ -22,7 +22,7 @@ const ChatBox = () => {
 
         loadInitial(selectedConversation._id);
     }, [selectedConversation?._id, loadInitial]);
-    
+
     // If no chat is selected
     if (!selectedUserId) {
         return (

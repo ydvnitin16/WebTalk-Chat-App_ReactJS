@@ -1,5 +1,4 @@
 import { lazy, Suspense, useEffect } from "react";
-import Loading from "@/components/ui/Loading";
 const CallManager = lazy(
     () => import("@/features/call/components/CallManager"),
 );
@@ -17,6 +16,7 @@ import useCallStore from "@/stores/useCallStore";
 import useChatStore from "@/stores/useChatStore";
 import ChatSkeleton from "@/components/skeletons/ChatSkeleton";
 import CallConnectingSkeleton from "@/components/skeletons/CallConnectingSkeleton";
+import ErrorBoundary from "@/ErrorBoundary";
 
 const Interface = () => {
     const currentUser = useAuthStore((state) => state.currentUser);
@@ -40,16 +40,22 @@ const Interface = () => {
     return (
         <>
             <div className='flex flex-col md:flex-row h-screen dark:bg-black bg-white md:px-2 font-sans relative'>
-                <Sidebar />
+                <ErrorBoundary>
+                    <Sidebar />
+                </ErrorBoundary>
                 {selectedUserId && (
-                    <Suspense fallback={<ChatSkeleton />}>
-                        <ChatBox />
-                    </Suspense>
+                    <ErrorBoundary>
+                        <Suspense fallback={<ChatSkeleton />}>
+                            <ChatBox />
+                        </Suspense>
+                    </ErrorBoundary>
                 )}
                 {call && (
-                    <Suspense fallback={<CallConnectingSkeleton />}>
-                        <CallManager />
-                    </Suspense>
+                    <ErrorBoundary>
+                        <Suspense fallback={<CallConnectingSkeleton />}>
+                            <CallManager />
+                        </Suspense>
+                    </ErrorBoundary>
                 )}
             </div>
         </>

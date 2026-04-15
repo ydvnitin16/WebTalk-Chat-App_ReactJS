@@ -48,7 +48,7 @@ const CallManager = () => {
             </Suspense>
         );
     }
-
+    
     return (
         <>
             <Suspense fallback={<CallConnectingSkeleton />}>
@@ -58,7 +58,7 @@ const CallManager = () => {
                     endCall={() =>
                         call.status !== "connected"
                             ? cancelCall({
-                                  to: isCaller
+                                  callerId: isCaller
                                       ? call.receiver._id
                                       : call.caller._id,
                                   callId: call._id,
