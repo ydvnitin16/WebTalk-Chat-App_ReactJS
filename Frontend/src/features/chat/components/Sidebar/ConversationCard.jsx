@@ -32,7 +32,7 @@ const ConversationCard = ({
             </div>
 
             <div className='flex-1 min-w-0'>
-                <p className='flex justify-between items-center text-lg font-medium text-gray-800 dark:text-white'>
+                <div className='flex justify-between items-center text-lg font-medium text-gray-800 dark:text-white'>
                     <span>{user.name}</span>
                     <div className='flex items-center gap-2'>
                         {lastMessage && (
@@ -46,7 +46,7 @@ const ConversationCard = ({
                             </span>
                         )}
                     </div>
-                </p>
+                </div>
 
                 <p className='text-sm text-gray-500 truncate dark:text-gray-300 w-full'>
                     {lastMessage

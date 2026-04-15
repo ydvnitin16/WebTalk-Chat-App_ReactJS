@@ -34,9 +34,6 @@ const Interface = () => {
         disconnectSocket();
     }, [currentUser]);
 
-    // Load conversations when component mounts
-    useConversations();
-
     return (
         <>
             <div className='flex flex-col md:flex-row h-screen dark:bg-black bg-white md:px-2 font-sans relative'>

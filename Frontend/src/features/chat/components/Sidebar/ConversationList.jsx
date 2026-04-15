@@ -2,11 +2,23 @@ import useChatStore from "@/stores/useChatStore";
 import React from "react";
 import ConversationCard from "./ConversationCard";
 import useAuthStore from "@/stores/useAuthStore";
+import { useConversations } from "../../hooks/useConversations";
+import ConversationListSkeleton from "@/components/skeletons/ConversationListSkeleton";
 
 const ConversationList = () => {
     const { conversations, selectedUserId, setSelectedUserId, users } =
         useChatStore();
     const { currentUser } = useAuthStore();
+
+    const { isLoading, error } = useConversations();
+
+    if (isLoading) {
+        return <ConversationListSkeleton />;
+    }
+
+    if (error) {
+        return <p>Something went wrong</p>;
+    }
 
     return (
         <div className='space-y-2 py-2 px-1.5 h-screen'>

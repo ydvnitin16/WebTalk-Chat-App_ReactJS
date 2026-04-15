@@ -4,6 +4,7 @@ import ConversationCard from "./ConversationCard";
 import useChatStore from "@/stores/useChatStore";
 import useAuthStore from "@/stores/useAuthStore";
 import { Search } from "lucide-react";
+import ConversationListSkeleton from "@/components/skeletons/ConversationListSkeleton";
 
 const SearchUsersInput = () => {
     const { searchUsername, setSearchUsername, users, loading, error } =
@@ -30,10 +31,12 @@ const SearchUsersInput = () => {
             {searchUsername.length > 0 && (
                 <div className='absolute top-14 left-0 w-full bg-white p-1  rounded-2xl dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 shadow-lg max-h-60 overflow-y-auto z-50'>
                     {loading && (
-                        <p className='p-2 text-gray-400'>Searching...</p>
+                        <div className='p-2 text-gray-400'>
+                            <ConversationListSkeleton />{" "}
+                        </div>
                     )}
 
-                    {!loading && !users && (
+                    {!loading && users?.length === 0 && !error && (
                         <p className='p-2 text-gray-400'>No users found</p>
                     )}
 

@@ -28,7 +28,8 @@ export const useMessages = () => {
     const loadInitial = useCallback(
         async (conversationId = selectedConversation?._id) => {
             if (!conversationId) return;
-
+            setMessages(null);
+            setCallHistory(null);
             setFetching(true);
 
             try {
@@ -37,7 +38,6 @@ export const useMessages = () => {
                     null,
                     20,
                 );
-
                 setMessages(data.messages);
                 setCallHistory(data.calls);
                 setPagination({

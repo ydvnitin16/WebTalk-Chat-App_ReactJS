@@ -3,25 +3,9 @@ import React, { useEffect } from "react";
 import ChatHeader from "./ChatHeader";
 import ChatList from "./ChatList";
 import MessageInput from "./MessageInput";
-import { useMessages } from "../../hooks/useMessages";
-import useAuthStore from "@/stores/useAuthStore";
 
 const ChatBox = () => {
-    const { selectedUserId, conversations } = useChatStore();
-    const { currentUser } = useAuthStore();
-    const { loadInitial } = useMessages();
-
-    const selectedConversation = conversations.find(
-        (c) =>
-            c.participants?.includes(selectedUserId) &&
-            c.participants?.includes(currentUser?.id),
-    );
-
-    useEffect(() => {
-        if (!selectedConversation?._id) return;
-
-        loadInitial(selectedConversation._id);
-    }, [selectedConversation?._id, loadInitial]);
+    const { selectedUserId } = useChatStore();
 
     // If no chat is selected
     if (!selectedUserId) {

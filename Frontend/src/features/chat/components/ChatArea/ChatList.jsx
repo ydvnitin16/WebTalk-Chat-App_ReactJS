@@ -1,5 +1,5 @@
 import useChatStore from "@/stores/useChatStore";
-import React, { useMemo } from "react";
+import React, { useEffect, useMemo } from "react";
 import ChatBubble from "./ChatBubble";
 import useAuthStore from "@/stores/useAuthStore";
 import TypingIndicator from "./TypingIndicator";
@@ -9,14 +9,35 @@ import CallBubble from "./CallBubble";
 import useAutoScroll from "../../hooks/useAutoScroll";
 import { useMessages } from "../../hooks/useMessages";
 import useResendMessage from "../../hooks/useResendMessage";
+import { Loader } from "lucide-react";
 
 const ChatList = () => {
-    const { messages, selectedUserId, typingUsers, users } = useChatStore();
+    const {
+        messages,
+        selectedUserId,
+        typingUsers,
+        users,
+        conversations,
+        isFetching,
+    } = useChatStore();
     const { callHistory } = useCallStore();
     const { currentUser } = useAuthStore();
     const { scrollDownRef, containerRef } = useAutoScroll();
-    const { loadMore } = useMessages();
     const { resendMessage } = useResendMessage();
+
+    const { loadInitial, loadMore } = useMessages();
+
+    const selectedConversation = conversations.find(
+        (c) =>
+            c.participants?.includes(selectedUserId) &&
+            c.participants?.includes(currentUser?.id),
+    );
+
+    useEffect(() => {
+        if (!selectedConversation?._id) return;
+
+        loadInitial(selectedConversation._id);
+    }, [selectedConversation?._id, loadInitial]);
 
     const chatItems = useMemo(() => {
         return [
@@ -65,7 +86,11 @@ const ChatList = () => {
                     bg-white dark:text-white dark:bg-zinc-950'
         >
             {/* Chats appear here */}
-
+            {isFetching && (
+                <p className='flex justify-center items-center '>
+                    <Loader />
+                </p>
+            )}
             {chatItems.length > 0 &&
                 chatItems.map((item, idx) => {
                     const isSame =
@@ -86,7 +111,7 @@ const ChatList = () => {
                                 time={formatDateTime(item.data.createdAt)}
                                 status={item.data.status}
                                 isSame={isSame}
-                                resend={()=>resendMessage(item.data)}
+                                resend={() => resendMessage(item.data)}
                             />
                         );
                     }
