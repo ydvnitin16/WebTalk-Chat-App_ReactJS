@@ -1,3 +1,4 @@
+import { formatDateTime } from "@/services/utils";
 import {
     BadgeInfo,
     Check,
@@ -7,7 +8,7 @@ import {
     RotateCw,
     Timer,
 } from "lucide-react";
-import React from "react";
+import React, { useCallback, useMemo } from "react";
 
 const ChatBubble = ({
     user,
@@ -18,6 +19,7 @@ const ChatBubble = ({
     status = "sent",
     isSame,
     resend,
+    data,
 }) => {
     const renderStatus = () => {
         if (!isMine) return null;
@@ -29,6 +31,14 @@ const ChatBubble = ({
         if (status === "seen")
             return <CheckCheck size={14} className='text-blue-400' />;
     };
+
+    const formattedTime = useMemo(() => {
+        return formatDateTime(time);
+    }, [time]);
+
+    const handleResend = useCallback(() => {
+        resend(data);
+    }, [resend, data]);
 
     return (
         <div
@@ -71,7 +81,7 @@ const ChatBubble = ({
                                     }
                                 `}
                                 >
-                                    {time || "23:12"}
+                                    {formattedTime || "23:12"}
                                     {isMine && renderStatus()}
                                 </span>
                             </div>
@@ -79,7 +89,7 @@ const ChatBubble = ({
                         {status === "failed" && (
                             <div
                                 className='cursor-pointer hover:opacity-70'
-                                onClick={resend}
+                                onClick={() => handleResend(data)}
                             >
                                 <RotateCw size={16} />
                             </div>
@@ -106,4 +116,4 @@ const ChatBubble = ({
     );
 };
 
-export default ChatBubble;
+export default React.memo(ChatBubble);

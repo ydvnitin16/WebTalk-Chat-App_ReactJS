@@ -108,10 +108,11 @@ const ChatList = () => {
                                 isMine={item.data.sender === currentUser.id}
                                 content={item.data.content}
                                 type={item.type}
-                                time={formatDateTime(item.data.createdAt)}
+                                time={item.data.createdAt}
                                 status={item.data.status}
                                 isSame={isSame}
-                                resend={() => resendMessage(item.data)}
+                                data={item.data}
+                                resend={resendMessage}
                             />
                         );
                     }

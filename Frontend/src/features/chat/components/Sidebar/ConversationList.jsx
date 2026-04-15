@@ -1,5 +1,5 @@
 import useChatStore from "@/stores/useChatStore";
-import React from "react";
+import React, { useCallback } from "react";
 import ConversationCard from "./ConversationCard";
 import useAuthStore from "@/stores/useAuthStore";
 import { useConversations } from "../../hooks/useConversations";
@@ -11,6 +11,13 @@ const ConversationList = () => {
     const { currentUser } = useAuthStore();
 
     const { isLoading, error } = useConversations();
+
+    const handleSelect = useCallback(
+        (user) => {
+            setSelectedUserId(user._id);
+        },
+        [setSelectedUserId],
+    );
 
     if (isLoading) {
         return <ConversationListSkeleton />;
@@ -35,12 +42,13 @@ const ConversationList = () => {
                         <ConversationCard
                             key={conversation._id || user._id}
                             user={user}
-                            onClick={() => setSelectedUserId(conversationWith)}
+                            onClick={handleSelect}
                             isSelected={selectedUserId === conversationWith}
                             lastMessage={conversation.lastMessage}
                             unreadCount={
                                 conversation.unreadCounts?.[currentUser.id] || 0
                             }
+                            currentUserId={currentUser.id}
                         />
                     );
                 })

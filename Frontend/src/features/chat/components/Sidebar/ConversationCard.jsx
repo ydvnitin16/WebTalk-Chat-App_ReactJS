@@ -1,6 +1,6 @@
 import useAuthStore from "@/stores/useAuthStore";
 import { formatDateTime } from "@/services/utils";
-import React from "react";
+import React, { useMemo } from "react";
 import { optimizeUrl } from "@/services/imageOptimization";
 
 const ConversationCard = ({
@@ -9,15 +9,19 @@ const ConversationCard = ({
     onClick,
     lastMessage,
     unreadCount = 0,
+    currentUserId,
 }) => {
-    const { currentUser } = useAuthStore();
+    const formattedTime = useMemo(() => {
+        return formatDateTime(lastMessage?.createdAt);
+    }, [lastMessage?.createdAt]);
 
     return (
         <div
             className={`flex items-center gap-3 p-2 rounded-lg cursor-pointer hover:bg-gray-100 dark:hover:bg-zinc-900 ${
                 isSelected ? "bg-zinc-100 dark:bg-zinc-900" : ""
             }`}
-            onClick={onClick}
+            currentUser
+            onClick={() => onClick(user)}
         >
             <div className='relative flex-shrink-0'>
                 <img
@@ -37,7 +41,7 @@ const ConversationCard = ({
                     <div className='flex items-center gap-2'>
                         {lastMessage && (
                             <span className='text-xs text-gray-400'>
-                                {formatDateTime(lastMessage.createdAt)}
+                                {formattedTime}
                             </span>
                         )}
                         {unreadCount > 0 && (
@@ -50,7 +54,7 @@ const ConversationCard = ({
 
                 <p className='text-sm text-gray-500 truncate dark:text-gray-300 w-full'>
                     {lastMessage
-                        ? `${lastMessage.sender === currentUser?.id ? "You: " : ""}${lastMessage.content}`
+                        ? `${lastMessage.sender === currentUserId ? "You: " : ""}${lastMessage.content}`
                         : "Start a new chat"}
                 </p>
             </div>
@@ -58,4 +62,4 @@ const ConversationCard = ({
     );
 };
 
-export default ConversationCard;
+export default React.memo(ConversationCard);

@@ -1,4 +1,4 @@
-import React, { useRef, useState } from "react";
+import React, { useCallback, useRef, useState } from "react";
 import useSearchUser from "../../hooks/useSearchUser";
 import ConversationCard from "./ConversationCard";
 import useChatStore from "@/stores/useChatStore";
@@ -12,6 +12,29 @@ const SearchUsersInput = () => {
 
     const { setSelectedUserId, addConversation, addUser } = useChatStore();
     const { currentUser } = useAuthStore();
+
+    const handleNewConversation = useCallback(
+        (user) => {
+            const tempId = Date.now();
+
+            addConversation({
+                _id: tempId,
+                tempId,
+                participants: [user._id, currentUser.id],
+            });
+
+            addUser(user);
+            setSelectedUserId(user._id);
+            setSearchUsername("");
+        },
+        [
+            addConversation,
+            addUser,
+            setSelectedUserId,
+            setSearchUsername,
+            currentUser.id,
+        ],
+    );
 
     return (
         <div className='p-2 relative'>
@@ -45,20 +68,8 @@ const SearchUsersInput = () => {
                             <ConversationCard
                                 key={user._id}
                                 user={user}
-                                onClick={() => {
-                                    const tempId = Date.now();
-                                    addConversation({
-                                        _id: tempId,
-                                        tempId,
-                                        participants: [
-                                            user._id,
-                                            currentUser.id,
-                                        ],
-                                    });
-                                    addUser(user);
-                                    setSelectedUserId(user._id);
-                                    setSearchUsername("");
-                                }}
+                                onClick={handleNewConversation}
+                                currentUserId={currentUser.id}
                             />
                         ))}
                 </div>

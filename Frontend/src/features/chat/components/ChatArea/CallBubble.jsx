@@ -117,4 +117,4 @@ const CallBubble = ({
     );
 };
 
-export default CallBubble;
+export default React.memo(CallBubble);
