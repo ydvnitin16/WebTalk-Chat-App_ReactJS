@@ -7,7 +7,7 @@ import {
 import React, { useEffect, useRef } from "react";
 import Controls from "./Controls";
 import useDurationTimer from "../hooks/useDurationTimer";
-import ringing from "../../../assets/phone_ring.mp3";
+import ringing from "../../../assets/phone-ring.mp3";
 import { optimizeUrl } from "@/services/imageOptimization";
 
 const ActiveCallScreen = ({
