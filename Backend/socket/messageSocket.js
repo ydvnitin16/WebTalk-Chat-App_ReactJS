@@ -27,6 +27,7 @@ export const handleMessageSocket = (io, socket) => {
                 conversationId: conversation._id,
                 userId: sendTo,
                 count: unreadCount,
+                senderId: userId,
             });
             io.to(userId).emit("message-sent", {
                 messageId: message._id,
@@ -56,6 +57,7 @@ export const handleMessageSocket = (io, socket) => {
             conversationId: result.conversationId,
             userId,
             count: result.unreadCount,
+            senderId: userId,
         });
     });
 

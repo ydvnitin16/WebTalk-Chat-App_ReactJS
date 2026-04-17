@@ -11,7 +11,6 @@ export const useMessageHandlers = () => {
         updateMessageStatus,
         updateAllMessagesStatus,
         updateConversationUnreadCount,
-        selectedUserId,
     } = useChatStore();
 
     const onReceiveMessage = ({ message }) => {
@@ -47,8 +46,15 @@ export const useMessageHandlers = () => {
         updateAllMessagesStatus({ sendTo, messageIds, status: "seen" });
     const onMessagesDelivered = ({ sendTo, messageIds }) =>
         updateAllMessagesStatus({ sendTo, messageIds, status: "delivered" });
-    const onUnreadCount = ({ conversationId, userId, count }) =>
+    const onUnreadCount = ({ conversationId, userId, senderId, count }) => {
+        const { selectedUserId } = useChatStore.getState();
+        // if chat is already open don't increment unreadcount
+        if (selectedUserId.toString() === senderId.toString()) {
+            socket.emit("messages-seen", { senderId: selectedUserId });
+            return;
+        }
         updateConversationUnreadCount({ conversationId, userId, count });
+    };
     const onTyping = (userId) => setTyping(userId, true);
     const onStopTyping = (userId) => setTyping(userId, false);
     const onUserOnline = (id) => setUserStatus(id, true);

@@ -3,6 +3,7 @@ import { useEffect } from "react";
 import useChatStore from "@/stores/useChatStore";
 import { useMessageHandlers } from "./useMessageHandlers";
 import { useCallHandlers } from "./useCallHandlers";
+import useAuthStore from "@/stores/useAuthStore";
 
 const useSocketListeners = (handlers) => {
     useEffect(() => {
@@ -15,13 +16,27 @@ const useSocketListeners = (handlers) => {
 };
 
 export const useSocketEvents = () => {
-    const { selectedUserId } = useChatStore();
+    const { selectedUserId, updateConversationUnreadCount, conversations } =
+        useChatStore();
+    const { currentUser } = useAuthStore();
 
     // Mark messages seen when switching conversations
     useEffect(() => {
         if (!selectedUserId) return;
+
+        const { _id: conversationId } = conversations.find(
+            (conversation) =>
+                conversation.participants?.includes(selectedUserId) &&
+                conversation.participants?.includes(currentUser?.id),
+        );
+
         socket.emit("messages-seen", { senderId: selectedUserId });
-    }, [selectedUserId]);
+        updateConversationUnreadCount({
+            conversationId,
+            userId: selectedUserId,
+            count: 0,
+        });
+    }, [selectedUserId, updateConversationUnreadCount]);
 
     useSocketListeners(useMessageHandlers());
     useSocketListeners(useCallHandlers());
