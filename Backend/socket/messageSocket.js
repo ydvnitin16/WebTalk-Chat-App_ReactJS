@@ -6,88 +6,61 @@ import {
 } from "../services/messageService.js";
 
 export const handleMessageSocket = (io, socket) => {
+    const userId = socket.user.id;
+
     socket.on("send-message", async ({ content, sendTo, tempId }) => {
-        const senderId = socket.user.id;
         try {
-            // store in db
             const { message, conversation } = await sendMessageService({
-                senderId,
+                senderId: userId,
                 receiverId: sendTo,
                 content,
                 type: "text",
                 status: "sent",
             });
 
-            // send to reciever via socket
+            const unreadCount =
+                conversation.unreadCounts.get(sendTo.toString?.() || sendTo) ||
+                0;
+
             io.to(sendTo).emit("receive-message", { message });
             io.to(sendTo).emit("unread-count-updated", {
                 conversationId: conversation._id,
                 userId: sendTo,
-                count:
-                    conversation.unreadCounts.get(sendTo.toString?.() || sendTo) ||
-                    0,
+                count: unreadCount,
             });
-
-            io.to(senderId).emit("message-sent", {
+            io.to(userId).emit("message-sent", {
                 messageId: message._id,
                 tempId,
             });
         } catch (error) {
-            io.to(senderId).emit("message-failed", {
-                messageId: tempId,
-                tempId,
-                status: "failed",
-            });
-            console.log("Message error: ", error.message);
+            console.error("Message error:", error.message);
+            io.to(userId).emit("message-failed", { tempId, status: "failed" });
         }
     });
 
-    // update when user got the message
-    socket.on("message-delivered", async ({ messageId, from }) => {
-        await updateMessageById(messageId, { status: "delivered" });
-        io.to(from).emit("message-status-update", {
-            messageId,
-            status: "delivered",
-        });
+    // Unified: handles both "delivered" and "seen" status updates
+    socket.on("message-status", async ({ messageId, from, status }) => {
+        await updateMessageById(messageId, { status });
+        io.to(from).emit("message-status-update", { messageId, status });
     });
 
-    // update when user seen the message
-    socket.on("message-seen", async ({ messageId, from }) => {
-        await updateMessageById(messageId, { status: "seen" });
-        io.to(from).emit("message-status-update", {
-            messageId,
-            status: "seen",
-        });
-    });
-
-    // update all messages when user seen all the messages
     socket.on("messages-seen", async ({ senderId }) => {
-        const result = await updateAllMessagesToSeen(
-            senderId,
-            socket.user.id,
-        );
+        const result = await updateAllMessagesToSeen(senderId, userId);
         if (!result?.messageIds?.length) return;
 
         io.to(senderId).emit("messages-seen", {
-            sendTo: socket.user.id,
+            sendTo: userId,
             messageIds: result.messageIds,
         });
-        io.to(socket.user.id).emit("unread-count-updated", {
+        io.to(userId).emit("unread-count-updated", {
             conversationId: result.conversationId,
-            userId: socket.user.id,
+            userId,
             count: result.unreadCount,
         });
     });
 
-    // Typing
-    socket.on("typing", (to) => {
-        io.to(to).emit("typing", socket.user.id);
-    });
-
-    // Stop typing
-    socket.on("stop-typing", (to) => {
-        io.to(to).emit("stop-typing", socket.user.id);
-    });
+    socket.on("typing", (to) => io.to(to).emit("typing", userId));
+    socket.on("stop-typing", (to) => io.to(to).emit("stop-typing", userId));
 };
 
 export const handleUndeliveredMessages = async (io, socket) => {
@@ -95,7 +68,7 @@ export const handleUndeliveredMessages = async (io, socket) => {
     const undelivered = await updateAllMessagesToDelivered(userId);
     const grouped = groupMessagesBySender(undelivered);
 
-    for (let [senderId, messageIds] of grouped.entries()) {
+    for (const [senderId, messageIds] of grouped.entries()) {
         io.to(senderId).emit("messages-delivered", {
             sendTo: userId,
             messageIds,
@@ -103,18 +76,9 @@ export const handleUndeliveredMessages = async (io, socket) => {
     }
 };
 
-const groupMessagesBySender = (messages = []) => {
-    const map = new Map();
-
-    for (let msg of messages) {
-        const senderId = msg.sender.toString();
-
-        if (!map.has(senderId)) {
-            map.set(senderId, []);
-        }
-
-        map.get(senderId).push(msg._id);
-    }
-
-    return map;
-};
+const groupMessagesBySender = (messages = []) =>
+    messages.reduce((map, msg) => {
+        const id = msg.sender.toString();
+        map.set(id, [...(map.get(id) || []), msg._id]);
+        return map;
+    }, new Map());
