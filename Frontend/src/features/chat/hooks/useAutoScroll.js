@@ -1,66 +1,58 @@
 import useCallStore from "@/stores/useCallStore";
 import useChatStore from "@/stores/useChatStore";
-import { useLayoutEffect, useRef } from "react";
+import { useEffect, useLayoutEffect, useRef } from "react";
 
 const useAutoScroll = () => {
-    const { messages, selectedUserId, typingUsers } = useChatStore();
+    const { messages, selectedUserId, typingUsers, isFetching } =
+        useChatStore();
     const { callHistory } = useCallStore();
 
     const containerRef = useRef(null);
     const scrollDownRef = useRef(null);
     const previousSelectedUserIdRef = useRef(null);
-    const shouldForceScrollRef = useRef(false);
+    const forceScrollOnceRef = useRef(false);
+    const prevScrollHeightRef = useRef(0);
 
-    // helper
     const isNearBottom = () => {
         const el = containerRef.current;
         if (!el) return true;
-
         return el.scrollHeight - el.scrollTop - el.clientHeight < 100;
     };
+
+    useEffect(() => {
+        if (previousSelectedUserIdRef.current !== selectedUserId) {
+            previousSelectedUserIdRef.current = selectedUserId;
+            forceScrollOnceRef.current = true;
+        }
+    }, [selectedUserId]);
 
     useLayoutEffect(() => {
         const el = containerRef.current;
         if (!el) return;
 
-        const hasConversationChanged =
-            previousSelectedUserIdRef.current !== selectedUserId;
-        previousSelectedUserIdRef.current = selectedUserId;
-
-        if (hasConversationChanged) {
-            shouldForceScrollRef.current = true;
-        }
-
-        if (shouldForceScrollRef.current) {
-            requestAnimationFrame(() => {
-                const scrollContainer = containerRef.current;
-                if (!scrollContainer) return;
-
-                scrollContainer.scrollTop = scrollContainer.scrollHeight;
-                scrollDownRef.current?.scrollIntoView({
-                    block: "end",
-                });
-            });
-
-            shouldForceScrollRef.current = false;
+        if (forceScrollOnceRef.current && messages.length > 0) {
+            el.scrollTop = el.scrollHeight;
+            forceScrollOnceRef.current = false;
             return;
         }
 
-        // only scroll if already near bottom
-        if (isNearBottom()) {
-            scrollDownRef.current?.scrollIntoView({
-                behavior: "smooth",
-                block: "end",
-            });
+        if (prevScrollHeightRef.current > 0) {
+            el.scrollTop = el.scrollHeight - prevScrollHeightRef.current;
+            prevScrollHeightRef.current = 0;
+            return;
         }
-    }, [
-        messages.length,
-        callHistory.length,
-        typingUsers[selectedUserId],
-        selectedUserId,
-    ]);
 
-    return { containerRef, scrollDownRef };
+        if (isNearBottom()) {
+            scrollDownRef.current?.scrollIntoView({ behavior: "smooth" });
+        }
+    }, [messages.length, callHistory.length, typingUsers[selectedUserId]]);
+
+    const captureScrollHeight = () => {
+        const el = containerRef.current;
+        if (el) prevScrollHeightRef.current = el.scrollHeight;
+    };
+
+    return { containerRef, scrollDownRef, captureScrollHeight };
 };
 
 export default useAutoScroll;

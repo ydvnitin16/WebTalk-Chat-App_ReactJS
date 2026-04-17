@@ -22,7 +22,8 @@ const ChatList = () => {
     } = useChatStore();
     const { callHistory } = useCallStore();
     const { currentUser } = useAuthStore();
-    const { scrollDownRef, containerRef } = useAutoScroll();
+    const { scrollDownRef, containerRef, captureScrollHeight } =
+        useAutoScroll();
     const { resendMessage } = useResendMessage();
 
     const { loadInitial, loadMore } = useMessages();
@@ -59,16 +60,9 @@ const ChatList = () => {
 
     const handleScroll = async () => {
         const el = containerRef.current;
-
         if (el.scrollTop === 0) {
-            const prevHeight = el.scrollHeight;
-
-            await loadMore(); // fetch older messages
-
-            requestAnimationFrame(() => {
-                const newHeight = el.scrollHeight;
-                el.scrollTop = newHeight - prevHeight;
-            });
+            captureScrollHeight();
+            await loadMore();
         }
     };
 
