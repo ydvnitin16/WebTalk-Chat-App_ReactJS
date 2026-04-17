@@ -28,14 +28,10 @@ export const cleanupCallRefs = () => {
 };
 
 export const useCallHandlers = () => {
-    const {
-        setCall,
-        updateCallStatus,
-        syncCallId,
-        call: activeCall,
-    } = useCallStore();
+    const { setCall, updateCallStatus, syncCallId } = useCallStore();
 
     const onIncomingCall = ({ offer, from, call }) => {
+        const { call: activeCall } = useCallStore.getState();
         if (activeCall) return; // already on a call
         currentOffer.current = offer;
         setCall(call);
@@ -100,7 +96,7 @@ export const useCallHandlers = () => {
         "sync-call-id": onSyncCallId,
         "call-accepted": onCallAccepted,
         "ice-candidate": onIceCandidate,
-        "call-ended": onCallEnded, // ← single event replaces end/reject/cancel
+        "call-ended": onCallEnded,
         "call-status": onCallStatus,
     };
 };
