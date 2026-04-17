@@ -60,6 +60,14 @@ io.use(async (socket, next) => {
     }
 });
 
+// Store active calls
+const activeCallsMap = new Map();
+// key: userId, value: { callId, peerId, role }
+
+export const setActiveCall = (userId, data) => activeCallsMap.set(userId, data);
+export const getActiveCall = (userId) => activeCallsMap.get(userId);
+export const clearActiveCall = (userId) => activeCallsMap.delete(userId);
+
 // Socket Events
 io.on("connect", async (socket) => {
     const userId = socket.user.id;
