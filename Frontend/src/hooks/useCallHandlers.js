@@ -39,7 +39,7 @@ export const useCallHandlers = () => {
         if (activeCall) return; // already on a call
         currentOffer.current = offer;
         setCall(call);
-        // notify caller we're ringing via unified call-status
+        // notify caller we're ringing
         import("@/lib/socket").then(({ socket }) =>
             socket.emit("call-status", { to: from, status: "ringing" }),
         );
@@ -87,7 +87,6 @@ export const useCallHandlers = () => {
         }
     };
 
-    // Unified: all call termination events → same cleanup
     // Server emits "call-ended" for reject / end / cancel
     const onCallEnded = () => {
         cleanupCallRefs();

@@ -4,7 +4,6 @@ import useChatStore from "@/stores/useChatStore";
 import { useMessageHandlers } from "./useMessageHandlers";
 import { useCallHandlers } from "./useCallHandlers";
 
-// Generic register/unregister for any handlers map
 const useSocketListeners = (handlers) => {
     useEffect(() => {
         Object.entries(handlers).forEach(([event, fn]) => socket.on(event, fn));
@@ -12,7 +11,7 @@ const useSocketListeners = (handlers) => {
             Object.entries(handlers).forEach(([event, fn]) =>
                 socket.off(event, fn),
             );
-    }, []); // handlers are stable — defined outside render
+    }, []); // put socket event handler and off on unmount
 };
 
 export const useSocketEvents = () => {
