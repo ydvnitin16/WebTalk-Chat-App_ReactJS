@@ -49,7 +49,10 @@ export const useMessageHandlers = () => {
     const onUnreadCount = ({ conversationId, userId, senderId, count }) => {
         const { selectedUserId } = useChatStore.getState();
         // if chat is already open don't increment unreadcount
-        if (selectedUserId.toString() === senderId.toString()) {
+        if (
+            selectedUserId &&
+            selectedUserId.toString() === senderId.toString()
+        ) {
             socket.emit("messages-seen", { senderId: selectedUserId });
             return;
         }
