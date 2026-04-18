@@ -50,12 +50,12 @@ const useSendMessages = () => {
 
         // add to store
         addMessage(messageObj);
+        updateConversationLastMessage(messageObj);
+        setMessage("");
         if (!navigator.onLine) {
             addToQueue(messageObj);
             return;
         }
-        updateConversationLastMessage(messageObj);
-        setMessage("");
         try {
             socket.emit("send-message", { content, sendTo: receiver, tempId });
         } catch (err) {
