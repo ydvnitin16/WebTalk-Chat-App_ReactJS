@@ -46,7 +46,10 @@ export const updateProfileService = async ({
 
     const user = await User.findById(userId).select("_id name username avatar");
     if (!user) {
-        if (avatar?.public_id) {
+        if (
+            avatar?.public_id &&
+            avatar?.public_id !== import.meta.env.DEFAULT_AVATAR_URL
+        ) {
             await cloudinary.uploader.destroy(avatar.public_id);
         }
 
