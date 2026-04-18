@@ -93,6 +93,13 @@ io.on("connect", async (socket) => {
 });
 
 // Routes
+app.get("/health", (req, res) => {
+    res.status(200).json({
+        ok: true,
+        status: "ready",
+    });
+});
+
 app.use("/", userRoutes);
 app.use("/", messageRoutes);
 app.use("/", conversationRoutes);
