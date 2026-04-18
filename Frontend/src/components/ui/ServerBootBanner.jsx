@@ -47,7 +47,7 @@ const ServerBootBanner = () => {
     }, [status]);
 
     // Dont show while checking or ready
-    if (!status === "ready" || status === "checking") return null;
+    if (status === "ready" || status === "checking") return null;
 
     const isOffline = !isOnline;
 
