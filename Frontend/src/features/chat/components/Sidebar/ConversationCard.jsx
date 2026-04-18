@@ -1,7 +1,7 @@
 import useAuthStore from "@/stores/useAuthStore";
-import { formatDateTime } from "@/services/utils";
+import { formatDateTime } from "@/utils/utils";
 import React, { useMemo } from "react";
-import { optimizeUrl } from "@/services/imageOptimization";
+import { optimizeUrl } from "@/utils/imageOptimization";
 
 const ConversationCard = ({
     user,

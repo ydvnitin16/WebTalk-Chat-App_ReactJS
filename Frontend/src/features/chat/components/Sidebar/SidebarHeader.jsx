@@ -1,6 +1,6 @@
 import React, { lazy, Suspense, useState } from "react";
 import { LogOut, UserRound } from "lucide-react";
-import { optimizeUrl } from "@/services/imageOptimization.js";
+import { optimizeUrl } from "@/utils/imageOptimization.js";
 import ModalSkeleton from "@/components/skeletons/ModalSkeleton.jsx";
 
 const ProfileModal = lazy(

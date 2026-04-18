@@ -1,4 +1,4 @@
-import { formatDateTime } from "@/services/utils";
+import { formatDateTime } from "@/utils/utils";
 import {
     BadgeInfo,
     Check,

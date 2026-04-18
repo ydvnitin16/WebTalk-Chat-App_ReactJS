@@ -1,5 +1,5 @@
 import { socket } from "@/lib/socket";
-import { addToQueue } from "@/services/offlineQueue";
+import { addToQueue } from "@/utils/offlineQueue";
 import useAuthStore from "@/stores/useAuthStore";
 import useChatStore from "@/stores/useChatStore";
 import { useState } from "react";

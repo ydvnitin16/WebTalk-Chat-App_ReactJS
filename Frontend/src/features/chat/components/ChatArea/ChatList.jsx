@@ -3,7 +3,7 @@ import React, { useEffect, useMemo } from "react";
 import ChatBubble from "./ChatBubble";
 import useAuthStore from "@/stores/useAuthStore";
 import TypingIndicator from "./TypingIndicator";
-import { formatCallDuration, formatDateTime } from "@/services/utils";
+import { formatCallDuration, formatDateTime } from "@/utils/utils";
 import useCallStore from "@/stores/useCallStore";
 import CallBubble from "./CallBubble";
 import useAutoScroll from "../../hooks/useAutoScroll";

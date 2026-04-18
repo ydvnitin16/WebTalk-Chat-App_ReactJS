@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import { X, Camera } from "lucide-react";
 import Button from "@/components/ui/Button";
 import useProfile from "../hooks/useProfile";
-import { optimizeUrl } from "@/services/imageOptimization";
+import { optimizeUrl } from "@/utils/imageOptimization";
 
 const ProfileModal = ({ isOpen, onClose, user, onSave }) => {
     const [name, setName] = useState(user?.name || "");

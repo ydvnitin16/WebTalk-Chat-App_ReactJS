@@ -1,5 +1,5 @@
 import { useEffect } from "react";
-import { getQueue, removeFromQueue } from "@/services/offlineQueue";
+import { getQueue, removeFromQueue } from "@/utils/offlineQueue";
 import { socket } from "@/lib/socket";
 
 const useOfflineSync = () => {

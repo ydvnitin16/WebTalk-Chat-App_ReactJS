@@ -1,7 +1,7 @@
 import React, { useEffect, useRef, useState } from "react";
 import { ChevronDown, ChevronUp, Phone, PhoneOff } from "lucide-react";
 import ringtone from "../../../assets/ringtone.mp3";
-import { optimizeUrl } from "@/services/imageOptimization";
+import { optimizeUrl } from "@/utils/imageOptimization";
 
 const IncomingCallScreen = ({
     callerName,

@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { fetchConversations } from "../services/chat.api";
 import useChatStore from "@/stores/useChatStore";
-import { normalizeConversations } from "@/services/utils";
+import { normalizeConversations } from "@/utils/utils";
 
 export const useConversations = () => {
     const { setConversations, setUsers } = useChatStore();

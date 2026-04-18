@@ -4,7 +4,7 @@ import { faVideo } from "@fortawesome/free-solid-svg-icons";
 import { faEllipsisVertical } from "@fortawesome/free-solid-svg-icons";
 import { faArrowLeft } from "@fortawesome/free-solid-svg-icons";
 import useChatStore from "@/stores/useChatStore";
-import { formatDateTime } from "@/services/utils";
+import { formatDateTime } from "@/utils/utils";
 import useCallStore from "@/stores/useCallStore";
 import useCall from "@/features/call/hooks/useCall";
 import Button from "@/components/ui/Button";
@@ -12,7 +12,7 @@ import { UserRound } from "lucide-react";
 import { useState } from "react";
 import ChatHeaderDropdown from "./ChatHeaderDropdown";
 import UserProfileModal from "./UserProfileModal";
-import { optimizeUrl } from "@/services/imageOptimization";
+import { optimizeUrl } from "@/utils/imageOptimization";
 
 const ChatHeader = () => {
     const [showDropdown, setShowDropdown] = useState(false);

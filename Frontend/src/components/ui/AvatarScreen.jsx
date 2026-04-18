@@ -1,6 +1,6 @@
 import React, { useEffect } from "react";
 import { X } from "lucide-react";
-import { optimizeUrl } from "@/services/imageOptimization";
+import { optimizeUrl } from "@/utils/imageOptimization";
 
 const AvatarScreen = ({ isOpen, onClose, src }) => {
     if (!isOpen || !src) return null;

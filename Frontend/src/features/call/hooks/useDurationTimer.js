@@ -1,4 +1,4 @@
-import { formatCallDuration } from "@/services/utils";
+import { formatCallDuration } from "@/utils/utils";
 import { useEffect, useState } from "react";
 
 const useDurationTimer = (startTime) => {

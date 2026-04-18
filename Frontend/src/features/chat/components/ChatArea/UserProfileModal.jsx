@@ -1,9 +1,9 @@
 import React, { useState } from "react";
 import { X } from "lucide-react";
 import Button from "@/components/ui/Button";
-import { formatDateTime } from "@/services/utils";
+import { formatDateTime } from "@/utils/utils";
 import AvatarScreen from "@/components/ui/AvatarScreen";
-import { optimizeUrl } from "@/services/imageOptimization";
+import { optimizeUrl } from "@/utils/imageOptimization";
 
 const UserProfileModal = ({ isOpen, onClose, user }) => {
     if (!isOpen || !user) return null;
