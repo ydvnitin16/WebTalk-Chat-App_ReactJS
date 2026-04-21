@@ -15,6 +15,7 @@ const useLogout = () => {
             clearAuth();
             disconnectSocket();
             navigate("/login");
+            toast.success("Logout successfull");
         } catch (err) {
             console.log(err.message);
         }
