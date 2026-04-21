@@ -5,7 +5,7 @@ import * as yup from "yup";
 import { yupResolver } from "@hookform/resolvers/yup";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faAt, faEnvelope, faUser } from "@fortawesome/free-solid-svg-icons";
-import FormInput from "@/components/ui/FormInput.jsx";
+import Input from "@/components/ui/Input.jsx";
 import Button from "@/components/ui/Button.jsx";
 import { useAuthHandle } from "../hooks/useAuthForm.js";
 
@@ -48,70 +48,75 @@ const Signup = () => {
     return (
         <>
             <div className='min-h-screen flex items-center justify-center bg-gray-100 px-4'>
-                <div className='flex flex-col md:flex-row w-full max-w-5xl bg-white rounded-xl overflow-hidden shadow-lg'>
+                <div className='flex flex-col md:flex-row w-full max-w-5xl bg-white rounded-xl overflow-hidden border-zinc-200'>
                     {/* Left: Register Form */}
                     <div className='w-full md:w-1/2 p-8 sm:p-10'>
-                        <h2 className='text-2xl font-bold text-gray-800 mb-6'>
-                            Register Now
-                        </h2>
+                        <div className='mb-6'>
+                            <h1 className='text-2xl font-semibold tracking-tight'>
+                                Create your account
+                            </h1>
+                            <p className='text-sm text-zinc-500 mt-1'>
+                                Get start your conversations.
+                            </p>
+                        </div>
 
-                        <form onSubmit={handleSubmit(onSubmit)}>
+                        <form
+                            className='space-y-4'
+                            onSubmit={handleSubmit(onSubmit)}
+                        >
                             {/* Name */}
-                            <FormInput
-                                label='Name'
-                                placeholder='Enter Name'
+                            <Input
+                                label={"Name"}
+                                error={errors.name?.message}
+                                {...register("name")}
                                 type='text'
-                                register={register}
-                                errors={errors}
-                                name='name'
-                                icon={<FontAwesomeIcon icon={faUser} />}
+                                placeholder='John Doe'
                             />
 
-                            <FormInput
+                            <Input
                                 label='Username (Allows others to find you)'
-                                placeholder='Choose a unique username'
+                                error={errors.username?.message}
+                                {...register("username")}
                                 type='text'
-                                register={register}
-                                errors={errors}
-                                name='username'
-                                icon={<FontAwesomeIcon icon={faAt} />}
+                                placeholder='choose unique username'
                             />
 
                             {/* Email */}
-                            <FormInput
-                                label='Email'
-                                placeholder='Enter Email'
-                                type='text'
-                                register={register}
-                                errors={errors}
-                                name='email'
-                                icon={<FontAwesomeIcon icon={faEnvelope} />}
+                            <Input
+                                label={"Email"}
+                                error={errors.email?.message}
+                                {...register("email")}
+                                type='email'
+                                placeholder='you@example.com'
                             />
 
                             {/* Password */}
-                            <FormInput
-                                label='Password'
-                                placeholder='Enter Password'
+                            <Input
+                                label={"Password"}
+                                error={errors.password?.message}
+                                {...register("password")}
                                 type='password'
-                                register={register}
-                                errors={errors}
-                                name='password'
+                                placeholder='••••••••'
                             />
 
                             {/* Register Button */}
-                            <Button className={"w-full"} type='submit'>
+                            <Button
+                                loading={loading}
+                                className={"w-full"}
+                                type='submit'
+                            >
                                 Sign Up
                             </Button>
                         </form>
 
-                        {/* Login Redirect */}
-                        <p className='text-sm text-center mt-6 text-gray-600'>
-                            Already have an account?{" "}
+                        {/* FOOTER */}
+                        <p className='text-sm text-center text-zinc-500  mt-6'>
+                            Already have an account?
                             <Link
-                                to='/login'
-                                className='text-blue-600 font-medium'
+                                to='/signup'
+                                className='ml-1 text-zinc-900  hover:underline'
                             >
-                                Login Here
+                                Login
                             </Link>
                         </p>
                     </div>
@@ -122,20 +127,7 @@ const Signup = () => {
                         style={{
                             backgroundImage: `url(${sideImage})`,
                         }}
-                    >
-                        <h2 className='text-3xl font-bold mb-4'>
-                            Join Us Today
-                        </h2>
-                        <p className='text-sm mb-4'>
-                            Create your free account and unlock access to
-                            powerful tools, personalized features, and exclusive
-                            content.
-                        </p>
-                        <p className='text-sm'>
-                            Sign up now and take the first step toward your next
-                            big opportunity.
-                        </p>
-                    </div>
+                    ></div>
                 </div>
             </div>
         </>
