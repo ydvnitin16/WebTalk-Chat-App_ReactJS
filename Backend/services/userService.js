@@ -5,7 +5,9 @@ export const getUserByUsernameService = async (username) => {
     const normalisedUsername = username.trim().toLowerCase();
     const users = await User.find({
         username: { $regex: normalisedUsername },
-    }).select("_id name avatar username");
+    })
+        .limit(3)
+        .select("_id name avatar username");
     return users;
 };
 
