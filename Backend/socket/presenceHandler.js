@@ -18,11 +18,6 @@ class PresenceHandler {
             `user:${this.userId}`,
         );
 
-        const activeSockets = roomSockets ? roomSockets.size : 0;
-        if (activeSockets > 1) {
-            return;
-        }
-
         await this.userService.setOnline(this.userId);
 
         // Emit only to conversations with
