@@ -1,6 +1,6 @@
 const AppShellSkeleton = () => {
     return (
-        <div className='flex h-screen'>
+        <div className='flex h-screen w-full'>
             <div className='md:w-1/3 lg:w-1/4 w-full p-4 space-y-4 bg-[#FCFCFC] dark:bg-zinc-950'>
                 <div className='h-10 bg-zinc-300 dark:bg-zinc-700 rounded' />
                 <div className='h-10 bg-zinc-300 dark:bg-zinc-700 rounded-3xl' />

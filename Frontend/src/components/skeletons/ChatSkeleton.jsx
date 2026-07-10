@@ -18,7 +18,7 @@ const ChatSkeleton = () => {
                   px-4 py-3 rounded-2xl space-y-2 animate-pulse
                   ${
                       isMine
-                          ? "bg-[#D97757] dark:bg-[#D97757] rounded-br-sm"
+                          ? "bg-[#007AFF] dark:bg-[#007AFF] rounded-br-sm"
                           : "bg-zinc-200 dark:bg-zinc-700 rounded-bl-sm"
                   }
                 `}

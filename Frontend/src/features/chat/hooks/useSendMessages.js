@@ -3,10 +3,8 @@ import useAuthStore from "@/stores/useAuthStore";
 import useConversationStore from "@/stores/useConversationStore";
 import useMessageStore from "@/stores/useMessageStore";
 import useMemberStore from "@/stores/useMemberStore";
-import { getPeerUserId } from "@/utils/utils";
 import { useState } from "react";
 import toast from "react-hot-toast";
-import { addToMessageQueue } from "@/utils/offlineQueue";
 
 const useSendMessages = () => {
   const { getById, updateLastMessage } = useConversationStore();
