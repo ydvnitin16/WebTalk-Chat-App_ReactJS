@@ -13,7 +13,6 @@ export const getConversationMembersIds = async (userId) => {
   const conversationMembersIds = myConversations.map((c) =>
     c.participants.find((p) => p.toString() !== userId),
   );
-  console.log(conversationMembersIds);
   return conversationMembersIds;
 };
 
@@ -198,7 +197,7 @@ export const getConversationTimelineService = async (
       data: c,
     })),
   ].sort((a, b) => (a._id < b._id ? 1 : -1)); // descending
-  console.log(merged);
+
   // take only limit items from merged
   const hasMore = merged.length > limit;
   const sliced = merged.slice(0, limit);
@@ -209,7 +208,7 @@ export const getConversationTimelineService = async (
   // next cursor is the oldest item's _id (first item after reverse)
   const nextCursor =
     hasMore && timeline.length > 0 ? timeline[0]._id.toString() : null;
-  console.log(timeline)
+  
   return {
     timeline,
     nextCursor,

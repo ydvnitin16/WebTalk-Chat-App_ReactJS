@@ -1,6 +1,6 @@
 import { lazy, Suspense, useEffect } from "react";
 const CallManager = lazy(
-  () => import("@/features/call/components/CallManager"),
+    () => import("@/features/call/components/CallManager"),
 );
 const ChatBox = lazy(() => import("@/features/chat/components/ChatBox"));
 import Sidebar from "@/features/conversation/components/Sidebar";
@@ -15,49 +15,47 @@ import CallConnectingSkeleton from "@/components/skeletons/CallConnectingSkeleto
 import ErrorBoundary from "@/ErrorBoundary";
 
 const Interface = () => {
-  const currentUser = useAuthStore((state) => state.currentUser);
-  const { activeConversationId } = useMessageStore();
-  const { call } = useCallStore();
-  useSocketEvents(toast);
+    const currentUser = useAuthStore((state) => state.currentUser);
+    const { activeConversationId } = useMessageStore();
+    const { call } = useCallStore();
+    useSocketEvents(toast);
 
-  useEffect(() => {
-    if (currentUser) {
-      const activeSocket = connectSocket();
-      activeSocket.emit("user:online");
-      activeSocket.emit("messages:delivered");
-      return;
-    }
+    useEffect(() => {
+        if (currentUser) {
+            const activeSocket = connectSocket();
+            return;
+        }
 
-    disconnectSocket();
-  }, [currentUser]);
+        disconnectSocket();
+    }, [currentUser]);
 
-  return (
-    <>
-      <div className="flex flex-col md:flex-row h-screen dark:bg-black bg-[#FCFCFC] font-sans relative">
-        <ErrorBoundary>
-          <Sidebar />
-        </ErrorBoundary>
-        {!activeConversationId ? (
-          <div className="hidden md:flex flex-1 items-center justify-center h-full text-gray-400 bg-white rounded-4xl border-none md:rounded-none md:rounded-r-4xl dark:bg-zinc-950 dark:text-white">
-            Select a chat to start messaging
-          </div>
-        ) : (
-          <ErrorBoundary>
-            <Suspense fallback={<ChatSkeleton />}>
-              <ChatBox />
-            </Suspense>
-          </ErrorBoundary>
-        )}
-        {call && (
-          <ErrorBoundary>
-            <Suspense fallback={<CallConnectingSkeleton />}>
-              <CallManager />
-            </Suspense>
-          </ErrorBoundary>
-        )}
-      </div>
-    </>
-  );
+    return (
+        <>
+            <div className='flex flex-col md:flex-row h-screen dark:bg-black bg-[#FCFCFC] font-sans relative'>
+                <ErrorBoundary>
+                    <Sidebar />
+                </ErrorBoundary>
+                {!activeConversationId ? (
+                    <div className='hidden md:flex flex-1 items-center justify-center h-full text-gray-400 bg-white rounded-4xl border-none md:rounded-none md:rounded-r-4xl dark:bg-zinc-950 dark:text-white'>
+                        Select a chat to start messaging
+                    </div>
+                ) : (
+                    <ErrorBoundary>
+                        <Suspense fallback={<ChatSkeleton />}>
+                            <ChatBox />
+                        </Suspense>
+                    </ErrorBoundary>
+                )}
+                {call && (
+                    <ErrorBoundary>
+                        <Suspense fallback={<CallConnectingSkeleton />}>
+                            <CallManager />
+                        </Suspense>
+                    </ErrorBoundary>
+                )}
+            </div>
+        </>
+    );
 };
 
 export default Interface;

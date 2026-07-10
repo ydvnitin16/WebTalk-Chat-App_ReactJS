@@ -11,7 +11,6 @@ class MessageHandler {
     this.socket.on("message:delivered", this.onDelivered.bind(this));
     this.socket.on("message:seen", this.onSeen.bind(this));
     this.socket.on("messages:seen", this.onConversationSeen.bind(this));
-    this.socket.on("messages:delivered", this.onConversationDelivered.bind(this));
     this.socket.on("message:typing:start", this.onTypingStart.bind(this));
     this.socket.on("message:typing:stop", this.onTypingStop.bind(this));
   }
@@ -150,7 +149,6 @@ class MessageHandler {
     });
 
     if (result) {
-      console.log('Message deliverde');
       
       this.io.to(`user:${result.notifyUser}`).emit("message:delivered:ack", {
         conversationId: result.conversationId,
@@ -168,9 +166,6 @@ class MessageHandler {
     });
 
     if (result) {
-      console.log('message seen');
-      console.log(result)
-        console.log(result.notifyUser.toString())
       this.io.to(`user:${result.notifyUser}`).emit("message:seen:ack", {
         conversationId: result.conversationId,
         userId: result.userId,

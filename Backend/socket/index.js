@@ -45,6 +45,7 @@ export default function initSocket(io) {
 
         // Connect when user connects
         await presence.onConnect();
+        await message.onConversationDelivered(); // update Delivery pointer - for each conversation's member
 
         // Disconnnect - Offline sync, if client miss offline event
         socket.on("disconnect", async () => {

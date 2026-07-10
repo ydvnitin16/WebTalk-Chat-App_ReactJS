@@ -284,7 +284,7 @@ export const markSeen = async ({ userId, conversationId, messageId }) => {
       conversationId: conversationId,
       userId: { $ne: userId },
     }).select("userId");
-    console.log(otherMember);
+    
     return {
       conversationId,
       userId,
