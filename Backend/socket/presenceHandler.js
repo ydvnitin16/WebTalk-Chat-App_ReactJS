@@ -14,6 +14,14 @@ class PresenceHandler {
 
     async onConnect() {
         await this.socket.join(`user:${this.userId}`);
+        const roomSockets = this.socket.adapter.rooms.get(
+            `user:${this.userId}`,
+        );
+        
+        const activeSockets = roomSockets ? roomSockets.size : 0;
+        if (activeSockets > 1) {
+            return;
+        }
         await this.userService.setOnline(this.userId);
 
         // Emit only to conversations with
@@ -31,6 +39,13 @@ class PresenceHandler {
 
     async onDisconnect() {
         await this.userService.setOffline(this.userId);
+        const roomSockets = this.socket.adapter.rooms.get(
+            `user:${this.userId}`,
+        );
+        const activeSockets = roomSockets ? roomSockets.size : 0;
+        if (activeSockets > 0) {
+            return;
+        }
 
         const contactIds =
             await this.conversationService.getConversationMembersIds(

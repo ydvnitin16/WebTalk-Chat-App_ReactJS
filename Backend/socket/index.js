@@ -5,51 +5,50 @@ import PresenceHandler from "./presenceHandler.js";
 import MessageHandler from "./messageHandler.js";
 import * as UserService from "../services/users.services.js";
 import * as ConversationService from "../services/conversations.services.js";
-import * as MessageService from "../services/messages.services.js"
+import * as MessageService from "../services/messages.services.js";
 
 export async function ioServerAuth(socket, next) {
-  const rawCookie = socket.handshake.headers.cookie;
+    const rawCookie = socket.handshake.headers.cookie;
 
-  if (!rawCookie) {
-    return next(new Error("No Cookie Found!"));
-  }
-  const parsed = cookie.parse(rawCookie);
-  const authHeader = parsed.authHeader;
+    if (!rawCookie) {
+        return next(new Error("No Cookie Found!"));
+    }
+    const parsed = cookie.parse(rawCookie);
+    const authHeader = parsed.authHeader;
 
-  if (!authHeader || !authHeader.startsWith("Bearer ")) {
-    return next(new Error("No authHeader cookie"));
-  }
+    if (!authHeader || !authHeader.startsWith("Bearer ")) {
+        return next(new Error("No authHeader cookie"));
+    }
 
-  try {
-    const token = authHeader.split(" ")[1];
-    const decoded = await jwt.verify(token, process.env.JWT_SECRET_KEY);
-    socket.user = decoded;
-    next();
-  } catch (error) {
-    console.log("JWT Verify Error:", error.message);
-    next(new Error("Unauthorized"));
-  }
+    try {
+        const token = authHeader.split(" ")[1];
+        const decoded = await jwt.verify(token, process.env.JWT_SECRET_KEY);
+        socket.user = decoded;
+        next();
+    } catch (error) {
+        console.log("JWT Verify Error:", error.message);
+        next(new Error("Unauthorized"));
+    }
 }
 
 export default function initSocket(io) {
-  io.on("connection", async (socket) => {
-    const presence = new PresenceHandler(
-      io,
-      socket,
-      UserService,
-      ConversationService,
-    );
-    const message = new MessageHandler(io, socket, MessageService);
-    await presence.register();
-    message.register();
+    io.on("connection", async (socket) => {
+        const presence = new PresenceHandler(
+            io,
+            socket,
+            UserService,
+            ConversationService,
+        );
+        const message = new MessageHandler(io, socket, MessageService);
+        await presence.register();
+        message.register();
 
-    // Handle undelivered messages and unseen messages
-    // ** HERE **
+        // Connect when user connects
+        await presence.onConnect();
 
-    // Disconnect sync to set offline and lastseen
-    // If user not emit the offline event
-    socket.on("disconnect", async () => {
-      await presence.onDisconnect();
+        // Disconnnect - Offline sync, if client miss offline event
+        socket.on("disconnect", async () => {
+            await presence.onDisconnect();
+        });
     });
-  });
 }
