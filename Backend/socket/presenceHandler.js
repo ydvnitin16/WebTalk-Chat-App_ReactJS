@@ -34,7 +34,6 @@ class PresenceHandler {
     }
 
     async onDisconnect() {
-        await this.userService.setOffline(this.userId);
         const roomSockets = this.socket.adapter.rooms.get(
             `user:${this.userId}`,
         );
@@ -42,6 +41,8 @@ class PresenceHandler {
         if (activeSockets > 0) {
             return;
         }
+
+        await this.userService.setOffline(this.userId);
 
         const contactIds =
             await this.conversationService.getConversationMembersIds(

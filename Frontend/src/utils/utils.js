@@ -79,7 +79,7 @@ export const normalizeNewConversation = (
     _id: conversation._id,
     lastActivity: conversation.lastActivity,
     otherUserId: normalizeUserId(normalizedOtherUser._id),
-    unreadCount: 1,
+    unreadCount: 0,
     lastMessage: {
       _id: message._id,
       senderId: message.sender._id,

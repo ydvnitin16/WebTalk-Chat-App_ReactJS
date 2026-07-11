@@ -3,6 +3,7 @@ import Conversation from "../models/conversation.js";
 import ConversationMember from "../models/conversationMember.js";
 import Message from "../models/message.js";
 import Call from "../models/call.js";
+import { isUserOnline } from "../utils/presenceStore.js";
 
 // Get all the membersIds of conversation's with
 export const getConversationMembersIds = async (userId) => {
@@ -21,7 +22,7 @@ export const getConversationsService = async (userId) => {
   const conversations = await Conversation.find({
     participants: userId,
   })
-    .populate("participants", "name username bio avatar isOnline lastSeen")
+    .populate("participants", "name username bio avatar lastSeen")
     .populate("lastMessageId")
     .lean();
 
@@ -53,7 +54,7 @@ export const getConversationsService = async (userId) => {
         username: otherUser.username,
         bio: otherUser.bio,
         avatar: otherUser.avatar,
-        isOnline: otherUser.isOnline,
+        isOnline: isUserOnline(otherUser._id),
         lastSeen: otherUser.lastSeen,
       },
       lastMessage: convo.lastMessageId,

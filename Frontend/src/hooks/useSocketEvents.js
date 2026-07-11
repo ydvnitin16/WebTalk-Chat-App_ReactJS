@@ -30,6 +30,10 @@ export const useSocketEvents = () => {
         ) {
             return;
         }
+
+        if (String(activeConversationId).startsWith("temp-")) {
+            return;
+        }
         clearUnreadCount(activeConversationId);
         socket.emit("messages:seen", {
             conversationId: activeConversationId,

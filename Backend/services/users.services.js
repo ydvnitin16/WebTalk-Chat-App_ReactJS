@@ -1,5 +1,6 @@
 import { cloudinary } from "../configs/cloudinary.js";
 import User from "../models/user.js";
+import { addOnlineUser, removeOnlineUser } from "../utils/presenceStore.js";
 
 export const getUserByUsernameService = async (username) => {
     const normalisedUsername = username.trim().toLowerCase();
@@ -72,15 +73,10 @@ export const updateProfileService = async ({
 };
 
 export const setOnline = async (userId) => {
-    console.log("marking online");
-    await User.findByIdAndUpdate(userId, { isOnline: true });
+    addOnlineUser(userId);
 };
 
 export const setOffline = async (userId) => {
-    console.log("marking offline");
-
-    await User.findByIdAndUpdate(userId, {
-        isOnline: false,
-        lastSeen: new Date(),
-    });
+    removeOnlineUser(userId);
+    await User.findByIdAndUpdate(userId, { lastSeen: new Date() });
 };

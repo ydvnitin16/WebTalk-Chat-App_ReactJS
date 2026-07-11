@@ -2,6 +2,7 @@ import mongoose from "mongoose";
 import Conversation from "../models/conversation.js";
 import ConversationMember from "../models/conversationMember.js";
 import Message from "../models/message.js";
+import { isUserOnline } from "../utils/presenceStore.js";
 
 const sortParticipantIds = (a, b) => a.toString().localeCompare(b.toString());
 
@@ -169,13 +170,17 @@ export const sendMessageService = async ({
 
     const [populatedConversation, members] = await Promise.all([
       Conversation.findById(conversation._id)
-        .populate("participants", "name username bio avatar isOnline lastSeen")
+        .populate("participants", "name username bio avatar lastSeen")
         .lean(),
       ConversationMember.find({ conversationId: conversation._id }).lean(),
     ]);
 
     conversation = {
       ...populatedConversation,
+      participants: (populatedConversation.participants || []).map((participant) => ({
+        ...participant,
+        isOnline: isUserOnline(participant._id),
+      })),
       members: members.map((member) => ({
         userId: member.userId,
         lastDeliveredMessageId: member.lastDeliveredMessageId,
