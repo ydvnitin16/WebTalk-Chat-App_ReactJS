@@ -45,7 +45,7 @@ export async function initiateCall({
         callerId,
         receiverId,
         type,
-        status: "ringing",
+        status: "calling",
     });
 }
 

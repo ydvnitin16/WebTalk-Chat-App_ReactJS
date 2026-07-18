@@ -3,7 +3,7 @@ import { faPhone } from "@fortawesome/free-solid-svg-icons";
 import { faVideo } from "@fortawesome/free-solid-svg-icons";
 import { faEllipsisVertical } from "@fortawesome/free-solid-svg-icons";
 import { faArrowLeft } from "@fortawesome/free-solid-svg-icons";
-import { formatDateTime } from "@/utils/utils";
+import { formatDateTime, isValidObjectId } from "@/utils/utils";
 // import useCall from "@/features/call/hooks/useCall";
 import Button from "@/components/ui/Button";
 import { useState } from "react";
@@ -12,6 +12,7 @@ import UserProfileModal from "./UserProfileModal";
 import { optimizeUrl } from "@/utils/imageOptimization";
 import useActiveConversation from "../hooks/useActiveConversation";
 import useCallManager from "@/features/call/hooks/useCallManager";
+import toast from "react-hot-toast";
 
 const ChatHeader = () => {
     const [showDropdown, setShowDropdown] = useState(false);
@@ -29,7 +30,9 @@ const ChatHeader = () => {
                     className='flex items-center gap-3 min-w-0'
                 >
                     <button
-                        onClick={() => clear()}
+                        onClick={() => {
+                            clear();
+                        }}
                         className='md:hidden text-lg text-black dark:text-white'
                     >
                         <FontAwesomeIcon icon={faArrowLeft} />
@@ -57,25 +60,33 @@ const ChatHeader = () => {
                 <div className='relative text-gray-500 flex items-center dark:text-white'>
                     <Button
                         variant='outline'
-                        onClick={() =>
-                            startCall({
-                                type: "video",
-                                receiverId: selectedUserId,
-                                conversationId: activeConversationId,
-                            })
-                        }
+                        onClick={() => {
+                            if (isValidObjectId(activeConversationId)) {
+                                startCall({
+                                    type: "video",
+                                    receiverId: selectedUserId,
+                                    conversationId: activeConversationId,
+                                });
+                            } else {
+                                toast("Send message first");
+                            }
+                        }}
                     >
                         <FontAwesomeIcon icon={faVideo} />
                     </Button>
                     <Button
                         variant='outline'
-                        onClick={() =>
-                            startCall({
-                                type: "audio",
-                                receiverId: selectedUserId,
-                                conversationId: activeConversationId,
-                            })
-                        }
+                        onClick={() => {
+                            if (isValidObjectId(activeConversationId)) {
+                                startCall({
+                                    type: "audio",
+                                    receiverId: selectedUserId,
+                                    conversationId: activeConversationId,
+                                });
+                            } else {
+                                toast("Send message first");
+                            }
+                        }}
                     >
                         <FontAwesomeIcon icon={faPhone} />
                     </Button>

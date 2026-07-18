@@ -38,8 +38,11 @@ const useCallStore = create((set) => ({
             callHistory: state.callHistory
                 .map((c) => {
                     const matches =
-                        (identifier.callId && String(c._id) === String(identifier.callId)) ||
-                        (identifier.clientCallId && String(c.clientCallId) === String(identifier.clientCallId));
+                        (identifier.callId &&
+                            String(c._id) === String(identifier.callId)) ||
+                        (identifier.clientCallId &&
+                            String(c.clientCallId) ===
+                                String(identifier.clientCallId));
                     if (!matches) return c;
                     return { ...c, ...updates };
                 })
@@ -106,6 +109,8 @@ const useCallStore = create((set) => ({
                 camera: !state.media.camera,
             },
         })),
+
+    clearHistory: () => set({ callHistory: [] }),
 }));
 
 export default useCallStore;
