@@ -21,6 +21,30 @@ class CallSocketHandler {
             this.relay.bind(this, "call:ice-candidate"),
         );
     }
+    
+    async cleanupActiveCall() {
+        const callId = this.activeCalls.getActiveCallId(this.socket.user.id);
+        if (!callId) return;
+
+        try {
+            const userId = this.socket.user?.id ?? this.socket.userId;
+            const call = await this.callService.endCall({
+                callId,
+                userId,
+            });
+
+            const otherUserId =
+                String(call.callerId) === String(userId)
+                    ? String(call.receiverId)
+                    : String(call.callerId);
+
+            this.io.to(`user:${otherUserId}`).emit("call:ended", {
+                callId,
+            });
+        } catch (err) {
+            console.error("Active call cleanup failed:", err.message);
+        }
+    }
 
     async onInitiate(
         { clientCallId, conversationId, receiverId, type, offer },

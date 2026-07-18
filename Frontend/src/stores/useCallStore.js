@@ -16,6 +16,36 @@ const useCallStore = create((set) => ({
 
     callHistory: [],
 
+    addCallToHistory: (call) =>
+        set((state) => {
+            const unique = new Map();
+            // new call first
+            [call, ...state.callHistory].forEach((c) => {
+                const key = c?._id || c?.clientCallId;
+                if (!key) return;
+                if (!unique.has(String(key))) unique.set(String(key), c);
+            });
+
+            return {
+                callHistory: Array.from(unique.values()).sort(
+                    (a, b) => new Date(a.createdAt) - new Date(b.createdAt),
+                ),
+            };
+        }),
+
+    updateCallInHistory: (identifier, updates) =>
+        set((state) => ({
+            callHistory: state.callHistory
+                .map((c) => {
+                    const matches =
+                        (identifier.callId && String(c._id) === String(identifier.callId)) ||
+                        (identifier.clientCallId && String(c.clientCallId) === String(identifier.clientCallId));
+                    if (!matches) return c;
+                    return { ...c, ...updates };
+                })
+                .sort((a, b) => new Date(a.createdAt) - new Date(b.createdAt)),
+        })),
+
     setCallHistory: (calls) =>
         set({
             callHistory: [...(calls || [])].sort(

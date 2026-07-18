@@ -39,7 +39,7 @@ class PresenceSocketHandler {
         );
         const activeSockets = roomSockets ? roomSockets.size : 0;
         if (activeSockets > 0) {
-            return;
+            return false;
         }
 
         await this.userService.setOffline(this.userId);
@@ -56,6 +56,8 @@ class PresenceSocketHandler {
         this.io.to(`user:${this.userId}`).emit("user:offline", {
             userId: this.userId,
         });
+
+        return true;
     }
 }
 

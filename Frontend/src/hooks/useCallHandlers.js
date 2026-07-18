@@ -32,27 +32,43 @@ export const useCallHandlers = () => {
     };
 
     const onAccepted = async ({ answer }) => {
-        
         await applyAnswer(answer);
         updateCallStatus("connected");
+
+        const { call } = useCallStore.getState();
+        if (call) useCallStore.getState().updateCallInHistory({ callId: call.callId, clientCallId: call.clientCallId }, { status: "connected", startedAt: Date.now() });
     };
 
-    const onRejected = () => {
+    const onRejected = ({ callId }) => {
+        useCallStore.getState().updateCallInHistory({ callId }, { status: "rejected", endedAt: Date.now() });
         clearConnection();
         clearCall();
     };
 
-    const onBusy = () => {
+    const onBusy = ({ callId, clientCallId }) => {
+        const { call } = useCallStore.getState();
+        if (!call) return;
+
+        // Show busy status to the caller instead of immediately clearing
+        updateCallStatus("busy");
+        useCallStore.getState().updateCallInHistory({ callId, clientCallId }, { status: "busy" });
+
+        // Let the UI display busy state and clean up after a timeout
+        const BUSY_TIMEOUT_MS = 30 * 1000;
+        setTimeout(() => {
+            clearConnection();
+            clearCall();
+        }, BUSY_TIMEOUT_MS);
+    };
+
+    const onEnded = ({ callId }) => {
+        useCallStore.getState().updateCallInHistory({ callId }, { status: "ended", endedAt: Date.now() });
         clearConnection();
         clearCall();
     };
 
-    const onEnded = () => {
-        clearConnection();
-        clearCall();
-    };
-
-    const onMissed = () => {
+    const onMissed = ({ callId }) => {
+        useCallStore.getState().updateCallInHistory({ callId }, { status: "missed", endedAt: Date.now() });
         clearConnection();
         clearCall();
     };

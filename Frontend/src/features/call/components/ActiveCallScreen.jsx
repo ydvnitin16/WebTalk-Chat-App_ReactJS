@@ -38,8 +38,10 @@ const ActiveCallScreen = ({
         const audio = audioRef.current;
 
         if (shouldPlay) {
-            audio.play().catch(() => {
-                console.log("Autoplay Blocked");
+            const audioPromise = audio.play();
+            audioPromise?.catch((err) => {
+                if (err.name !== "AbortError")
+                    console.log("Autoplay Blocked", err);
             });
         } else {
             audio.pause();

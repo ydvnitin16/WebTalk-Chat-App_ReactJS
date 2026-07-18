@@ -53,7 +53,10 @@ export default function initSocket(io) {
 
         // Disconnnect - Offline sync, if client miss offline event
         socket.on("disconnect", async () => {
-            await presence.onDisconnect();
+            const fullyOffline = await presence.onDisconnect();
+            if (fullyOffline) {
+                await call.cleanupActiveCall();
+            }
         });
     });
 }

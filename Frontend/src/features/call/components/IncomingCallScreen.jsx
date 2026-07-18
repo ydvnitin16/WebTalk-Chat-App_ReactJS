@@ -14,13 +14,15 @@ const IncomingCallScreen = ({
     const audioRef = useRef(null);
 
     useEffect(() => {
-        if (audioRef.current) return;
-
-        const audio = new Audio(ringtone);
+        const audio =
+            audioRef.current ?? (audioRef.current = new Audio(ringtone));
         audio.loop = true;
         audio.volume = 1;
 
-        audioRef.current = audio;
+        const playPromise = audio.play();
+        playPromise?.catch((err) => {
+            if (err.name !== "AbortError") console.log("Autoplay blocked", err);
+        });
 
         audio.play().catch(() => {
             console.log("Autoplay blocked");

@@ -6,15 +6,23 @@ import useWebRTC from "./useWebRTC";
 import { generateUUID } from "@/features/chat/hooks/useSendMessages";
 
 const useCallManager = () => {
-    const { setCall, syncCallId, clearCall, media, toggleMic, toggleCamera } =
-        useCallStore();
+    const {
+        setCall,
+        syncCallId,
+        clearCall,
+        media,
+        toggleMic,
+        toggleCamera,
+        addCallToHistory,
+        updateCallInHistory,
+    } = useCallStore();
     const { currentUser } = useAuthStore();
     const { buildOffer, buildAnswer, clearConnection } = useWebRTC();
 
     const startCall = async ({ conversationId, receiverId, type }) => {
         const clientCallId = generateUUID();
 
-        setCall({
+        const callObj = {
             clientCallId,
             callId: null,
             conversationId,
@@ -23,7 +31,10 @@ const useCallManager = () => {
             type,
             status: "calling",
             createdAt: Date.now(),
-        });
+        };
+
+        setCall(callObj);
+        addCallToHistory(callObj);
 
         const offer = await buildOffer(receiverId, type);
 
@@ -38,6 +49,11 @@ const useCallManager = () => {
                     return;
                 }
                 syncCallId(ack.callId);
+                // update the call history entry with server call id/status
+                updateCallInHistory(
+                    { clientCallId },
+                    { _id: ack.callId, callId: ack.callId, status: ack.status },
+                );
             },
         );
     };
@@ -50,7 +66,10 @@ const useCallManager = () => {
         const answer = await buildAnswer(call.callerId, call.type, call.offer);
         
         socket.emit("call:accept", { callId, answer }, (ack) => {
-            if (ack.ok) useCallStore.getState().updateCallStatus("connected");
+            if (ack.ok) {
+                useCallStore.getState().updateCallStatus("connected");
+                updateCallInHistory({ callId }, { status: "connected", startedAt: Date.now() });
+            }
         });
     };
 
@@ -60,6 +79,7 @@ const useCallManager = () => {
         const callId = call.callId || call._id;
         
         socket.emit("call:reject", { callId });
+        updateCallInHistory({ callId, clientCallId: call.clientCallId }, { status: "rejected", endedAt: Date.now() });
         clearConnection();
         clearCall();
     };
@@ -70,6 +90,7 @@ const useCallManager = () => {
         
         const callId = call.callId || call._id;
         socket.emit("call:end", { callId });
+        updateCallInHistory({ callId, clientCallId: call.clientCallId }, { status: "ended", endedAt: Date.now() });
         clearConnection();
         clearCall();
     };

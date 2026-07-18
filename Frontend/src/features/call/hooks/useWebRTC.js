@@ -21,6 +21,8 @@ const playMediaSafely = async (element) => {
             await element.play();
         }
     } catch (e) {
+        // Suppress noisy AbortError logs caused by rapid srcObject changes
+        if (e && e.name === "AbortError") return;
         console.warn("Media playback blocked:", e);
     }
 };
