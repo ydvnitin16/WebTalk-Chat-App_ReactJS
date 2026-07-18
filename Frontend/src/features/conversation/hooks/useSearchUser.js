@@ -22,7 +22,6 @@ const useSearchUser = () => {
                 const data = await searchUserByUsername(searchUsername);
                 setUsers(data.users);
             } catch (err) {
-                console.log(err.message);
                 setError(err.message);
                 setUsers(null);
                 return null;

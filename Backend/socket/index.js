@@ -6,6 +6,8 @@ import MessageHandler from "./messageHandler.js";
 import * as UserService from "../services/users.services.js";
 import * as ConversationService from "../services/conversations.services.js";
 import * as MessageService from "../services/messages.services.js";
+import * as CallService from "../services/calls.services.js";
+import CallSocketHandler from "./callHandler.js";
 
 export async function ioServerAuth(socket, next) {
     const rawCookie = socket.handshake.headers.cookie;
@@ -40,8 +42,10 @@ export default function initSocket(io) {
             ConversationService,
         );
         const message = new MessageHandler(io, socket, MessageService);
+        const call = new CallSocketHandler(io, socket, CallService);
         await presence.register();
         message.register();
+        call.register();
 
         // Connect when user connects
         await presence.onConnect();

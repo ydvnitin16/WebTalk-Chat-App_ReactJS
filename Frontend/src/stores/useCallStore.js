@@ -5,8 +5,6 @@ export let remoteStream = { current: null };
 export let peerConnection = { current: null };
 export let localVideoRef = { current: null };
 export let remoteVideoRef = { current: null };
-export let currentOffer = { current: null };
-export let currentAnswer = { current: null };
 export let pendingIceCandidates = { current: [] };
 
 const useCallStore = create((set) => ({
@@ -55,7 +53,7 @@ const useCallStore = create((set) => ({
     },
 
     syncCallId: (callId) =>
-        set((state) => ({ call: { ...state.call, _id: callId } })),
+        set((state) => ({ call: { ...state.call, callId, _id: callId } })),
 
     clearCall: () =>
         set({

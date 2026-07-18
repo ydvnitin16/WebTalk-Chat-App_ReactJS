@@ -65,7 +65,6 @@ const useMessageStore = create((set, get) => ({
   // Add new received messsage
   appendMessage: (message) =>
     set((state) => {
-      console.log(message);
       const exists = state.messages.some(
         (m) =>
           (message._id && m._id === message._id) ||

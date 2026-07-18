@@ -12,6 +12,7 @@ import { optimizeUrl } from "@/utils/imageOptimization";
 
 const ActiveCallScreen = ({
     isCaller,
+    user,
     call,
     endCall,
     onToggleMic,
@@ -19,7 +20,6 @@ const ActiveCallScreen = ({
     mic,
     camera,
 }) => {
-    const user = isCaller ? call.receiver : call.caller;
     const { duration } = useDurationTimer(call.startedAt);
 
     const audioRef = useRef(null);
@@ -64,8 +64,10 @@ const ActiveCallScreen = ({
     return (
         <div className='fixed inset-0 z-50 flex flex-col bg-white dark:bg-black dark:text-white'>
             {/* Name and status always stay fix here */}
-            <div className='pt-5 text-center z-20'>
-                <h1 className='text-md font-semibold mt-1'>{user.name}</h1>
+            <div className='pt-5 text-center z-20 absolute w-full'>
+                <h1 className='text-md font-semibold mt-1'>
+                    {user.name || "Unknown"}
+                </h1>
                 <p className='text-sm text-gray-400'>
                     {call.status === "calling"
                         ? "Calling..."
@@ -81,40 +83,45 @@ const ActiveCallScreen = ({
                 </p>
             </div>
 
-            <div className='relative flex-1 w-full h-full overflow-hidden'>
-                <video
-                    ref={remoteVideoRef}
-                    autoPlay
-                    playsInline
-                    className='absolute inset-0 w-full h-full object-cover z-0'
-                />
+            {/* Outer area: takes remaining space, centers the fixed-ratio box inside it */}
+            <div className='relative flex-1 w-full overflow-hidden flex items-center justify-center bg-black'>
+                {/* Fixed-aspect box: this is what actually holds the remote video */}
+                <div className='relative h-full max-h-full w-full max-w-4xl aspect-[9/16] mx-auto'>
+                    <video
+                        ref={remoteVideoRef}
+                        autoPlay
+                        playsInline
+                        className='absolute inset-0 w-full h-full object-cover z-0'
+                    />
 
-                {(call.type === "audio" || call.status !== "connected") && (
-                    <div className='absolute inset-0 flex items-center justify-center z-10'>
-                        <img
-                            src={optimizeUrl(
-                                user.avatar?.url || user.avatar,
-                                "medium",
-                            )}
-                            alt='callee'
-                            className='w-52 h-52 rounded-full object-cover shadow-2xl'
-                        />
-                    </div>
-                )}
+                    {(call.type === "audio" || call.status !== "connected") && (
+                        <div className='absolute inset-0 flex items-center justify-center z-10'>
+                            <img
+                                src={optimizeUrl(
+                                    user.avatar?.url || null,
+                                    "medium",
+                                )}
+                                alt='callee'
+                                className='w-52 h-52 rounded-full object-cover shadow-2xl'
+                            />
+                        </div>
+                    )}
+                </div>
 
+                {/* PiP local video stays pinned to the OUTER container corner, not the aspect box */}
                 {call.type === "video" && call.status === "connected" && (
                     <video
                         ref={localVideoRef}
                         autoPlay
                         playsInline
                         muted
-                        className='absolute bottom-2 right-4 w-28 h-40 object-cover rounded-lg border-2 border-white z-20 shadow-lg'
+                        className='absolute bottom-29 right-4 w-28 h-40 object-cover rounded-lg border-2 border-white z-20 shadow-lg'
                     />
                 )}
             </div>
 
             {/* Controls ALWAYS ON TOP */}
-            <div className='z-30'>
+            <div className='z-30 absolute bottom-0 w-full'>
                 <Controls
                     endCall={endCall}
                     callType={call.type}

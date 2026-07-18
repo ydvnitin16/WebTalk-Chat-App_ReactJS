@@ -18,23 +18,8 @@ const Controls = ({
     onToggleCamera,
 }) => {
     return (
-        <div className='py-6 px-4'>
-            <div className='flex justify-between items-center max-w-md mx-auto border py-3 px-4 rounded-full bg-zinc-100/80 border-zinc-300 dark:bg-zinc-950/60 dark:border-zinc-800'>
-                {/* <button
-                    // onClick={() => setSpeaker((prev) => !prev)}
-                    className='flex flex-col items-center gap-1'
-                >
-                    <div
-                        className={`w-14 h-14 rounded-full flex items-center justify-center transition dark:bg-zinc-900 dark:text-white bg-white text-black`}
-                    >
-                        {true ? (
-                            <Volume2 size={22} />
-                        ) : (
-                            <VolumeX size={22} />
-                        )}
-                    </div>
-                </button> */}
-
+        <div className='py-6 px-4 '>
+            <div className='flex justify-between items-center max-w-sm mx-auto border py-3 px-4 rounded-full bg-zinc-100/80 border-zinc-300 dark:bg-zinc-950/60 dark:border-zinc-800'>
                 <button
                     onClick={onToggleMic}
                     className='flex flex-col items-center gap-1'
@@ -57,17 +42,6 @@ const Controls = ({
                         </div>
                     </button>
                 )}
-                <button
-                    // later i implement the concurrent chat feature by minimize this screen without loosing states
-                    className='flex flex-col items-center gap-1'
-                >
-                    <div
-                        className={`w-14 h-14 rounded-full flex items-center justify-center transition dark:bg-zinc-900 dark:text-white bg-white text-black`}
-                    >
-                        <MessageCircle size={22} />
-                    </div>
-                </button>
-
                 <button
                     onClick={endCall}
                     className='flex flex-col items-center gap-1'

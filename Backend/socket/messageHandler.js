@@ -1,4 +1,4 @@
-class MessageHandler {
+class MessageSocketHandler {
     constructor(io, socket, messageService) {
         this.io = io;
         this.socket = socket;
@@ -35,7 +35,6 @@ class MessageHandler {
         receiverId,
     }) {
         const messageClientId = clientMessageId;
-
         if (!clientMessageId || !content?.trim()) {
             this.socket.emit("message:send:failed", { clientMessageId });
             return;
@@ -70,6 +69,7 @@ class MessageHandler {
             const clientMessage = this.shapeMessageForClient(message);
 
             if (deduped) {
+
                 this.socket.emit("message:send:ack", {
                     conversationId: resolvedConversationId,
                     messageId: message._id,
@@ -89,6 +89,7 @@ class MessageHandler {
                     tempConversationId,
                 });
             }
+            
             this.io.to(`user:${this.userId}`).emit("message:new", {
                 isNewConversation,
                 conversationId: resolvedConversationId,
@@ -183,4 +184,4 @@ class MessageHandler {
     }
 }
 
-export default MessageHandler;
+export default MessageSocketHandler;

@@ -1,102 +1,76 @@
-import useCallStore, {
-    currentAnswer,
-    currentOffer,
-    localStream,
-    localVideoRef,
-    pendingIceCandidates,
-    peerConnection,
-    remoteStream,
-    remoteVideoRef,
-} from "@/stores/useCallStore";
-
-export const cleanupCallRefs = () => {
-    [localStream, remoteStream].forEach((ref) => {
-        ref.current?.getTracks().forEach((t) => t.stop());
-        ref.current = null;
-    });
-
-    peerConnection.current?.close();
-
-    [peerConnection, localVideoRef, remoteVideoRef].forEach((ref) => {
-        if (ref.current) ref.current.srcObject = null;
-        ref.current = null;
-    });
-
-    pendingIceCandidates.current = [];
-    currentOffer.current = null;
-    currentAnswer.current = null;
-};
+import useWebRTC from "@/features/call/hooks/useWebRTC";
+import { socket } from "@/lib/socket";
+import useAuthStore from "@/stores/useAuthStore";
+import useCallStore from "@/stores/useCallStore";
 
 export const useCallHandlers = () => {
-    const { setCall, updateCallStatus, syncCallId } = useCallStore();
+    const { setCall, updateCallStatus, clearCall } = useCallStore();
+    const { clearConnection, applyAnswer, addIceCandidate } = useWebRTC();
+    const { currentUser } = useAuthStore();
 
-    const onIncomingCall = ({ offer, from, call }) => {
-        const { call: activeCall } = useCallStore.getState();
-        if (activeCall) return; // already on a call
-        currentOffer.current = offer;
-        setCall(call);
-        // notify caller we're ringing
-        import("@/lib/socket").then(({ socket }) =>
-            socket.emit("call-status", { to: from, status: "ringing" }),
-        );
+    const onIncoming = ({ callId, conversationId, callerId, type, offer }) => {
+        const { call } = useCallStore.getState();
+        if (call) return; // already on a call — server already knows via busy check
+       
+        setCall({
+            callId,
+            clientCallId: null,
+            conversationId,
+            callerId,
+            receiverId: currentUser.id,
+            type,
+            offer,
+            createdAt: Date.now(),
+            status: "ringing",
+        });
+        
+        socket.emit("call:status", {
+            callId,
+            toUserId: callerId,
+            status: "ringing",
+        });
     };
 
-    const onSyncCallId = ({ callId }) => syncCallId(callId);
-
-    const onCallAccepted = async ({ from, answer, callId }) => {
-        syncCallId(callId);
-        currentAnswer.current = answer;
+    const onAccepted = async ({ answer }) => {
+        
+        await applyAnswer(answer);
         updateCallStatus("connected");
-
-        import("@/lib/socket").then(({ socket }) =>
-            socket.emit("call-status", { to: from, status: "connected" }),
-        );
-
-        if (!peerConnection.current || !answer?.type) return;
-
-        await peerConnection.current.setRemoteDescription(
-            new RTCSessionDescription(answer),
-        );
-
-        while (pendingIceCandidates.current.length) {
-            try {
-                await peerConnection.current.addIceCandidate(
-                    new RTCIceCandidate(pendingIceCandidates.current.shift()),
-                );
-            } catch (e) {
-                console.error("ICE flush error:", e);
-            }
-        }
     };
 
-    const onIceCandidate = async ({ candidate }) => {
-        if (!peerConnection.current?.remoteDescription) {
-            pendingIceCandidates.current.push(candidate);
-            return;
-        }
-        try {
-            await peerConnection.current.addIceCandidate(
-                new RTCIceCandidate(candidate),
-            );
-        } catch (e) {
-            console.error("ICE error:", e);
-        }
+    const onRejected = () => {
+        clearConnection();
+        clearCall();
     };
 
-    // Server emits "call-ended" for reject / end / cancel
-    const onCallEnded = () => {
-        cleanupCallRefs();
-        setCall(null);
+    const onBusy = () => {
+        clearConnection();
+        clearCall();
     };
 
-    const onCallStatus = ({ status }) => updateCallStatus(status);
+    const onEnded = () => {
+        clearConnection();
+        clearCall();
+    };
+
+    const onMissed = () => {
+        clearConnection();
+        clearCall();
+    };
+
+    const onStatus = ({ status }) => {
+        updateCallStatus(status);
+    };
+
+    const onIceCandidate = ({ candidate }) => addIceCandidate(candidate);
 
     return {
-        "incoming-call": onIncomingCall,
-        "sync-call-id": onSyncCallId,
-        "call-accepted": onCallAccepted,
-        "ice-candidate": onIceCandidate,
-        "call-ended": onCallEnded,
-        "call-status": onCallStatus,
+        "call:incoming": onIncoming,
+        "call:accepted": onAccepted,
+        "call:rejected": onRejected,
+        "call:busy": onBusy,
+        "call:ended": onEnded,
+        "call:missed": onMissed,
+        "call:status": onStatus,
+        "call:ice-candidate": onIceCandidate,
     };
 };

@@ -1,4 +1,4 @@
-class PresenceHandler {
+class PresenceSocketHandler {
     constructor(io, socket, userService, conversationService) {
         this.io = io;
         this.socket = socket;
@@ -59,4 +59,4 @@ class PresenceHandler {
     }
 }
 
-export default PresenceHandler;
+export default PresenceSocketHandler;

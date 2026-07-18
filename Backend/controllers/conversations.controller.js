@@ -70,7 +70,7 @@ export const getTimeline = async (req, res) => {
   try {
     const { conversationId } = req.params;
     const { cursor, limit = 20 } = req.query;
-    console.log('making')
+    
     const result = await getConversationTimelineService(conversationId, {
         cursor,
         limit: Number(limit),

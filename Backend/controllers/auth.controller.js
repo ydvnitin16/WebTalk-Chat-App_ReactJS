@@ -43,8 +43,7 @@ const registerUser = async (req, res) => {
       });
 
     // hash password & answer using bcrypt
-    // const hashPwd = await bcrypt.hash(password, 10);
-    const hashPwd = password;
+    const hashPwd = await bcrypt.hash(password, 10);
 
     // Save user info in DB
     const user = await User({
@@ -91,7 +90,8 @@ const loginUser = async (req, res) => {
     //     userInfo.password,
     // );
 
-    const isPasswordCorrect = password === userInfo.password ? true : false;
+    const isPasswordCorrect = password === userInfo.password
+
     if (!isPasswordCorrect)
       return res.status(404).json({ message: "Invalid Credentials" });
 
@@ -109,7 +109,6 @@ const loginUser = async (req, res) => {
       },
     });
   } catch (error) {
-    console.log(error)
     res.status(500).json({
       message: "Server error. Please try again later.",
     });

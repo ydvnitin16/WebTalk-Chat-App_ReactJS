@@ -30,7 +30,7 @@ export const useMessages = () => {
                     null,
                     20,
                 );
-                console.log(data)
+                
                 const messages = data.timeline.filter(
                     (t) => t.itemType === "message",
                 );

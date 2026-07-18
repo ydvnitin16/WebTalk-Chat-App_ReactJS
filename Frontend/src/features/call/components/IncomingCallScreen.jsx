@@ -32,24 +32,27 @@ const IncomingCallScreen = ({
         };
     }, []);
 
+    // blur style bg-white/40 dark:bg-[#101010]/20 backdrop-blur-[2px] shadow-inner drop-shadow-2xl shadow-white/30
     if (isHidden) {
         return (
             <div
                 onClick={() => setIsHidden(false)}
-                className={`fixed top-4 left-1/2 -translate-x-1/2 z-100 min-w-70 flex items-center justify-between gap-3 px-2 py-1 rounded-full bg-white/90 dark:bg-zinc-900/90 backdrop-blur-lg shadow-lg border border-zinc-200 dark:border-zinc-700 cursor-pointer`}
+                className={`fixed top-4 left-1/2 -translate-x-1/2 z-100 min-w-80 flex items-center justify-between gap-3 px-2 py-2 rounded-full bg-[#F6F5F3] dark:bg-[#101010] border border-zinc-200 dark:border-zinc-700 cursor-pointer`}
             >
-                <img
-                    src={optimizeUrl(callerAvatar, "medium")}
-                    alt='avatar'
-                    className='w-11 h-11 rounded-full object-cover'
-                />
-                <div className='flex items-center flex-col text-sm'>
-                    <span className='font-medium text-gray-900 dark:text-white'>
-                        {callerName}
-                    </span>
-                    <span className='text-gray-500 dark:text-gray-400'>
-                        calling...
-                    </span>
+                <div className='flex items-center gap-2'>
+                    <img
+                        src={optimizeUrl(callerAvatar, "medium")}
+                        alt='avatar'
+                        className='w-11 h-11 rounded-full object-cover'
+                    />
+                    <div className='flex items-start flex-col text-sm'>
+                        <span className='font-medium text-gray-900 dark:text-white'>
+                            {callerName}
+                        </span>
+                        <span className='text-gray-500 dark:text-gray-400'>
+                            calling...
+                        </span>
+                    </div>
                 </div>
                 <div className='flex gap-2'>
                     <button
@@ -59,7 +62,7 @@ const IncomingCallScreen = ({
                         <div
                             className='p-3 rounded-full 
                         bg-red-600 text-white flex items-center justify-center 
-                        shadow-lg hover:opacity-50 active:scale-95 transition cursor-pointer'
+                        shadow-lg hover:opacity-80 active:scale-95 transition cursor-pointer'
                         >
                             <Phone className='rotate-135' size={16} />
                         </div>
@@ -71,7 +74,7 @@ const IncomingCallScreen = ({
                         <div
                             className='p-3 rounded-full 
                         bg-green-600 text-white flex items-center justify-center 
-                        shadow-lg hover:opacity-50 active:scale-95 transition cursor-pointer'
+                        shadow-lg hover:opacity-80 active:scale-95 transition cursor-pointer'
                         >
                             <Phone size={16} />
                         </div>

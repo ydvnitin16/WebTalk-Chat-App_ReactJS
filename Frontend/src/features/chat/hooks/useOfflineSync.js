@@ -7,9 +7,9 @@ const useOfflineSync = () => {
     useEffect(() => {
         const flushQueue = () => {
             if (!socket.connected) return;
-            console.log("Sending")
+            
             const all = JSON.parse(localStorage.getItem(QUEUE_KEY)) || {};
-            console.log("ALL", all)
+            
             Object.entries(all).forEach(([conversationId, messages]) => {
                 messages.forEach((msg) => {
                     socket.emit("message:send", {

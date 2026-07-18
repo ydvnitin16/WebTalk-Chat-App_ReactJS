@@ -75,7 +75,7 @@ const useSendMessages = () => {
 
 export default useSendMessages;
 
-function generateUUID() {
+export function generateUUID() {
   if (
     typeof window !== "undefined" &&
     window.crypto &&

@@ -1,78 +1,53 @@
 import React, { lazy, Suspense } from "react";
 import useAuthStore from "@/stores/useAuthStore";
-import useCallStore, { currentOffer } from "@/stores/useCallStore";
-import useCall from "../hooks/useCall";
+import useCallStore from "@/stores/useCallStore";
+// import useCall from "../hooks/useCall";
 import CallConnectingSkeleton from "@/components/skeletons/CallConnectingSkeleton";
+import useCallManager from "../hooks/useCallManager";
+import useMemberStore from "@/stores/useMemberStore";
 const IncomingCallScreen = lazy(() => import("./IncomingCallScreen"));
 const ActiveCallScreen = lazy(() => import("./ActiveCallScreen"));
 
 const CallManager = () => {
     const { currentUser } = useAuthStore();
     const { call, media } = useCallStore();
-    const {
-        acceptCall,
-        rejectCall,
-        endCall,
-        cancelCall,
-        onToggleMic,
-        onToggleCamera,
-    } = useCall();
+    const { acceptCall, rejectCall, endCall, onToggleMic, onToggleCamera } =
+        useCallManager();
+    const { users } = useMemberStore();
 
     if (!call) {
         return null;
     }
 
-    const isCaller = call.caller._id === currentUser.id;
+    const isCaller = call.callerId === currentUser.id;
+    const user = isCaller ? users[call.receiverId] : users[call.callerId];
 
-    if (call.caller._id !== currentUser.id && call.status !== "connected") {
+    if (!isCaller && call.status !== "connected") {
         return (
             <Suspense fallback={<CallConnectingSkeleton />}>
                 <IncomingCallScreen
-                    callerName={call.caller.name}
-                    callerAvatar={call.caller.avatar?.url || call.caller.avatar}
-                    onAccept={() =>
-                        acceptCall({
-                            offer: currentOffer.current,
-                            callerId: call.caller._id,
-                            callType: call.type,
-                            callId: call._id,
-                        })
-                    }
-                    onReject={() =>
-                        rejectCall({
-                            callerId: call.caller._id,
-                            callId: call._id,
-                        })
-                    }
+                    callerName={user?.name || "Unknown"}
+                    callerAvatar={user?.avatar?.url || null}
+                    onAccept={acceptCall}
+                    onReject={rejectCall}
                 />
             </Suspense>
         );
     }
-    
+
     return (
         <>
             <Suspense fallback={<CallConnectingSkeleton />}>
                 <ActiveCallScreen
-                    isCaller={call.caller._id === currentUser.id}
+                    isCaller={isCaller}
                     call={call}
+                    user={user}
                     endCall={() =>
-                        call.status !== "connected"
-                            ? cancelCall({
-                                  callerId: isCaller
-                                      ? call.receiver._id
-                                      : call.caller._id,
-                                  callId: call._id,
-                              })
-                            : endCall({
-                                  to: isCaller
-                                      ? call.receiver._id
-                                      : call.caller._id,
-                                  callId: call._id,
-                              })
+                        call.status !== "connected" ? rejectCall() : endCall()
                     }
                     mic={media.mic}
-                    onToggleMic={onToggleMic}
                     camera={media.camera}
+                    onToggleMic={onToggleMic}
                     onToggleCamera={onToggleCamera}
                 />
             </Suspense>

@@ -1,6 +1,6 @@
 import { cloudinary } from "../configs/cloudinary.js";
 import User from "../models/user.js";
-import { addOnlineUser, removeOnlineUser } from "../utils/presenceStore.js";
+import { addOnlineUser, removeOnlineUser } from "../cache/presenceStore.js";
 
 export const getUserByUsernameService = async (username) => {
     const normalisedUsername = username.trim().toLowerCase();
