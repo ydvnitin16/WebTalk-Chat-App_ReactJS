@@ -24,10 +24,10 @@ const ChatHeader = () => {
     const { startCall } = useCallManager();
     return (
         <>
-            <div className='fixed w-full top-0 md:static flex items-center justify-between md:rounded-tr-4xl px-4 py-3 shadow-sm backdrop-blur-[2px] dark:bg-black/30 md:dark:bg-zinc-950 md:dark:border-zinc-900 border-b border-zinc-200 dark:border-zinc-700 bg-white/30 dark:text-white z-10'>
+            <div className='fixed w-full top-0 md:static flex items-center justify-between md:rounded-tr-4xl md:px-4 px-1 py-3 md:shadow-sm   md:dark:bg-zinc-950 md:dark:border-zinc-900 md:border-b border-zinc-200  dark:text-white z-10'>
                 <div
                     onClick={() => setIsProfileOpen(true)}
-                    className='flex items-center gap-3 min-w-0'
+                    className='flex items-center gap-3 min-w-0 border rounded-4xl px-4 py-2 border-zinc-300 dark:border-zinc-800/40 bg-white/20 dark:bg-black/40 backdrop-blur-[1px] md:border-none md:p-0'
                 >
                     <button
                         onClick={() => {
@@ -57,7 +57,7 @@ const ChatHeader = () => {
                         </p>
                     </div>
                 </div>
-                <div className='relative text-gray-500 flex items-center dark:text-white'>
+                <div className='relative text-gray-700 flex items-center dark:text-white border rounded-4xl p-1 border-zinc-300 dark:border-zinc-800/40 bg-white/20 dark:bg-black/40 backdrop-blur-[1px] md:border-none md:p-0'>
                     <Button
                         variant='outline'
                         onClick={() => {

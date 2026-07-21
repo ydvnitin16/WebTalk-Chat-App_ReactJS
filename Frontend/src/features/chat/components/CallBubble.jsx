@@ -45,8 +45,8 @@ const CallBubble = ({
                         px-3 py-2 rounded-3xl max-w-xs text-sm shadow-sm
                         ${
                           isMine
-                            ? "text-white bg-[#007AFF] dark:bg-[#007AFF] backdrop-blur-md border border-white/10"
-                            : "backdrop-blur-md bg-white/20 dark:bg-zinc-700/30 border border-white/20 dark:border-zinc-600/30 text-zinc-800 dark:text-zinc-100"
+                            ? "text-white bg-[#007AFF] dark:bg-[#007AFF]  border border-white/10"
+                            : " bg-white/20 dark:bg-zinc-700/30 border border-white/20 dark:border-zinc-600/30 text-zinc-800 dark:text-zinc-100"
                         }
                     `}
         >
@@ -54,8 +54,8 @@ const CallBubble = ({
             <div
               className={`rounded-full p-3 ${
                 isMine
-                  ? "bg-white/20 backdrop-blur-md border border-white/20"
-                  : "bg-white dark:bg-zinc-700/40 backdrop-blur-md border border-white/20 dark:border-zinc-600/30"
+                  ? "bg-white/20  border border-white/20"
+                  : "bg-white dark:bg-zinc-700/40  border border-white/20 dark:border-zinc-600/30"
               }`}
             >
               {getIcon()}
