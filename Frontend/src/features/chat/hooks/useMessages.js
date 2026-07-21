@@ -28,7 +28,7 @@ export const useMessages = () => {
                 const data = await fetchConversationTimeline(
                     conversationId,
                     null,
-                    20,
+                    40,
                 );
                 
                 const messages = data.timeline.filter(

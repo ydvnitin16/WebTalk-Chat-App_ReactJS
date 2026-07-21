@@ -22,7 +22,7 @@ const ChatList = () => {
   const { activeConversationId, users, currentUser, selectedUserId } =
     useActiveConversation();
 
-  const { messages, isFetchingMore } = useMessageStore();
+  const { messages, isFetchingMore, hasMore } = useMessageStore();
   const { callHistory } = useCallStore();
   const { loadInitial, loadMore } = useMessages();
   const { resendMessage } = useResendMessage();
@@ -76,7 +76,7 @@ const ChatList = () => {
       className="flex-1 flex flex-col p-3 space-y-1 overflow-y-auto overflow-x-hidden scroll-smooth py-20 md:pb-2 bg-[#FCFCFC] dark:text-white dark:bg-black"
     >
       <div className="mt-auto flex flex-col space-y-4 w-full">
-        <ConversationStart />
+        {!hasMore && <ConversationStart />}
         {isFetchingMore && (
           <p className="flex justify-center items-center ">
             <Loader />

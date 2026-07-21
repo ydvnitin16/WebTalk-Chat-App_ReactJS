@@ -25,10 +25,7 @@ const ChatHeader = () => {
     return (
         <>
             <div className='fixed w-full top-0 md:static flex items-center justify-between md:rounded-tr-4xl md:px-4 px-1 py-3 md:shadow-sm   md:dark:bg-zinc-950 md:dark:border-zinc-900 md:border-b border-zinc-200  dark:text-white z-10'>
-                <div
-                    onClick={() => setIsProfileOpen(true)}
-                    className='flex items-center gap-3 min-w-0 border rounded-4xl px-4 py-2 border-zinc-300 dark:border-zinc-800/40 bg-white/20 dark:bg-black/40 backdrop-blur-[1px] md:border-none md:p-0'
-                >
+                <div className='flex items-center gap-3 min-w-0 border rounded-4xl px-4 py-2 border-zinc-300 dark:border-zinc-800/40 bg-white/20 dark:bg-black/40 backdrop-blur-[1px] md:border-none md:p-0'>
                     <button
                         onClick={() => {
                             clear();
@@ -37,24 +34,29 @@ const ChatHeader = () => {
                     >
                         <FontAwesomeIcon icon={faArrowLeft} />
                     </button>
-                    <img
-                        src={optimizeUrl(user?.avatar?.url, "medium")}
-                        className='w-10 h-10 rounded-full object-cover'
-                        alt='avatar'
-                    />
-                    <div className='min-w-0 flex-1'>
-                        <p className='font-semibold text-gray-800 dark:text-white truncate'>
-                            {user.name}
-                        </p>
-                        <p
-                            className={`text-xs text-gray-600 dark:text-zinc-200`}
-                        >
-                            {user.isOnline
-                                ? "online"
-                                : user.lastSeen
-                                  ? formatDateTime(user.lastSeen)
-                                  : ""}
-                        </p>
+                    <div
+                        onClick={() => setIsProfileOpen(true)}
+                        className='flex items-center gap-3'
+                    >
+                        <img
+                            src={optimizeUrl(user?.avatar?.url, "medium")}
+                            className='w-10 h-10 rounded-full object-cover'
+                            alt='avatar'
+                        />
+                        <div className='min-w-0 flex-1'>
+                            <p className='font-semibold text-gray-800 dark:text-white truncate max-w-30'>
+                                {user.name}
+                            </p>
+                            <p
+                                className={`text-xs text-gray-600 dark:text-zinc-200`}
+                            >
+                                {user.isOnline
+                                    ? "online"
+                                    : user.lastSeen
+                                      ? formatDateTime(user.lastSeen)
+                                      : ""}
+                            </p>
+                        </div>
                     </div>
                 </div>
                 <div className='relative text-gray-700 flex items-center dark:text-white border rounded-4xl p-1 border-zinc-300 dark:border-zinc-800/40 bg-white/20 dark:bg-black/40 backdrop-blur-[1px] md:border-none md:p-0'>

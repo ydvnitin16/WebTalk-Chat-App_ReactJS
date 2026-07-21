@@ -17,11 +17,22 @@ const useSocketListeners = (handlers) => {
 };
 
 export const useSocketEvents = () => {
-    const { activeConversationId } = useMessageStore();
+    const { activeConversationId, clear } = useMessageStore();
     const { clearUnreadCount } = useConversationStore();
     const { currentUser } = useAuthStore();
 
     useEffect(() => {
+        // update in the window history on active conversationId
+        const handlePopState = () => {
+            if (activeConversationId) {
+                clear();
+            }
+        };
+        if (!activeConversationId) return;
+
+        window.history.pushState({ conversation: activeConversationId }, "");
+        window.addEventListener("popstate", handlePopState);
+
         // All messages seen on select convesation, ack server with lastMessage
         if (
             !activeConversationId ||
@@ -39,6 +50,10 @@ export const useSocketEvents = () => {
             conversationId: activeConversationId,
             userId: currentUser?.id,
         });
+
+        return () => {
+            window.removeEventListener("popstate", handlePopState);
+        };
     }, [activeConversationId, currentUser]);
 
     useSocketListeners(useMessageHandlers());

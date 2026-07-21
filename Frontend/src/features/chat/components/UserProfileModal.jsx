@@ -18,7 +18,7 @@ const UserProfileModal = ({ isOpen, onClose, user }) => {
             />
             <div
                 onClick={onClose}
-                className='fixed inset-0 z-50 flex items-center justify-center'
+                className='fixed inset-0 flex items-center justify-center z-10'
             >
                 <div className='fixed inset-0 bg-black/40 backdrop-blur-[0.5px]'></div>
                 <div

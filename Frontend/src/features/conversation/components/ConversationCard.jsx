@@ -9,6 +9,7 @@ const ConversationCard = ({
     lastMessage,
     unreadCount = 0,
     currentUserId,
+    isNew = false,
 }) => {
     const formattedTime = useMemo(() => {
         return formatDateTime(lastMessage?.createdAt);
@@ -35,7 +36,14 @@ const ConversationCard = ({
 
             <div className='flex-1 min-w-0'>
                 <div className='flex justify-between items-center text-lg font-medium text-gray-800 dark:text-white'>
-                    <span>{user.name}</span>
+                    <span>
+                        {user.name}{" "}
+                        {isNew && (
+                            <span className='text-sm italic text-zinc-500'>
+                                - {`@${user.username}`}
+                            </span>
+                        )}
+                    </span>
                     <div className='flex items-center gap-2'>
                         {lastMessage && (
                             <span className='text-xs text-gray-400'>
@@ -52,7 +60,7 @@ const ConversationCard = ({
 
                 <p className='text-sm text-gray-500 truncate dark:text-gray-400 w-full'>
                     {lastMessage
-                        ? `${lastMessage.sender === currentUserId ? "You: " : ""}${lastMessage.content}`
+                        ? `${lastMessage.senderId === currentUserId ? "You: " : ""}${lastMessage.content}`
                         : "Start a new chat"}
                 </p>
             </div>

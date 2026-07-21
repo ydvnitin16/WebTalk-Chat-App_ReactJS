@@ -10,7 +10,7 @@ const useActiveConversation = () => {
   );
   const { users } = useMemberStore();
   const { currentUser } = useAuthStore();
-  const selectedUserId = conversation.otherUserId;
+  const selectedUserId = conversation?.otherUserId;
   const user = users[selectedUserId] || {};
 
   return {

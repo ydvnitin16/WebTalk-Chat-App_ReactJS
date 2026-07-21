@@ -72,6 +72,7 @@ const SearchUsersInput = () => {
                 user={user}
                 onClick={handleNewConversation}
                 currentUserId={currentUser.id}
+                isNew={true}
               />
             ))}
         </div>

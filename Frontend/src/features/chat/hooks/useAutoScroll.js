@@ -2,18 +2,20 @@ import useCallStore from "@/stores/useCallStore";
 import useMessageStore from "@/stores/useMessageStore";
 import useUIStore from "@/stores/useUIStore";
 import { useEffect, useLayoutEffect, useRef } from "react";
+import useActiveConversation from "./useActiveConversation";
 
 const useAutoScroll = () => {
     const { messages, activeConversationId } = useMessageStore();
+    const { selectedUserId } = useActiveConversation();
     const { typingUsers } = useUIStore();
     const { callHistory } = useCallStore();
 
     const containerRef = useRef(null);
     const scrollDownRef = useRef(null);
-    const previousSelectedUserIdRef = useRef(null);
+    const previousConversationId = useRef(null);
     const forceScrollOnceRef = useRef(false);
     const prevScrollHeightRef = useRef(0);
-    const typingCount = typingUsers[activeConversationId]?.size || 0;
+    const isTyping = typingUsers[selectedUserId] || false;
 
     const isNearBottom = () => {
         const el = containerRef.current;
@@ -22,8 +24,8 @@ const useAutoScroll = () => {
     };
 
     useEffect(() => {
-        if (previousSelectedUserIdRef.current !== activeConversationId) {
-            previousSelectedUserIdRef.current = activeConversationId;
+        if (previousConversationId.current !== activeConversationId) {
+            previousConversationId.current = activeConversationId;
             forceScrollOnceRef.current = true;
         }
     }, [activeConversationId]);
@@ -47,7 +49,7 @@ const useAutoScroll = () => {
         if (isNearBottom()) {
             scrollDownRef.current?.scrollIntoView({ behavior: "smooth" });
         }
-    }, [messages.length, callHistory.length, typingCount]);
+    }, [messages.length, callHistory.length, isTyping]);
 
     const captureScrollHeight = () => {
         const el = containerRef.current;

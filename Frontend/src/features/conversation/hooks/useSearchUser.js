@@ -1,5 +1,6 @@
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState, useSyncExternalStore } from "react";
 import { searchUserByUsername } from "../services/user.api";
+import { debounce } from "@/utils/debounce";
 
 const useSearchUser = () => {
     const [loading, setLoading] = useState(false);
@@ -19,8 +20,12 @@ const useSearchUser = () => {
             try {
                 setLoading(true);
                 setError(null);
-                const data = await searchUserByUsername(searchUsername);
-                setUsers(data.users);
+                console.log(searchUsername);
+                const searchUserDebouncedFn = debounce(async (username) => {
+                    const data = await searchUserByUsername(username);
+                    setUsers(data.users);
+                }, 400);
+                searchUserDebouncedFn(searchUsername);
             } catch (err) {
                 setError(err.message);
                 setUsers(null);
