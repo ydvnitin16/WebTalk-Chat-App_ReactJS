@@ -18,16 +18,16 @@ const CallManager = () => {
     if (!call) {
         return null;
     }
-
     const isCaller = call.callerId === currentUser.id;
-    const user = isCaller ? users[call.receiverId] : users[call.callerId];
+    const otherUser = isCaller ? users[call.receiverId] : users[call.callerId];
 
     if (!isCaller && call.status !== "connected") {
+        console.log("Incoming Call Executing...");
         return (
             <Suspense fallback={<CallConnectingSkeleton />}>
                 <IncomingCallScreen
-                    callerName={user?.name || "Unknown"}
-                    callerAvatar={user?.avatar?.url || null}
+                    callerName={otherUser?.name || "Unknown"}
+                    callerAvatar={otherUser?.avatar?.url || null}
                     onAccept={acceptCall}
                     onReject={rejectCall}
                 />
@@ -41,10 +41,8 @@ const CallManager = () => {
                 <ActiveCallScreen
                     isCaller={isCaller}
                     call={call}
-                    user={user}
-                    endCall={() =>
-                        call.status !== "connected" ? rejectCall() : endCall()
-                    }
+                    user={otherUser}
+                    endCall={endCall}
                     mic={media.mic}
                     camera={media.camera}
                     onToggleMic={onToggleMic}

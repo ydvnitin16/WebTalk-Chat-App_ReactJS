@@ -45,7 +45,7 @@ export async function initiateCall({
         callerId,
         receiverId,
         type,
-        status: "calling",
+        status: "ringing",
     });
 }
 
@@ -82,7 +82,6 @@ export async function handleMissedTimeout(callId) {
 export async function endCall({ callId, userId }) {
     const call = await Call.findOne({ _id: callId });
     if (!call) throw new Error("Call not found", 404);
-
 
     const isParticipant = [
         String(call.callerId),
