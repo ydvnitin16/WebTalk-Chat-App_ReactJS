@@ -7,7 +7,6 @@ import { formatDateTime, isValidObjectId } from "@/utils/utils";
 // import useCall from "@/features/call/hooks/useCall";
 import Button from "@/components/ui/Button";
 import { useState } from "react";
-import ChatHeaderDropdown from "./ChatHeaderDropdown";
 import UserProfileModal from "./UserProfileModal";
 import { optimizeUrl } from "@/utils/imageOptimization";
 import useActiveConversation from "../hooks/useActiveConversation";
@@ -15,7 +14,6 @@ import useCallManager from "@/features/call/hooks/useCallManager";
 import toast from "react-hot-toast";
 
 const ChatHeader = () => {
-    const [showDropdown, setShowDropdown] = useState(false);
     const [isProfileOpen, setIsProfileOpen] = useState(false);
 
     const { clear, selectedUserId, user, activeConversationId } =

@@ -18,14 +18,14 @@ const UserProfileModal = ({ isOpen, onClose, user }) => {
             />
             <div
                 onClick={onClose}
-                className='fixed inset-0 flex items-center justify-center z-10'
+                className='fixed inset-0 flex items-center justify-center z-1000'
             >
                 <div className='fixed inset-0 bg-black/40 backdrop-blur-[0.5px]'></div>
                 <div
                     onClick={(e) => {
                         e.stopPropagation();
                     }}
-                    className='w-full max-w-sm backdrop-blur-[5px] bg-white/30 dark:bg-[#101010]  border border-zinc-300 rounded-4xl dark:border-zinc-800 p-6 relative'
+                    className='w-full max-w-sm backdrop-blur-[5px] bg-white dark:bg-[#101010]  border border-zinc-300 rounded-4xl dark:border-zinc-800 p-6 relative'
                 >
                     <Button
                         onClick={onClose}
