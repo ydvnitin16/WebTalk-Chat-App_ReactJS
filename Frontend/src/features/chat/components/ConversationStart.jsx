@@ -24,10 +24,10 @@ const ConversationStart = () => {
             <div className='flex flex-col items-center'>
                 <div className='text-xl font-medium'>{user.name}</div>
                 <div className='dark:text-zinc-500'>@{user.username}</div>
+                <Button variant='secondary' className={"w-40 mt-1"}>
+                    View Profile
+                </Button>
             </div>
-            <Button variant='secondary' className={"w-40"}>
-                View Profile
-            </Button>
         </div>
     );
 };

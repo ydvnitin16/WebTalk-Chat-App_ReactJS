@@ -20,11 +20,11 @@ const useSearchUser = () => {
             try {
                 setLoading(true);
                 setError(null);
-                console.log(searchUsername);
+
                 const searchUserDebouncedFn = debounce(async (username) => {
                     const data = await searchUserByUsername(username);
                     setUsers(data.users);
-                }, 400);
+                }, 300);
                 searchUserDebouncedFn(searchUsername);
             } catch (err) {
                 setError(err.message);

@@ -7,6 +7,7 @@ import { optimizeUrl } from "@/utils/imageOptimization";
 const ProfileModal = ({ isOpen, onClose, user, onSave }) => {
     const [name, setName] = useState(user?.name || "");
     const [username, setUsername] = useState(user?.username || "");
+    const [bio, setBio] = useState(user?.bio || "");
     const [avatar, setAvatar] = useState(
         user?.avatar?.url || user?.avatar || "",
     );
@@ -18,6 +19,7 @@ const ProfileModal = ({ isOpen, onClose, user, onSave }) => {
         const nextAvatar = user?.avatar?.url || user?.avatar || "";
         setName(user?.name || "");
         setUsername(user?.username || "");
+        setBio(user?.bio || "");
         setAvatar(nextAvatar);
         setPreview(nextAvatar);
     }, [user, isOpen]);
@@ -34,7 +36,12 @@ const ProfileModal = ({ isOpen, onClose, user, onSave }) => {
     };
 
     const handleSubmit = async () => {
-        const updatedUser = await updateProfile({ name, username, avatar });
+        const updatedUser = await updateProfile({
+            name,
+            username,
+            avatar,
+            bio,
+        });
         onSave?.(updatedUser);
         onClose();
     };
@@ -97,6 +104,17 @@ const ProfileModal = ({ isOpen, onClose, user, onSave }) => {
                             type='text'
                             value={username}
                             onChange={(e) => setUsername(e.target.value)}
+                            className='w-full mt-1 px-3 py-2 rounded-lg border border-zinc-300 dark:border-zinc-700 bg-transparent outline-none focus:ring-2 focus:ring-blue-500'
+                        />
+                    </div>
+                    <div>
+                        <label className='text-sm text-zinc-600 dark:text-zinc-400'>
+                            Bio
+                        </label>
+                        <input
+                            type='text'
+                            value={bio}
+                            onChange={(e) => setBio(e.target.value)}
                             className='w-full mt-1 px-3 py-2 rounded-lg border border-zinc-300 dark:border-zinc-700 bg-transparent outline-none focus:ring-2 focus:ring-blue-500'
                         />
                     </div>

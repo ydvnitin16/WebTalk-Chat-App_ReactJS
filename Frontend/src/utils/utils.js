@@ -16,9 +16,9 @@ export function formatDateTime(dateString) {
     const time = date.toLocaleTimeString("en-US", options);
 
     if (diffInDays === 0) {
-        return time; // today
+        return `Today, ${time}`; // today
     } else if (diffInDays === 1) {
-        return `Yesterday`;
+        return `Yesterday, ${time}`;
     } else {
         const fullDate = date.toLocaleDateString("en-GB", {
             day: "2-digit",

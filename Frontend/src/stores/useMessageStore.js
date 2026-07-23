@@ -9,25 +9,25 @@ const sortMessages = (messages = []) =>
 
         if (timeDiff !== 0) return timeDiff;
 
-        return String(a._id || a.tempId || "").localeCompare(
-            String(b._id || b.tempId || ""),
+        return String(a._id || a.clientMessageId || "").localeCompare(
+            String(b._id || b.clientMessageId || ""),
         );
     });
 
-const messageKey = (message) => message?._id || message?.tempId;
+const messageKey = (message) => message?._id || message?.clientMessageId;
 
 const mergeMessages = (messages = []) => {
     const merged = new Map();
 
     messages.filter(Boolean).forEach((message) => {
-        const keys = [message._id, message.tempId].filter(Boolean);
+        const keys = [message._id, message.clientMessageId].filter(Boolean);
         const existing = keys.map((key) => merged.get(key)).find(Boolean);
         const next = { ...(existing || {}), ...message };
         const key = messageKey(next);
 
         if (key) merged.set(key, next);
         if (next._id) merged.set(next._id, next);
-        if (next.tempId) merged.set(next.tempId, next);
+        if (next.clientMessageId) merged.set(next.clientMessageId, next);
     });
 
     return sortMessages([...new Set(merged.values())]);

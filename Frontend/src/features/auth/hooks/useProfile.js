@@ -8,7 +8,7 @@ const useProfile = () => {
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState(null);
 
-    const updateProfile = async ({ name, username, avatar }) => {
+    const updateProfile = async ({ name, username, avatar, bio }) => {
         try {
             setLoading(true);
             setError(null);
@@ -16,6 +16,7 @@ const useProfile = () => {
             const formData = new FormData();
             if (name) formData.append("name", name);
             if (username) formData.append("username", username);
+            if (bio) formData.append("bio", bio);
             if (avatar instanceof File) {
                 formData.append("avatar", avatar);
             }

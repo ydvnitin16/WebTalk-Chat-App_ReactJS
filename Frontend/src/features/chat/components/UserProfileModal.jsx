@@ -54,7 +54,7 @@ const UserProfileModal = ({ isOpen, onClose, user }) => {
                             @{user.username}
                         </p>
 
-                        <div className='mt-3 flex justify-center'>
+                        {user.isOnline || user.lastSeen && <div className='mt-3 flex justify-center'>
                             <span
                                 className={`inline-flex items-center gap-2 rounded-full px-3 py-1 text-xs font-medium ${
                                     user.isOnline
@@ -69,9 +69,11 @@ const UserProfileModal = ({ isOpen, onClose, user }) => {
                                             : "bg-zinc-400"
                                     }`}
                                 />
-                                {user.isOnline ? "Online" : "Offline"}
+                                {user.isOnline
+                                    ? "Online"
+                                    : `Last seen ${formatDateTime(user.lastSeen)}`}
                             </span>
-                        </div>
+                        </div>}
                     </div>
                     <div className='mt-6 space-y-5'>
                         {/* Bio */}

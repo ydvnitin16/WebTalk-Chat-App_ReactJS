@@ -11,7 +11,7 @@ export const getUserByUsernameService = async (username) => {
         username: { $regex: normalisedUsername },
     })
         .limit(3)
-        .select("_id name avatar username")
+        .select("_id name avatar username createdAt")
         .lean();
     return users;
 };

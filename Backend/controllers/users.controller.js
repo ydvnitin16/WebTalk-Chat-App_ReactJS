@@ -1,4 +1,28 @@
-import { getUserByUsernameService, updateProfileService } from "../services/users.services.js";
+import { cloudinary } from "../configs/cloudinary.js";
+import {
+    getUserByUsernameService,
+    updateProfileService,
+} from "../services/users.services.js";
+
+const uploadBufferToCloudinary = (fileBuffer, folder = "sendx/profile") =>
+    new Promise((resolve, reject) => {
+        const uploadStream = cloudinary.uploader.upload_stream(
+            {
+                folder,
+                resource_type: "image",
+            },
+            (error, result) => {
+                if (error) {
+                    reject(error);
+                    return;
+                }
+
+                resolve(result);
+            },
+        );
+
+        uploadStream.end(fileBuffer);
+    });
 
 export const getUserByUsername = async (req, res) => {
     try {
@@ -17,12 +41,11 @@ export const getUserByUsername = async (req, res) => {
     }
 };
 
-
 export const updateProfile = async (req, res) => {
     try {
         const userId = req.user.id;
 
-        const { name, username } = req.body;
+        const { name, username, bio } = req.body;
         const file = req.file;
         let avatar = null;
 
@@ -39,6 +62,7 @@ export const updateProfile = async (req, res) => {
             name,
             username,
             avatar,
+            bio
         });
 
         res.status(200).json({
