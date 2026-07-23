@@ -1,7 +1,7 @@
 // import { v4 as uuid } from "uuid";
 import { socket } from "@/lib/socket";
 import useAuthStore from "@/stores/useAuthStore";
-import useCallStore from "@/stores/useCallStore";
+import useCallStore, { localStream } from "@/stores/useCallStore";
 import useWebRTC from "./useWebRTC";
 import { generateUUID } from "@/features/chat/hooks/useSendMessages";
 
@@ -15,6 +15,7 @@ const useCallManager = () => {
         toggleCamera,
         addCallToHistory,
         updateCallInHistory,
+        updateCallStatus,
     } = useCallStore();
     const { currentUser } = useAuthStore();
     const { buildOffer, buildAnswer, clearConnection } = useWebRTC();
@@ -41,7 +42,6 @@ const useCallManager = () => {
         socket.emit(
             "call:initiate",
             { clientCallId, conversationId, receiverId, type, offer },
-
             (ack) => {
                 if (!ack.ok) {
                     clearConnection();
@@ -49,11 +49,18 @@ const useCallManager = () => {
                     return;
                 }
                 syncCallId(ack.callId);
-                // update the call history entry with server call id/status
                 updateCallInHistory(
                     { clientCallId },
                     { _id: ack.callId, callId: ack.callId, status: ack.status },
                 );
+
+                // server already terminated the call - no receiver-side event is coming
+                if (ack.status === "busy") {
+                    clearConnection();
+                    clearCall();
+                    return;
+                }
+                updateCallStatus(ack.status);
             },
         );
     };
@@ -64,11 +71,14 @@ const useCallManager = () => {
 
         const callId = call.callId || call._id;
         const answer = await buildAnswer(call.callerId, call.type, call.offer);
-        
+
         socket.emit("call:accept", { callId, answer }, (ack) => {
             if (ack.ok) {
-                useCallStore.getState().updateCallStatus("connected");
-                updateCallInHistory({ callId }, { status: "connected", startedAt: Date.now() });
+                updateCallStatus("connected");
+                updateCallInHistory(
+                    { callId },
+                    { status: "connected", startedAt: Date.now() },
+                );
             }
         });
     };
@@ -77,40 +87,47 @@ const useCallManager = () => {
         const { call } = useCallStore.getState();
         if (!call) return;
         const callId = call.callId || call._id;
-        
+
         socket.emit("call:reject", { callId });
-        updateCallInHistory({ callId, clientCallId: call.clientCallId }, { status: "rejected", endedAt: Date.now() });
+        updateCallInHistory(
+            { callId, clientCallId: call.clientCallId },
+            { status: "rejected", endedAt: Date.now() },
+        );
         clearConnection();
         clearCall();
     };
 
+    // One button for "leave whatever call is active" - picks the right
+    // server event depending on whether the other side has answered yet.
     const endCall = () => {
         const { call } = useCallStore.getState();
         if (!call) return;
-        
         const callId = call.callId || call._id;
-        socket.emit("call:end", { callId });
-        updateCallInHistory({ callId, clientCallId: call.clientCallId }, { status: "ended", endedAt: Date.now() });
+        const isConnected = call.status === "connected";
+
+        socket.emit(isConnected ? "call:end" : "call:cancel", { callId });
+        updateCallInHistory(
+            { callId, clientCallId: call.clientCallId },
+            {
+                status: isConnected ? "ended" : "cancelled",
+                endedAt: Date.now(),
+            },
+        );
         clearConnection();
         clearCall();
     };
 
     const onToggleMic = () => {
-        useCallStore.getState();
-        import("@/stores/useCallStore").then(({ localStream }) => {
-            localStream?.current
-                ?.getAudioTracks()
-                .forEach((t) => (t.enabled = !t.enabled));
-        });
+        localStream.current
+            ?.getAudioTracks()
+            .forEach((t) => (t.enabled = !t.enabled));
         toggleMic();
     };
 
     const onToggleCamera = () => {
-        import("@/stores/useCallStore").then(({ localStream }) => {
-            localStream?.current
-                ?.getVideoTracks()
-                .forEach((t) => (t.enabled = !t.enabled));
-        });
+        localStream.current
+            ?.getVideoTracks()
+            .forEach((t) => (t.enabled = !t.enabled));
         toggleCamera();
     };
 

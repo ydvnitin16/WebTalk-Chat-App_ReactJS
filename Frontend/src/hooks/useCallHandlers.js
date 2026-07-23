@@ -4,16 +4,23 @@ import useAuthStore from "@/stores/useAuthStore";
 import useCallStore from "@/stores/useCallStore";
 
 export const useCallHandlers = () => {
-    const { setCall, updateCallStatus, clearCall } = useCallStore();
+    const {
+        setCall,
+        updateCallStatus,
+        clearCall,
+        updateCallInHistory,
+        addCallToHistory,
+    } = useCallStore();
     const { clearConnection, applyAnswer, addIceCandidate } = useWebRTC();
     const { currentUser } = useAuthStore();
 
     const onIncoming = ({ callId, conversationId, callerId, type, offer }) => {
         const { call } = useCallStore.getState();
         if (call) return; // already on a call — server already knows via busy check
-       
-        setCall({
+
+        const incomingCall = {
             callId,
+            _id: callId,
             clientCallId: null,
             conversationId,
             callerId,
@@ -22,8 +29,11 @@ export const useCallHandlers = () => {
             offer,
             createdAt: Date.now(),
             status: "ringing",
-        });
-        
+        };
+
+        setCall(incomingCall);
+        addCallToHistory(incomingCall);
+
         socket.emit("call:status", {
             callId,
             toUserId: callerId,
@@ -36,46 +46,51 @@ export const useCallHandlers = () => {
         updateCallStatus("connected");
 
         const { call } = useCallStore.getState();
-        if (call) useCallStore.getState().updateCallInHistory({ callId: call.callId, clientCallId: call.clientCallId }, { status: "connected", startedAt: Date.now() });
+        if (call)
+            updateCallInHistory(
+                { callId: call.callId, clientCallId: call.clientCallId },
+                { status: "connected", startedAt: Date.now() },
+            );
     };
 
     const onRejected = ({ callId }) => {
-        useCallStore.getState().updateCallInHistory({ callId }, { status: "rejected", endedAt: Date.now() });
+        updateCallInHistory(
+            { callId },
+            { status: "rejected", endedAt: Date.now() },
+        );
         clearConnection();
         clearCall();
     };
 
-    const onBusy = ({ callId, clientCallId }) => {
-        const { call } = useCallStore.getState();
-        if (!call) return;
-
-        // Show busy status to the caller instead of immediately clearing
-        updateCallStatus("busy");
-        useCallStore.getState().updateCallInHistory({ callId, clientCallId }, { status: "busy" });
-
-        // Let the UI display busy state and clean up after a timeout
-        const BUSY_TIMEOUT_MS = 30 * 1000;
-        setTimeout(() => {
-            clearConnection();
-            clearCall();
-        }, BUSY_TIMEOUT_MS);
+    // Caller hung up before we picked up - clears the incoming call screen
+    const onCancelled = ({ callId }) => {
+        updateCallInHistory(
+            { callId },
+            { status: "cancelled", endedAt: Date.now() },
+        );
+        clearConnection();
+        clearCall();
     };
 
     const onEnded = ({ callId }) => {
-        useCallStore.getState().updateCallInHistory({ callId }, { status: "ended", endedAt: Date.now() });
+        updateCallInHistory(
+            { callId },
+            { status: "completed", endedAt: Date.now() },
+        );
         clearConnection();
         clearCall();
     };
 
     const onMissed = ({ callId }) => {
-        useCallStore.getState().updateCallInHistory({ callId }, { status: "missed", endedAt: Date.now() });
+        updateCallInHistory(
+            { callId },
+            { status: "missed", endedAt: Date.now() },
+        );
         clearConnection();
         clearCall();
     };
 
-    const onStatus = ({ status }) => {
-        updateCallStatus(status);
-    };
+    const onStatus = ({ status }) => updateCallStatus(status);
 
     const onIceCandidate = ({ candidate }) => addIceCandidate(candidate);
 
@@ -83,7 +98,7 @@ export const useCallHandlers = () => {
         "call:incoming": onIncoming,
         "call:accepted": onAccepted,
         "call:rejected": onRejected,
-        "call:busy": onBusy,
+        "call:cancelled": onCancelled,
         "call:ended": onEnded,
         "call:missed": onMissed,
         "call:status": onStatus,

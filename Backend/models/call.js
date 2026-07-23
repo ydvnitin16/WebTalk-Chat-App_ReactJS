@@ -24,6 +24,7 @@ const callSchema = new mongoose.Schema(
         "ringing",
         "missed",
         "rejected",
+        "busy",
         "connected",
         "completed",
         "cancelled",

@@ -102,8 +102,6 @@ const ChatList = () => {
                   type={item.type}
                   time={item.data.createdAt}
                   status={status}
-                  isFirst={isFirst}
-                  isLast={isLast}
                   data={item.data}
                   resend={resendMessage}
                 />
@@ -112,20 +110,18 @@ const ChatList = () => {
             if (item.type === "call") {
               return (
                 <CallBubble
+                  key={item.data._id}
                   isMine={item.data.callerId === currentUser.id}
                   user={users[selectedUserId]}
                   time={formatDateTime(
                     item.data?.endedAt || item.data?.createdAt,
                   )}
                   type={item.data.type}
-                  key={item.data._id}
                   status={item.data.status}
                   duration={formatCallDuration(
                     item.data?.startedAt,
                     item.data?.endedAt,
                   )}
-                  isFirst={isFirst}
-                  isLast={isLast}
                 />
               );
             }

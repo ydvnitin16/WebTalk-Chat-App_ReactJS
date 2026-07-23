@@ -2,6 +2,14 @@ import * as ActiveCallsStore from "../cache/activeCallsStore.js";
 import Call from "../models/call.js";
 import ConversationMember from "../models/conversationMember.js";
 
+const TRANSITIONS = {
+    accept: { from: "ringing", to: "connected", actor: "receiver" },
+    reject: { from: "ringing", to: "rejected", actor: "receiver" },
+    cancel: { from: "ringing", to: "cancelled", actor: "caller" },
+    timeout: { from: "ringing", to: "missed", actor: "system" },
+    end: { from: "connected", to: "completed", actor: "participant" },
+};
+
 export async function initiateCall({
     clientCallId,
     callerId,
@@ -13,19 +21,17 @@ export async function initiateCall({
     const existing = await Call.findOne({ callerId, clientCallId });
     if (existing) return existing;
 
-    // Verify conversation exists between them
-    const isMember = await ConversationMember.exists({
+    // Verify BOTH users are members of the conversation
+    const memberCount = await ConversationMember.countDocuments({
         conversationId,
         userId: { $in: [callerId, receiverId] },
     });
-    if (!isMember) throw new Error("Not a member or access denied", 403);
+    if (memberCount < 2) throw new Error("Not a member or access denied", 403);
 
-    // Check if caller is busy
     if (ActiveCallsStore.isUserBusy(callerId)) {
         throw new Error("Caller already in call", 409);
     }
 
-    // Check if receiver is busy
     if (ActiveCallsStore.isUserBusy(receiverId)) {
         return Call.create({
             clientCallId,
@@ -38,7 +44,6 @@ export async function initiateCall({
         });
     }
 
-    // Create ringing call
     return Call.create({
         clientCallId,
         conversationId,
@@ -49,86 +54,53 @@ export async function initiateCall({
     });
 }
 
-export async function handleAccept({ callId, receiverId }) {
-    const call = await loadCall({
-        callId,
-        userId: receiverId,
-        requiredStatus: "ringing",
-    });
-    call.status = "connected";
-    call.startedAt = new Date();
+// Single entry point for every state change after a call starts ringing.
+export async function transitionCall({ callId, userId, action }) {
+    const def = TRANSITIONS[action];
+    const call = await Call.findOne({ _id: callId, status: def.from });
+    if (!call) return null;
+
+    assertActor(call, userId, def.actor);
+
+    call.status = def.to;
+    if (def.to === "connected") {
+        call.startedAt = new Date();
+    } else {
+        call.endedAt = new Date();
+    }
     await call.save();
 
     ActiveCallsStore.clearRingTimeout(callId);
+    if (def.to !== "connected") ActiveCallsStore.releaseCall(callId);
+
     return call;
 }
 
-export async function handleReject({ callId, receiverId }) {
-    return resolveNonAccepted({
-        callId,
-        expectedReceiverId: receiverId,
-        status: "rejected",
-    });
-}
-
-export async function handleMissedTimeout(callId) {
-    return resolveNonAccepted({
-        callId,
-        expectedReceiverId: null,
-        status: "missed",
-    });
-}
-
-export async function endCall({ callId, userId }) {
+// Used on disconnect cleanup, where we don't know if the active call was
+export async function endActiveCall({ callId, userId }) {
     const call = await Call.findOne({ _id: callId });
-    if (!call) throw new Error("Call not found", 404);
+    if (!call) return null;
 
-    const isParticipant = [
-        String(call.callerId),
-        String(call.receiverId),
-    ].includes(String(userId));
-    if (!isParticipant) throw new Error("Not a participant", 403);
-
-    call.status = "completed";
-    call.endedAt = new Date();
-    await call.save();
-
-    ActiveCallsStore.releaseCall(callId);
-    return call;
-}
-
-// HELPER FUNCTIONS
-
-export async function resolveNonAccepted({
-    callId,
-    expectedReceiverId,
-    status,
-}) {
-    const call = await Call.findOne({ _id: callId, status: "ringing" });
-    if (!call) return null; // Race condition mitigation
-
-    if (
-        expectedReceiverId &&
-        String(call.receiverId) !== String(expectedReceiverId)
-    ) {
-        throw new Error("NOt the receiver", 403);
+    if (call.status === "connected") {
+        return transitionCall({ callId, userId, action: "end" });
     }
-
-    call.status = status;
-    call.endedAt = new Date();
-    await call.save();
-
-    ActiveCallsStore.releaseCall(callId);
-    return call;
+    if (call.status === "ringing") {
+        const action =
+            String(call.callerId) === String(userId) ? "cancel" : "reject";
+        return transitionCall({ callId, userId, action });
+    }
+    return null; // already resolved
 }
 
-export async function loadCall({ callId, userId, requiredStatus }) {
-    const call = await Call.findOne({ _id: callId });
-    if (!call) throw new Error("Call not found", 404);
-    if (String(call.receiverId) !== String(userId))
+function assertActor(call, userId, actor) {
+    const id = String(userId);
+    if (actor === "receiver" && String(call.receiverId) !== id)
         throw new Error("Not the receiver", 403);
-    if (call.status !== requiredStatus)
-        throw new Error("Invalid call status", 409);
-
-    return call;
+    if (actor === "caller" && String(call.callerId) !== id)
+        throw new Error("Not the caller", 403);
+    if (
+        actor === "participant" &&
+        ![call.callerId, call.receiverId].map(String).includes(id)
+    )
+        throw new Error("Not a participant", 403);
 }
