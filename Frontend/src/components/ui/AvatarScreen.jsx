@@ -7,7 +7,7 @@ const AvatarScreen = ({ isOpen, onClose, src }) => {
 
     return (
         <div
-            className='fixed inset-0 z-[100] bg-black/90 flex items-center justify-center backdrop-blur-[2px]'
+            className='fixed inset-0 z-[10003] bg-black/90 flex items-center justify-center backdrop-blur-[2px]'
             onClick={onClose}
         >
             <button

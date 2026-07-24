@@ -26,6 +26,9 @@ export const getConversationsService = async (userId) => {
         .populate("lastMessageId")
         .lean();
 
+    const convo = await Conversation.findOne().populate("participants");
+
+    console.log(convo.populated("participants"));
     if (conversations.length === 0) return [];
 
     const conversationIds = conversations.map((c) => c._id);
@@ -48,6 +51,7 @@ export const getConversationsService = async (userId) => {
 
         return {
             conversationId: convo._id,
+            participantKey: convo.participantKey,
             otherUser: {
                 _id: otherUser._id,
                 name: otherUser.name,

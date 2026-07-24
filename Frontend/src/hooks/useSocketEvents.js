@@ -46,6 +46,7 @@ export const useSocketEvents = () => {
             return;
         }
         clearUnreadCount(activeConversationId);
+        console.log(activeConversationId, currentUser)
         socket.emit("messages:seen", {
             conversationId: activeConversationId,
             userId: currentUser?.id,

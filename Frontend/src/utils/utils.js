@@ -110,56 +110,36 @@ export const getPeerUserId = (conversation, currentUserId) => {
     return normalizeUserId(peer?.userId || peer);
 };
 
-export const normalizeConversations = (conversations = []) => {
+export function normalizeConversations(list) {
+    const conversations = [];
     const users = {};
-    const membersByConversation = {};
+    const cursors = {};
 
-    const normalizedConversations = conversations.map((conv) => {
-        const members =
-            conv.members.map((m) => {
-                return {
-                    userId: m.userId,
-                    lastDeliveredMessageId: m.lastDeliveredMessageId,
-                    lastSeenMessageId: m.lastSeenMessageId,
-                };
-            }) || [];
-
-        conv.members.forEach((member) => {
-            if (!member.userId) return;
-            users[member.userId] = {
-                ...users[member.userId],
-                _id: member.userId,
-                name: member.name,
-                avatar: member.avatar,
-                username: member.username,
-                isOnline: member.isOnline,
-                lastSeen: member.lastSeen,
-            };
-        });
-
-        membersByConversation[conv._id] = members;
-
-        return {
-            ...conv,
-            lastMessage: conv.lastMessage
-                ? normalizeMessage(conv.lastMessage)
-                : conv.lastMessage,
-            unreadCount:
-                conv.unreadCount ??
-                (conv.unreadCounts instanceof Map
-                    ? Object.fromEntries(conv.unreadCounts)
-                    : conv.unreadCounts || {})?.[conv.currentUserId] ??
-                0,
-            members: members.map((member) => member.userId),
+    for (const item of list) {
+        const conversation = {
+            _id: item.conversationId,
+            otherUserId: item.otherUser._id,
+            lastMessage: item.lastMessage,
+            lastActivity: item.lastActivity,
+            unreadCount: item.unreadCount,
         };
-    });
+        conversations.push(conversation);
+
+        users[item.otherUser._id] = item.otherUser;
+
+        cursors[item.conversationId] = {
+            myLastSeenMessageId: item.myLastSeenMessageId,
+            otherLastSeenMessageId: item.otherLastSeenMessageId,
+            otherLastDeliveredMessageId: item.otherLastDeliveredMessageId,
+        };
+    }
 
     return {
+        conversations,
         users,
-        conversations: normalizedConversations,
-        membersByConversation,
+        cursors,
     };
-};
+}
 
 export const formatCallDuration = (startTime, endTime = null) => {
     const end = endTime ? new Date(endTime) : new Date();

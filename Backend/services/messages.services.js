@@ -228,12 +228,14 @@ export const sendMessageService = async ({
 };
 
 export const markConversationSeen = async ({ userId, conversationId }) => {
+    console.log(userId, conversationId);
+    
     const latestMessage = await Message.findOne({ conversationId })
         .sort({ createdAt: -1, _id: -1 })
         .select("_id");
-
+    console.log(latestMessage)
     if (!latestMessage) return null;
-
+    console.log('MArking...')
     return markSeen({ userId, conversationId, messageId: latestMessage._id });
 };
 
@@ -275,13 +277,15 @@ export const markSeen = async ({ userId, conversationId, messageId }) => {
         conversationId: conversationId,
         userId: userId,
     }).select("_id lastSeenMessageId lastDeliveredMessageId");
-
+    console.log(member)
     if (!member) throw new Error("ConversationMember not found");
-
+    console.log('Founded');
+    
     if (
         !member.lastSeenMessageId ||
         isNewer(messageId, member.lastSeenMessageId)
     ) {
+        console.log("Newer")
         const update = {
             lastSeenMessageId: messageId,
             unreadCount: 0,
@@ -294,17 +298,18 @@ export const markSeen = async ({ userId, conversationId, messageId }) => {
         ) {
             update.lastDeliveredMessageId = messageId;
         }
-
+        console.log('Delivered also checked')
         await ConversationMember.updateOne(
             { _id: member._id },
             { $set: update },
         );
-
+        console.log('UPdated');
+        
         const otherMember = await ConversationMember.findOne({
             conversationId: conversationId,
             userId: { $ne: userId },
         }).select("userId");
-
+        console.log('Other member', otherMember)
         return {
             conversationId,
             userId,

@@ -11,6 +11,7 @@ export const getConversations = async (req, res) => {
     const conversations = await getConversationsService(userId);
     res.status(200).json({ success: true, conversations });
   } catch (error) {
+    console.log(error)
     res.status(500).json({ message: "Server error. Please try again later." });
   }
 };

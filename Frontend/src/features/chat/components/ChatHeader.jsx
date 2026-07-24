@@ -28,13 +28,24 @@ const ChatHeader = () => {
                         onClick={() => {
                             clear();
                         }}
-                        className='md:hidden text-lg text-black dark:text-white'
+                        className='md:hidden text-lg text-black dark:text-white cursor-pointer'
                     >
-                        <FontAwesomeIcon icon={faArrowLeft} />
+                        <svg
+                            width='24'
+                            height='24'
+                            viewBox='0 0 24 24'
+                            fill='none'
+                            stroke='currentColor'
+                            stroke-width='2.5'
+                            stroke-linecap='round'
+                            stroke-linejoin='round'
+                        >
+                            <path d='M15 18l-6-6 6-6' />
+                        </svg>
                     </button>
                     <div
                         onClick={() => setIsProfileOpen(true)}
-                        className='flex items-center gap-3'
+                        className='flex items-center gap-3 cursor-pointer'
                     >
                         <img
                             src={optimizeUrl(user?.avatar?.url, "medium")}

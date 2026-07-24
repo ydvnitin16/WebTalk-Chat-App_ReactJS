@@ -18,13 +18,11 @@ const ChatSkeleton = () => {
                   px-4 py-3 rounded-2xl space-y-2 animate-pulse
                   ${
                       isMine
-                          ? "bg-[#007AFF] dark:bg-[#007AFF] rounded-br-sm"
-                          : "bg-zinc-200 dark:bg-zinc-700 rounded-bl-sm"
+                          ? "bg-[#007AFF] dark:bg-[#007AFF] rounded-4xl"
+                          : "bg-zinc-200 dark:bg-zinc-900 rounded-4xl"
                   }
                 `}
                             >
-                                <div className='h-3 w-24 bg-white/90 dark:bg-white/20 rounded' />
-
                                 <div className='h-3 w-32 bg-white/90 dark:bg-white/20 rounded' />
 
                                 <div className='h-2 w-10 bg-white/90 dark:bg-white/20 rounded ml-auto' />

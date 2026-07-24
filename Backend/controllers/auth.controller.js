@@ -66,12 +66,10 @@ const loginUser = async (req, res) => {
         if (!userInfo)
             return res.status(404).json({ message: "Invalid Credentials" });
 
-        // const isPasswordCorrect = await bcrypt.compare(
-        //     password,
-        //     userInfo.password,
-        // );
-
-        const isPasswordCorrect = password === userInfo.password;
+        const isPasswordCorrect = await bcrypt.compare(
+            password,
+            userInfo.password,
+        );
 
         if (!isPasswordCorrect)
             return res.status(404).json({ message: "Invalid Credentials" });

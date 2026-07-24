@@ -4,8 +4,8 @@ import ConversationListSkeleton from "@/components/skeletons/ConversationListSke
 import useConversationStore from "@/stores/useConversationStore";
 import useMemberStore from "@/stores/useMemberStore";
 import useMessageStore from "@/stores/useMessageStore";
-import { useConversations } from "../hooks/useConversations";
 import ConversationCard from "./ConversationCard";
+import { useConversationManager } from "../hooks/useConversationManager.js";
 
 const ConversationList = () => {
     const { conversations } = useConversationStore();
@@ -13,7 +13,7 @@ const ConversationList = () => {
     const { users } = useMemberStore();
     const { currentUser } = useAuthStore();
 
-    const { isLoading, error } = useConversations();
+    const { isLoading, error } = useConversationManager();
 
     const handleSelect = useCallback(
         (conversation) => {

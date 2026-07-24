@@ -72,7 +72,7 @@ const SidebarHeader = ({ user, handleLogout }) => {
                     setIsProfileModalOpen(true);
                     setShowDropdown(false);
                   }}
-                  className="flex gap-2.5 px-2.5 py-3 hover:bg-zinc-600 rounded-lg cursor-pointer"
+                  className="flex gap-2.5 px-2.5 py-3 hover:bg-zinc-100 dark:hover:bg-zinc-900 rounded-lg cursor-pointer"
                 >
                   <UserRound size={24} />
                   Profile
@@ -83,7 +83,7 @@ const SidebarHeader = ({ user, handleLogout }) => {
                     setLogoutModal(true);
                     setShowDropdown(false);
                   }}
-                  className="flex gap-2.5 px-2.5 py-3 hover:bg-zinc-600 rounded-lg cursor-pointer"
+                  className="flex gap-2.5 px-2.5 py-3 hover:bg-zinc-100 dark:hover:bg-zinc-900 rounded-lg cursor-pointer"
                 >
                   <LogOut size={24} /> Logout
                 </li>
