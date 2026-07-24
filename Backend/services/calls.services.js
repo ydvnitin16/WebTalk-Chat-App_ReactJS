@@ -1,6 +1,7 @@
 import * as ActiveCallsStore from "../cache/activeCallsStore.js";
 import Call from "../models/call.js";
 import ConversationMember from "../models/conversationMember.js";
+import Conversation from "../models/conversation.js";
 
 const TRANSITIONS = {
     accept: { from: "ringing", to: "connected", actor: "receiver" },
@@ -21,6 +22,10 @@ export async function initiateCall({
     const existing = await Call.findOne({ callerId, clientCallId });
     if (existing) return existing;
 
+    const conversation = await Conversation.findById(conversationId);
+
+    if (!conversation) throw new Error("Conversation not found", 404);
+
     // Verify BOTH users are members of the conversation
     const memberCount = await ConversationMember.countDocuments({
         conversationId,
@@ -31,6 +36,8 @@ export async function initiateCall({
     if (ActiveCallsStore.isUserBusy(callerId)) {
         throw new Error("Caller already in call", 409);
     }
+    conversation.lastActivity = new Date();
+    conversation.save();
 
     if (ActiveCallsStore.isUserBusy(receiverId)) {
         return Call.create({
