@@ -12,7 +12,7 @@ const ConversationCard = ({
     isNew = false,
 }) => {
     const formattedTime = useMemo(() => {
-        return formatDateTime(lastMessage?.createdAt);
+        return formatDateTime(lastMessage?.createdAt, "smart");
     }, [lastMessage?.createdAt]);
 
     return (

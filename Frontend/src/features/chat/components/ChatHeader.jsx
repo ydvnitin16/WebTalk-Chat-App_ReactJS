@@ -62,7 +62,7 @@ const ChatHeader = () => {
                                 {user.isOnline
                                     ? "online"
                                     : user.lastSeen
-                                      ? formatDateTime(user.lastSeen)
+                                      ? formatDateTime(user.lastSeen, "both")
                                       : ""}
                             </p>
                         </div>

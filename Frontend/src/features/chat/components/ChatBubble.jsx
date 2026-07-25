@@ -36,7 +36,7 @@ const ChatBubble = ({
     };
 
     const formattedTime = useMemo(() => {
-        return formatDateTime(time);
+        return formatDateTime(time, "time");
     }, [time]);
 
     const handleResend = useCallback(() => {

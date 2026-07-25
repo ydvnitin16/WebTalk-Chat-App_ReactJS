@@ -71,7 +71,7 @@ const UserProfileModal = ({ isOpen, onClose, user }) => {
                                 />
                                 {user.isOnline
                                     ? "Online"
-                                    : `Last seen ${formatDateTime(user.lastSeen)}`}
+                                    : `Last seen ${formatDateTime(user.lastSeen, "both")}`}
                             </span>
                         </div>}
                     </div>

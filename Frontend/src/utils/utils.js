@@ -1,34 +1,62 @@
-export function formatDateTime(dateString) {
+export function formatDateTime(dateString, format = "both") {
     const date = new Date(dateString);
     const now = new Date();
 
-    // Strip time from both to compare just the date part
     const dateOnly = new Date(
         date.getFullYear(),
         date.getMonth(),
         date.getDate(),
     );
+
     const nowOnly = new Date(now.getFullYear(), now.getMonth(), now.getDate());
 
     const diffInDays = Math.floor((nowOnly - dateOnly) / (1000 * 60 * 60 * 24));
 
-    const options = { hour: "numeric", minute: "2-digit", hour12: true };
-    const time = date.toLocaleTimeString("en-US", options);
+    const time = date.toLocaleTimeString("en-US", {
+        hour: "numeric",
+        minute: "2-digit",
+        hour12: true,
+    });
+
+    let relative;
 
     if (diffInDays === 0) {
-        return `Today, ${time}`; // today
+        relative = "Today";
     } else if (diffInDays === 1) {
-        return `Yesterday, ${time}`;
+        relative = "Yesterday";
     } else {
-        const fullDate = date.toLocaleDateString("en-GB", {
+        relative = date.toLocaleDateString("en-GB", {
             day: "2-digit",
             month: "numeric",
             year: "numeric",
         });
-        return `${fullDate}`;
+    }
+
+    switch (format) {
+        case "time":
+            return time;
+
+        case "relative":
+            return relative;
+
+        case "smart":
+            return relative === "Today" ? time : relative;
+
+        case "both":
+        default:
+            return `${relative}, ${time}`;
     }
 }
 
+export function isSameDate(date11, date22) {
+    const date1 = new Date(date11);
+    const date2 = new Date(date22);
+    return (
+        date1.getFullYear() === date2.getFullYear() &&
+        date1.getMonth() === date2.getMonth() &&
+        date1.getDate() === date2.getDate()
+    );
+}
 export function isValidObjectId(id) {
     const regex = /^[0-9a-fA-F]{24}$/;
     return regex.test(id);

@@ -1,10 +1,11 @@
-import React, { useEffect, useMemo } from "react";
+import React, { useEffect, useMemo, useRef } from "react";
 import ChatBubble from "./ChatBubble";
 import TypingIndicator from "./TypingIndicator";
 import {
     deriveMessageStatus,
     formatCallDuration,
     formatDateTime,
+    isSameDate,
 } from "@/utils/utils";
 import useCallStore from "@/stores/useCallStore";
 import CallBubble from "./CallBubble";
@@ -18,20 +19,19 @@ import ConversationStart from "./ConversationStart";
 import useMemberStore from "@/stores/useMemberStore";
 import useMessageManager from "../hooks/useMessageManager";
 import { sortTimelineItems } from "../utils/timelineUtils";
+import ChatDivider from "./ChatDivider";
 
 const ChatList = () => {
     const { activeConversationId, users, currentUser, selectedUserId } =
         useActiveConversation();
-    const { messages, isFetchingMore, hasMore } = useMessageStore();
-    const { callHistory } = useCallStore();
-
-    const { loadInitial, loadMore } = useMessages();
-    const cursor = useMemberStore((s) => s.membersCursor[activeConversationId]);
-
     const { resendMessage } = useMessageManager();
+    const { loadInitial, loadMore } = useMessages();
     const { scrollDownRef, containerRef, captureScrollHeight } =
         useAutoScroll();
 
+    const cursor = useMemberStore((s) => s.membersCursor[activeConversationId]);
+    const { messages, isFetchingMore, hasMore } = useMessageStore();
+    const { callHistory } = useCallStore();
     const typingUsers = useUIStore((state) => state.typingUsers);
 
     useEffect(() => {
@@ -80,7 +80,7 @@ const ChatList = () => {
             <div className='mt-auto flex flex-col space-y-4 w-full'>
                 {(!hasMore || messages.length === 0) && <ConversationStart />}
                 {isFetchingMore && (
-                    <p className='flex justify-center items-center '>
+                    <p className='flex justify-center items-center text-zinc-700 dark:text-zinc-400 animate-spin'>
                         <Loader />
                     </p>
                 )}
@@ -88,56 +88,70 @@ const ChatList = () => {
                 {/* Chats appear here */}
                 {chatItems.length > 0 &&
                     chatItems.map((item, idx) => {
-                        const isFirst =
-                            item.data.senderId ===
-                            chatItems[idx - 1]?.data?.senderId;
-                        const isLast =
-                            item.data.senderId ===
-                            chatItems[idx + 1]?.data?.senderId;
+                        const previousItem = chatItems[idx - 1];
 
-                        if (item.type === "message") {
-                            const status = deriveMessageStatus(
-                                item.data,
-                                cursor,
+                        const showDateBubble =
+                            !previousItem ||
+                            !isSameDate(
+                                previousItem.data.createdAt,
+                                item.data.createdAt,
                             );
-                            return (
-                                <ChatBubble
-                                    key={item.data._id || item.data.tempId}
-                                    user={users[selectedUserId]}
-                                    isMine={
-                                        item.data.senderId === currentUser.id
-                                    }
-                                    content={item.data.content}
-                                    type={item.type}
-                                    time={item.data.createdAt}
-                                    status={status}
-                                    data={item.data}
-                                    resend={resendMessage}
-                                />
-                            );
-                        }
-                        if (item.type === "call") {
-                            return (
-                                <CallBubble
-                                    key={item.data._id}
-                                    isMine={
-                                        item.data.callerId === currentUser.id
-                                    }
-                                    user={users[selectedUserId]}
-                                    time={formatDateTime(
-                                        item.data?.endedAt ||
-                                            item.data?.createdAt,
-                                    )}
-                                    type={item.data.type}
-                                    status={item.data.status}
-                                    duration={formatCallDuration(
-                                        item.data?.startedAt,
-                                        item.data?.endedAt,
-                                    )}
-                                />
-                            );
-                        }
-                        return null;
+
+                        const dividerText = showDateBubble
+                            ? formatDateTime(item.data.createdAt, "relative")
+                            : null;
+
+                        return (
+                            <React.Fragment
+                                key={
+                                    item.data._id ||
+                                    item.data.clientMessageId ||
+                                    item.data.clientCallId
+                                }
+                            >
+                                {dividerText && (
+                                    <ChatDivider value={dividerText} />
+                                )}
+
+                                {item.type === "message" ? (
+                                    <ChatBubble
+                                        user={users[selectedUserId]}
+                                        isMine={
+                                            item.data.senderId ===
+                                            currentUser.id
+                                        }
+                                        content={item.data.content}
+                                        type={item.type}
+                                        time={item.data.createdAt}
+                                        status={deriveMessageStatus(
+                                            item.data,
+                                            cursor,
+                                        )}
+                                        data={item.data}
+                                        resend={resendMessage}
+                                    />
+                                ) : (
+                                    <CallBubble
+                                        isMine={
+                                            item.data.callerId ===
+                                            currentUser.id
+                                        }
+                                        user={users[selectedUserId]}
+                                        time={formatDateTime(
+                                            item.data.endedAt ||
+                                                item.data.createdAt,
+                                            "time",
+                                        )}
+                                        type={item.data.type}
+                                        status={item.data.status}
+                                        duration={formatCallDuration(
+                                            item.data.startedAt,
+                                            item.data.endedAt,
+                                        )}
+                                    />
+                                )}
+                            </React.Fragment>
+                        );
                     })}
 
                 {typingUsers[selectedUserId] && (
