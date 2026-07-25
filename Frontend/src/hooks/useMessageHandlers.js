@@ -9,9 +9,9 @@ import { normalizeMessage, normalizeNewConversation } from "@/utils/utils";
 export const useMessageHandlers = () => {
     const {
         addConversation,
+        updateConversation,
         updateLastMessage,
         incrementUnreadCount,
-        updateConversation,
     } = useConversationStore();
     const {
         confirmMessage,
@@ -29,6 +29,24 @@ export const useMessageHandlers = () => {
     const { setTyping } = useUIStore();
     const { currentUser } = useAuthStore();
 
+    // Shared by both the sender-side and receiver-side
+    const syncNewConversation = ({
+        conversation,
+        message,
+        realConversationId,
+    }) => {
+        const {
+            normalizedConversation,
+            normalizedOtherUser,
+            normalizedMemberCursor,
+        } = normalizeNewConversation(conversation, message, currentUser?.id);
+
+        addUser(normalizedOtherUser);
+        addCursor(realConversationId, normalizedMemberCursor);
+
+        return normalizedConversation;
+    };
+
     const onNewMessage = ({
         conversationId,
         message,
@@ -40,74 +58,57 @@ export const useMessageHandlers = () => {
         const isFromMe =
             String(normalizedMessage.senderId) === String(currentUser?.id);
 
-        const state = useMessageStore.getState();
+        // If conversation is new process will be same
+        if (isNewConversation) {
+            const normalizedConversation = syncNewConversation({
+                conversation,
+                message,
+                realConversationId: conversationId,
+            });
+
+            if (isFromMe) {
+                updateConversation(tempConversationId, normalizedConversation);
+                setActiveConversationId(conversationId);
+            } else {
+                addConversation(normalizedConversation);
+            }
+        }
+
+        // Read fresh activeConversationId that got synced - when conversation was new
         const isActiveConv =
-            state.activeConversationId === normalizedMessage.conversationId;
+            useMessageStore.getState().activeConversationId === conversationId;
 
         if (isFromMe) {
-            if (isNewConversation) {
-                const {
-                    normalizedConversation,
-                    normalizedOtherUser,
-                    normalizedMemberCursor,
-                } = normalizeNewConversation(
-                    conversation,
-                    message,
-                    currentUser?.id,
-                );
-                setActiveConversationId(conversationId);
-                addUser(normalizedOtherUser);
-                updateConversation(tempConversationId, normalizedConversation);
-                addCursor(conversationId, normalizedMemberCursor);
-            }
-
             updateLastMessage(conversationId, normalizedMessage);
             confirmMessage({
                 clientMessageId: normalizedMessage.clientMessageId,
                 messageId: normalizedMessage._id,
             });
 
-            if (isActiveConv) {
-                appendMessage(normalizedMessage);
-            }
-        } else {
-            if (isNewConversation) {
-                const {
-                    normalizedConversation,
-                    normalizedOtherUser,
-                    normalizedMemberCursor,
-                } = normalizeNewConversation(
-                    conversation,
-                    message,
-                    currentUser?.id,
-                );
-                addConversation(normalizedConversation);
-                addUser(normalizedOtherUser);
-                addCursor(conversationId, normalizedMemberCursor);
-            } else {
-                updateLastMessage(conversationId, normalizedMessage);
-            }
+            if (isActiveConv) appendMessage(normalizedMessage);
+            return;
         }
 
-        // Message is in the active open chat
-        if (isActiveConv && !isFromMe) {
+        if (!isNewConversation) {
+            updateLastMessage(conversationId, normalizedMessage);
+        }
+
+        if (isActiveConv) {
             appendMessage(normalizedMessage);
             socket.emit("message:seen", {
-                conversationId: normalizedMessage.conversationId,
+                conversationId,
                 messageId: normalizedMessage._id,
                 userId: currentUser?.id,
             });
             return;
         }
 
-        if (!isFromMe) {
-            incrementUnreadCount(normalizedMessage.conversationId);
-            socket.emit("message:delivered", {
-                conversationId: normalizedMessage.conversationId,
-                messageId: normalizedMessage._id,
-                userId: currentUser?.id,
-            });
-        }
+        incrementUnreadCount(conversationId);
+        socket.emit("message:delivered", {
+            conversationId,
+            messageId: normalizedMessage._id,
+            userId: currentUser?.id,
+        });
     };
 
     const onSendFailed = ({ clientMessageId }) => markFailed(clientMessageId);
@@ -123,16 +124,11 @@ export const useMessageHandlers = () => {
             updateSeenPointer({ conversationId, userId, messageId });
         }
     };
+
     const onTypingStart = ({ userId }) => setTyping(userId, true);
-
     const onTypingStop = ({ userId }) => setTyping(userId, false);
-
-    const onUserOnline = ({ userId }) => {
-        setUserOnline(userId, true);
-    };
-    const onUserOffline = ({ userId }) => {
-        setUserOnline(userId, false);
-    };
+    const onUserOnline = ({ userId }) => setUserOnline(userId, true);
+    const onUserOffline = ({ userId }) => setUserOnline(userId, false);
 
     return {
         "message:new": onNewMessage,

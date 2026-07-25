@@ -1,48 +1,45 @@
 import { socket } from "@/lib/socket";
 import { useEffect, useRef } from "react";
+import useMessageManager from "./useMessageManager";
 
 const useTyping = (receiverId) => {
-  const typingTimeout = useRef(null);
-  const isTyping = useRef(false);
+    const typingTimeout = useRef(null);
+    const isTyping = useRef(false);
 
-  const handleTyping = () => {
-    if (!receiverId) return;
+    const { emitTypingStart, emitTypingStop } = useMessageManager();
 
-    if (!isTyping.current) {
-      socket.emit("message:typing:start", {
-        receiverId,
-      });
-      isTyping.current = true;
-    }
+    const handleTyping = () => {
+        if (!receiverId) return;
 
-    if (typingTimeout.current) {
-      clearTimeout(typingTimeout.current);
-    }
+        if (!isTyping.current) {
+            emitTypingStart(receiverId);
+            isTyping.current = true;
+        }
 
-    typingTimeout.current = setTimeout(() => {
-      socket.emit("message:typing:stop", {
-        receiverId,
-      });
-      isTyping.current = false;
-    }, 1000);
-  };
+        if (typingTimeout.current) {
+            clearTimeout(typingTimeout.current);
+        }
 
-  useEffect(() => {
-    return () => {
-      if (typingTimeout.current) {
-        clearTimeout(typingTimeout.current);
-      }
-
-      if (receiverId && isTyping.current) {
-        socket.emit("message:typing:stop", {
-          receiverId,
-        });
-        isTyping.current = false;
-      }
+        typingTimeout.current = setTimeout(() => {
+            emitTypingStop(receiverId);
+            isTyping.current = false;
+        }, 1000);
     };
-  }, [receiverId]);
 
-  return { handleTyping };
+    useEffect(() => {
+        return () => {
+            if (typingTimeout.current) {
+                clearTimeout(typingTimeout.current);
+            }
+
+            if (receiverId && isTyping.current) {
+                emitTypingStop(receiverId);
+                isTyping.current = false;
+            }
+        };
+    }, [receiverId]);
+
+    return { handleTyping };
 };
 
 export default useTyping;

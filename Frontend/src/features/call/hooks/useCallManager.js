@@ -3,7 +3,7 @@ import { socket } from "@/lib/socket";
 import useAuthStore from "@/stores/useAuthStore";
 import useCallStore, { localStream } from "@/stores/useCallStore";
 import useWebRTC from "./useWebRTC";
-import { generateUUID } from "@/features/chat/hooks/useSendMessages";
+import { generateUUID } from "@/utils/utils";
 
 const useCallManager = () => {
     const {
