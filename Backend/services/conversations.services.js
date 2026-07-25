@@ -182,7 +182,6 @@ export const getConversationTimelineService = async (
         Call.find(callQuery).sort({ _id: -1 }).limit(fetchLimit).lean(),
     ]);
 
-    // merge and sort descending by _id (chronological, collision-proof)
     const merged = [
         ...messages.map((m) => ({
             ...m,
@@ -197,7 +196,15 @@ export const getConversationTimelineService = async (
             createdAt: c.createdAt,
             data: c,
         })),
-    ].sort((a, b) => (a._id < b._id ? 1 : -1)); // descending
+    ].sort((a, b) => {
+        const timeDiff =
+            new Date(b.createdAt || 0).getTime() -
+            new Date(a.createdAt || 0).getTime();
+
+        if (timeDiff !== 0) return timeDiff;
+
+        return String(b._id || "").localeCompare(String(a._id || ""));
+    });
 
     // take only limit items from merged
     const hasMore = merged.length > limit;

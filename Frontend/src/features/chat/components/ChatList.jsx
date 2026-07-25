@@ -17,6 +17,7 @@ import useActiveConversation from "../hooks/useActiveConversation";
 import ConversationStart from "./ConversationStart";
 import useMemberStore from "@/stores/useMemberStore";
 import useMessageManager from "../hooks/useMessageManager";
+import { sortTimelineItems } from "../utils/timelineUtils";
 
 const ChatList = () => {
     const { activeConversationId, users, currentUser, selectedUserId } =
@@ -44,7 +45,7 @@ const ChatList = () => {
     }, [activeConversationId, loadInitial]);
 
     const chatItems = useMemo(() => {
-        return [
+        return sortTimelineItems([
             ...messages.map((msg) => ({
                 type: "message",
                 createdAt: msg.createdAt,
@@ -55,7 +56,7 @@ const ChatList = () => {
                 createdAt: call.createdAt,
                 data: call,
             })),
-        ].sort((a, b) => new Date(a.createdAt) - new Date(b.createdAt));
+        ]);
     }, [messages, callHistory]);
 
     if (!messages) {
@@ -64,7 +65,7 @@ const ChatList = () => {
 
     const handleScroll = async () => {
         const el = containerRef.current;
-        if (el.scrollTop === 0) {
+        if (el.scrollTop <= 1 && hasMore && !isFetchingMore) {
             captureScrollHeight();
             await loadMore();
         }
