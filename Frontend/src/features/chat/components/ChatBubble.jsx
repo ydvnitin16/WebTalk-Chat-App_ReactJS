@@ -59,7 +59,7 @@ const ChatBubble = ({
                             ${
                                 isMine
                                     ? "text-white rounded-2xl bg-[#007AFF] dark:bg-[#007AFF]  border border-white/10 "
-                                    : "px-3 py-2 rounded-2xl max-w-xs text-sm  bg-white/20 dark:bg-zinc-700/30 border border-white/20 dark:border-zinc-600/30 shadow-sm"
+                                    : "px-3 py-2 rounded-2xl max-w-xs text-sm  bg-zinc-100 dark:bg-zinc-700/30 border border-white/20 dark:border-zinc-600/30 shadow-sm"
                             }
                         `}
                         >

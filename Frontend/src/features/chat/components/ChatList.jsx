@@ -18,7 +18,7 @@ import useActiveConversation from "../hooks/useActiveConversation";
 import ConversationStart from "./ConversationStart";
 import useMemberStore from "@/stores/useMemberStore";
 import useMessageManager from "../hooks/useMessageManager";
-import { sortTimelineItems } from "../utils/timelineUtils";
+import { sortTimelineItems } from "../../../utils/timelineUtils.js";
 import ChatDivider from "./ChatDivider";
 
 const ChatList = () => {

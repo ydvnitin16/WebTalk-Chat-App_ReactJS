@@ -54,14 +54,14 @@ const SidebarHeader = ({ user, handleLogout }) => {
               maskSize: "contain",
             }}
           />
-          SendX
+          chats
         </h1>
         <div className="relative">
           <img
             loading="lazy"
             src={optimizeUrl(user?.avatar?.url || user?.avatar, "small")}
             alt={user?.name}
-            className="w-10 h-10 rounded-full cursor-pointer"
+            className="w-10 h-10 object-cover rounded-full cursor-pointer"
             onClick={() => setShowDropdown(!showDropdown)}
           />
           {showDropdown && (

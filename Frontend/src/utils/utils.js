@@ -62,19 +62,6 @@ export function isValidObjectId(id) {
     return regex.test(id);
 }
 
-export function getLastMessage(messages, user, currentUser) {
-    messages = messages?.filter(
-        (msg) =>
-            (msg.sender === user._id && msg.receiver === currentUser?.id) ||
-            (msg.receiver === user._id && msg.sender === currentUser?.id),
-    );
-    const messageObj = messages[messages.length - 1];
-    const lastMessage = messageObj?.content;
-    const sendedByYou = messageObj?.sender === currentUser?.id ? "You: " : "";
-    const createdAt = messageObj?.createdAt;
-    return { lastMessage, sendedByYou, createdAt };
-}
-
 // this fucntion will use for extracting the users from the conversations.participants to have a separate users data without duplicacy
 export const normalizeUserId = (value) => String(value?._id || value || "");
 
