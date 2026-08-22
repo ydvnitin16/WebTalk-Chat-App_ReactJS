@@ -4,7 +4,6 @@ import { faVideo } from "@fortawesome/free-solid-svg-icons";
 import { faEllipsisVertical } from "@fortawesome/free-solid-svg-icons";
 import { faArrowLeft } from "@fortawesome/free-solid-svg-icons";
 import { formatDateTime, isValidObjectId } from "@/utils/utils";
-// import useCall from "@/features/call/hooks/useCall";
 import Button from "@/components/ui/Button";
 import { useState } from "react";
 import UserProfileModal from "./UserProfileModal";
@@ -12,6 +11,7 @@ import { optimizeUrl } from "@/utils/imageOptimization";
 import useActiveConversation from "../hooks/useActiveConversation";
 import useCallManager from "@/features/call/hooks/useCallManager";
 import toast from "react-hot-toast";
+import { Phone, Video, VideoIcon } from "lucide-react";
 
 const ChatHeader = () => {
     const [isProfileOpen, setIsProfileOpen] = useState(false);
@@ -23,12 +23,12 @@ const ChatHeader = () => {
     return (
         <>
             <div className='fixed w-full top-0 md:static flex items-center justify-between md:rounded-tr-4xl md:px-4 px-1 py-3 md:shadow-sm   md:dark:bg-zinc-950 md:dark:border-zinc-900 md:border-b border-zinc-200  dark:text-white z-10'>
-                <div className='flex items-center gap-3 min-w-0 border rounded-4xl px-4 py-2 border-zinc-300 dark:border-zinc-800/40 bg-white/20 dark:bg-black/40 backdrop-blur-[1px] md:border-none md:p-0'>
+                <div className='flex items-center gap-1 min-w-0   md:border-none md:p-0'>
                     <button
                         onClick={() => {
                             clear();
                         }}
-                        className='md:hidden text-lg text-black dark:text-white cursor-pointer'
+                        className='md:hidden text-lg text-black dark:text-white cursor-pointer border rounded-4xl py-3 pl-2.5 pr-3.5 border-zinc-300 dark:border-zinc-800/40 bg-white/20 dark:bg-black/40 backdrop-blur-[1px]'
                     >
                         <svg
                             width='24'
@@ -45,7 +45,7 @@ const ChatHeader = () => {
                     </button>
                     <div
                         onClick={() => setIsProfileOpen(true)}
-                        className='flex items-center gap-3 cursor-pointer'
+                        className='flex items-center gap-3 cursor-pointer border rounded-4xl pr-4 pl-1 py-1 border-zinc-300 dark:border-zinc-800/40 bg-white/20 dark:bg-black/40 backdrop-blur-[1px]'
                     >
                         <img
                             src={optimizeUrl(user?.avatar?.url, "medium")}
@@ -68,7 +68,7 @@ const ChatHeader = () => {
                         </div>
                     </div>
                 </div>
-                <div className='relative text-gray-700 flex items-center dark:text-white border rounded-4xl p-1 border-zinc-300 dark:border-zinc-800/40 bg-white/20 dark:bg-black/40 backdrop-blur-[1px] md:border-none md:p-0'>
+                <div className='relative text-gray-700 flex items-center dark:text-white border rounded-4xl py-1.5 border-zinc-300 dark:border-zinc-800/40 bg-white/20 dark:bg-black/40 backdrop-blur-[1px] md:border-none md:p-0'>
                     <Button
                         variant='outline'
                         onClick={() => {
@@ -83,7 +83,7 @@ const ChatHeader = () => {
                             }
                         }}
                     >
-                        <FontAwesomeIcon icon={faVideo} />
+                        <Video />
                     </Button>
                     <Button
                         variant='outline'
@@ -99,7 +99,7 @@ const ChatHeader = () => {
                             }
                         }}
                     >
-                        <FontAwesomeIcon icon={faPhone} />
+                        <Phone size={17} />
                     </Button>
                 </div>
             </div>

@@ -20,7 +20,7 @@ const Sidebar = () => {
       >
         {/* Top Bar */}
         <SidebarHeader user={currentUser} handleLogout={handleLogout} />
-
+        
         {/* Search Bar */}
         <SearchUsersInput />
 
