@@ -16,9 +16,6 @@ const ChatBubble = ({
     content,
     time,
     status = "sent",
-    isSame,
-    isFirst,
-    isLast,
     resend,
     data,
 }) => {
@@ -26,7 +23,7 @@ const ChatBubble = ({
         if (!isMine) return null;
         if (status === "failed")
             return <BadgeInfo size={14} className='text-red-500' />;
-        if (status === "pending" || status === "sending")
+        if (status === "pending" || status === "sending" || status === "queued")
             return <Clock3 size={14} />;
         if (status === "sent") return <Check size={14} />;
         if (status === "delivered")

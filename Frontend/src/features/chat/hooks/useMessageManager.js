@@ -3,6 +3,7 @@ import useAuthStore from "@/stores/useAuthStore";
 import useConversationStore from "@/stores/useConversationStore";
 import useMessageStore from "@/stores/useMessageStore";
 import { generateUUID } from "@/utils/utils.js";
+import { useMessageQueue } from "./useMessageQueue";
 
 const useMessageManager = () => {
     const { getById, updateLastMessage } =
@@ -10,10 +11,10 @@ const useMessageManager = () => {
     const {
         activeConversationId,
         addOptimistic,
-        markFailed,
         markSending
     } = useMessageStore();
     const { currentUser } = useAuthStore();
+    const { enqueueMessage } = useMessageQueue();
 
     const buildPayload = ({
         conversationId,
@@ -33,18 +34,8 @@ const useMessageManager = () => {
         };
     };
 
-    const emitSend = (payload, clientMessageId, conversationId) => {
-        try {
-            socket.emit("message:send", payload, (ack) => {
-                // if (!ack?.ok) {
-                //     markFailed(clientMessageId);
-                //     return;
-                // }
-            });
-        } catch (err) {
-            markFailed(clientMessageId);
-            return
-        }
+    const queueSend = (payload, clientMessageId, conversationId) => {
+        enqueueMessage(conversationId, clientMessageId, payload);
     };
 
     const sendMessage = ({ receiverId, content } = {}) => {
@@ -88,7 +79,7 @@ const useMessageManager = () => {
             clientMessageId,
         });
 
-        emitSend(payload, clientMessageId, activeConversationId);
+        queueSend(payload, clientMessageId, activeConversationId);
     };
 
     const resendMessage = (message) => {
@@ -105,7 +96,7 @@ const useMessageManager = () => {
             clientMessageId,
         });
 
-        emitSend(payload, clientMessageId, message.conversationId);
+        queueSend(payload, clientMessageId, message.conversationId);
     };
 
     const emitTypingStart = (receiverId) =>

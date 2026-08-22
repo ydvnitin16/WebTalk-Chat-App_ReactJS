@@ -1,10 +1,11 @@
 import { socket } from "@/lib/socket";
-import { useEffect, useRef } from "react";
+import { useEffect } from "react";
 import useConversationStore from "@/stores/useConversationStore";
 import useMessageStore from "@/stores/useMessageStore";
 import { useMessageHandlers } from "./useMessageHandlers";
 import { useCallHandlers } from "./useCallHandlers";
 import useAuthStore from "@/stores/useAuthStore";
+import { useMessageQueue } from "@/features/chat/hooks/useMessageQueue";
 
 const useSocketListeners = (handlers) => {
     useEffect(() => {
@@ -20,6 +21,14 @@ export const useSocketEvents = () => {
     const { activeConversationId, clear } = useMessageStore();
     const { clearUnreadCount } = useConversationStore();
     const { currentUser } = useAuthStore();
+    const { resumeAllQueues } = useMessageQueue();
+
+    useEffect(() => {
+        if (socket.connected) resumeAllQueues();
+
+        socket.on("connect", resumeAllQueues);
+        return () => socket.off("connect", resumeAllQueues);
+    }, [resumeAllQueues]);
 
     useEffect(() => {
         // update in the window history on active conversationId
@@ -46,7 +55,6 @@ export const useSocketEvents = () => {
             return;
         }
         clearUnreadCount(activeConversationId);
-        console.log(activeConversationId, currentUser)
         socket.emit("messages:seen", {
             conversationId: activeConversationId,
             userId: currentUser?.id,
@@ -55,7 +63,7 @@ export const useSocketEvents = () => {
         return () => {
             window.removeEventListener("popstate", handlePopState);
         };
-    }, [activeConversationId, currentUser]);
+    }, [activeConversationId, clear, clearUnreadCount, currentUser]);
 
     useSocketListeners(useMessageHandlers());
     useSocketListeners(useCallHandlers());

@@ -3,6 +3,7 @@ import useAuthStore from "@/stores/useAuthStore";
 import useConversationStore from "@/stores/useConversationStore";
 import useMemberStore from "@/stores/useMemberStore";
 import useMessageStore from "@/stores/useMessageStore";
+import useMessageQueueStore from "@/stores/useMessageQueueStore";
 import useUIStore from "@/stores/useUIStore";
 import { normalizeMessage, normalizeNewConversation } from "@/utils/utils";
 
@@ -111,7 +112,10 @@ export const useMessageHandlers = () => {
         });
     };
 
-    const onSendFailed = ({ clientMessageId }) => markFailed(clientMessageId);
+    const onSendFailed = ({ clientMessageId }) => {
+        if (useMessageQueueStore.getState().hasItem(clientMessageId)) return;
+        markFailed(clientMessageId);
+    };
 
     const onDeliveryAck = ({ conversationId, userId, messageId }) => {
         if (userId !== currentUser?.id) {

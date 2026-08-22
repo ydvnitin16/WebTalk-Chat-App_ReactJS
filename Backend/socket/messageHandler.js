@@ -34,8 +34,8 @@ class MessageSocketHandler {
         type = "text",
         receiverId,
     }, ack) {
-        const messageClientId = clientMessageId;
         if (!clientMessageId || !content?.trim()) {
+            ack?.({ ok: false, reason: "invalid-message" });
             this.socket.emit("message:send:failed", { clientMessageId });
             return;
         }
@@ -69,6 +69,13 @@ class MessageSocketHandler {
 
             if (deduped) {
 
+                ack?.({
+                    ok: true,
+                    conversationId: resolvedConversationId,
+                    messageId: message._id,
+                    clientMessageId,
+                    isNewConversation: false,
+                });
                 this.socket.emit("message:send:ack", {
                     conversationId: resolvedConversationId,
                     messageId: message._id,
@@ -79,14 +86,6 @@ class MessageSocketHandler {
             }
 
             if (resolvedReceiverId) {
-                console.log('send to receiver', {
-                    isNewConversation,
-                    conversationId: resolvedConversationId,
-                    conversation: isNewConversation ? conversation : null,
-                    message: clientMessage,
-                    unreadCount: 1,
-                    tempConversationId,
-                })
                 this.io.to(`user:${resolvedReceiverId}`).emit("message:new", {
                     isNewConversation,
                     conversationId: resolvedConversationId,
@@ -96,14 +95,7 @@ class MessageSocketHandler {
                     tempConversationId,
                 });
             }
-            console.log('send to itself',  {
-                isNewConversation,
-                conversationId: resolvedConversationId,
-                conversation: isNewConversation ? conversation : null,
-                message: clientMessage,
-                clientMessageId,
-                tempConversationId: convTempId,
-            })
+            
             this.io.to(`user:${this.userId}`).emit("message:new", {
                 isNewConversation,
                 conversationId: resolvedConversationId,
@@ -112,8 +104,16 @@ class MessageSocketHandler {
                 clientMessageId,
                 tempConversationId: convTempId,
             });
+            ack?.({
+                ok: true,
+                conversationId: resolvedConversationId,
+                messageId: message._id,
+                clientMessageId,
+                isNewConversation,
+            });
         } catch (err) {
             console.error("message:send failed:", err.message);
+            ack?.({ ok: false, reason: err.message });
             this.socket.emit("message:send:failed", { clientMessageId });
         }
     }

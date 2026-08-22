@@ -133,6 +133,15 @@ const useMessageStore = create((set, get) => ({
             ),
         })),
 
+    markQueued: (clientMessageId) =>
+        set((state) => ({
+            messages: state.messages.map((m) =>
+                m.clientMessageId === clientMessageId
+                    ? { ...m, status: "queued" }
+                    : m,
+            ),
+        })),
+
     // Mark sending on retry
     markSending: (clientMessageId) =>
         set((state) => ({
