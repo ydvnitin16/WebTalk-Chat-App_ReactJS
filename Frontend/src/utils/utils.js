@@ -176,7 +176,7 @@ export const formatCallDuration = (startTime, endTime = null) => {
 };
 
 export function deriveMessageStatus(message, cursor) {
-    if (message.status === "sending" || message.status === "failed")
+    if (message.status === "sending" || message.status === "failed" || message.status === 'queued')
         return message.status;
 
     if (

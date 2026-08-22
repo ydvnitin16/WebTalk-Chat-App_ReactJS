@@ -2,6 +2,10 @@ import mongoose from "mongoose";
 import Conversation from "../models/conversation.js";
 import ConversationMember from "../models/conversationMember.js";
 import Message from "../models/message.js";
+import {
+    getCachedConversation,
+    setCachedConversation,
+} from "../cache/conversationCache.js";
 import { isUserOnline } from "../cache/presenceStore.js";
 
 const sortParticipantIds = (a, b) => a.toString().localeCompare(b.toString());
@@ -64,13 +68,21 @@ export const sendMessageService = async ({
         const participants = buildParticipantPair(senderId, receiverId);
         const participantKey = buildParticipantKey(senderId, receiverId);
 
-        // Fast path: conversation already exists (including legacy rows without participantKey)
-        conversation = await Conversation.findOne({
-            $or: [
-                { participantKey },
-                { participants: { $all: participants, $size: 2 } },
-            ],
-        }).lean();
+        // Fast path: conversation already exists
+        conversation = getCachedConversation(participantKey);
+
+        if (!conversation) {
+            conversation = await Conversation.findOne({
+                $or: [
+                    { participantKey },
+                    { participants: { $all: participants, $size: 2 } },
+                ],
+            }).lean();
+
+            if (conversation) {
+                setCachedConversation(participantKey, conversation);
+            }
+        }
 
         if (!conversation) {
             try {
@@ -92,6 +104,8 @@ export const sendMessageService = async ({
                 conversation = await Conversation.findOne({
                     participantKey,
                 }).lean();
+
+                setCachedConversation(participantKey, conversation);
             } catch (err) {
                 // Concurrent upserts, one insert wins, the other hits the 11000 code error
                 if (err.code === 11000) {
@@ -101,6 +115,7 @@ export const sendMessageService = async ({
                             { participants: { $all: participants, $size: 2 } },
                         ],
                     }).lean();
+                    setCachedConversation(participantKey, conversation);
                     isNewConversation = false;
                 } else {
                     throw err;
