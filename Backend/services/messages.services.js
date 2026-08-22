@@ -33,6 +33,42 @@ const resolveReceiverId = (conversation, senderId, receiverId) => {
 
     return otherParticipant;
 };
+const isConversationForSender = (conversation, senderId) =>
+    conversation?.participants?.some(
+        (participantId) => participantId.toString() === senderId.toString(),
+    );
+
+const isCachedConversationUsable = ({ conversation, conversationId, senderId }) => {
+    if (!conversation || !isConversationForSender(conversation, senderId)) {
+        return false;
+    }
+    return !conversationId || conversation._id?.toString() === conversationId.toString();
+};
+
+const syncConversationAfterMessage = async ({ conversationId, senderId, resolvedReceiverId, message }) => {
+    return Promise.all([
+        Conversation.updateOne(
+            { _id: conversationId },
+            { $set: { lastMessageId: message._id, lastActivity: message.createdAt } },
+        ),
+        ConversationMember.findOneAndUpdate(
+            { conversationId, userId: senderId },
+            { $setOnInsert: { unreadCount: 0, lastSeenMessageId: null, lastDeliveredMessageId: null } },
+            { upsert: true },
+        ),
+        ConversationMember.findOneAndUpdate(
+            { conversationId, userId: resolvedReceiverId },
+            { $setOnInsert: { lastSeenMessageId: null, lastDeliveredMessageId: null }, $inc: { unreadCount: 1 } },
+            { upsert: true },
+        ),
+    ]);
+};
+
+const syncConversationAfterMessageInBackground = (params) => {
+    syncConversationAfterMessage(params).catch((err) => {
+        console.error("conversation post-message sync failed:", err.message);
+    });
+};
 
 export const sendMessageService = async ({
     senderId,
@@ -44,8 +80,19 @@ export const sendMessageService = async ({
 }) => {
     let conversation;
     let isNewConversation = false;
+    let wasCacheHit = false;
+    const participantKey = receiverId ? buildParticipantKey(senderId, receiverId) : null;
 
-    if (conversationId) {
+    if (participantKey) {
+        const cachedConversation = getCachedConversation(participantKey);
+
+        if (isCachedConversationUsable({ conversation: cachedConversation, conversationId, senderId })) {
+            conversation = cachedConversation;
+            wasCacheHit = true;
+        }
+    }
+
+    if (conversationId && !conversation) {
         conversation = await Conversation.findOne({
             _id: conversationId,
             participants: senderId,
@@ -56,64 +103,43 @@ export const sendMessageService = async ({
             err.statusCode = 404;
             throw err;
         }
-    } else {
+
+        if (participantKey) {
+            setCachedConversation(participantKey, conversation);
+        }
+    } else if (!conversation) {
         if (!receiverId) {
-            const err = new Error(
-                "receiverId is required for new conversations",
-            );
+            const err = new Error("receiverId is required for new conversations");
             err.statusCode = 400;
             throw err;
         }
 
         const participants = buildParticipantPair(senderId, receiverId);
-        const participantKey = buildParticipantKey(senderId, receiverId);
 
-        // Fast path: conversation already exists
-        conversation = getCachedConversation(participantKey);
+        conversation = await Conversation.findOne({
+            $or: [{ participantKey }, { participants: { $all: participants, $size: 2 } }],
+        }).lean();
 
-        if (!conversation) {
-            conversation = await Conversation.findOne({
-                $or: [
-                    { participantKey },
-                    { participants: { $all: participants, $size: 2 } },
-                ],
-            }).lean();
-
-            if (conversation) {
-                setCachedConversation(participantKey, conversation);
-            }
+        if (conversation) {
+            setCachedConversation(participantKey, conversation);
         }
 
         if (!conversation) {
             try {
-                // Atomic upsert on participantKey only — filter field is inferred on insert,
-                // so we avoid the old "participants matched twice" upsert error.
                 const upsertResult = await Conversation.updateOne(
                     { participantKey },
-                    {
-                        $setOnInsert: {
-                            participants,
-                            lastActivity: new Date(),
-                        },
-                    },
+                    { $setOnInsert: { participants, lastActivity: new Date() } },
                     { upsert: true },
                 );
 
                 isNewConversation = upsertResult.upsertedCount === 1;
 
-                conversation = await Conversation.findOne({
-                    participantKey,
-                }).lean();
-
+                conversation = await Conversation.findOne({ participantKey }).lean();
                 setCachedConversation(participantKey, conversation);
             } catch (err) {
-                // Concurrent upserts, one insert wins, the other hits the 11000 code error
                 if (err.code === 11000) {
                     conversation = await Conversation.findOne({
-                        $or: [
-                            { participantKey },
-                            { participants: { $all: participants, $size: 2 } },
-                        ],
+                        $or: [{ participantKey }, { participants: { $all: participants, $size: 2 } }],
                     }).lean();
                     setCachedConversation(participantKey, conversation);
                     isNewConversation = false;
@@ -130,36 +156,7 @@ export const sendMessageService = async ({
         throw err;
     }
 
-    const resolvedReceiverId = resolveReceiverId(
-        conversation,
-        senderId,
-        receiverId,
-    );
-
-    await Promise.all([
-        ConversationMember.findOneAndUpdate(
-            { conversationId: conversation._id, userId: senderId },
-            {
-                $setOnInsert: {
-                    unreadCount: 0,
-                    lastSeenMessageId: null,
-                    lastDeliveredMessageId: null,
-                },
-            },
-            { upsert: true },
-        ),
-        ConversationMember.findOneAndUpdate(
-            { conversationId: conversation._id, userId: resolvedReceiverId },
-            {
-                $setOnInsert: {
-                    unreadCount: 0,
-                    lastSeenMessageId: null,
-                    lastDeliveredMessageId: null,
-                },
-            },
-            { upsert: true },
-        ),
-    ]);
+    const resolvedReceiverId = resolveReceiverId(conversation, senderId, receiverId);
 
     let message;
     try {
@@ -173,65 +170,54 @@ export const sendMessageService = async ({
     } catch (err) {
         if (err.code === 11000) {
             message = await Message.findOne({ clientMessageId }).lean();
-            return {
-                message,
-                conversation,
-                deduped: true,
-                isNewConversation: false,
-                resolvedReceiverId,
-            };
+            return { message, conversation, deduped: true, isNewConversation: false, resolvedReceiverId };
         }
         throw err;
     }
 
     if (isNewConversation) {
+        await syncConversationAfterMessage({
+            conversationId: conversation._id,
+            senderId,
+            resolvedReceiverId,
+            message,
+        });
+
         await message.populate("senderId", "name username avatar");
 
         const [populatedConversation, members] = await Promise.all([
             Conversation.findById(conversation._id)
                 .populate("participants", "name username bio avatar lastSeen")
                 .lean(),
-            ConversationMember.find({
-                conversationId: conversation._id,
-            }).lean(),
+            ConversationMember.find({ conversationId: conversation._id }).lean(),
         ]);
 
         conversation = {
             ...populatedConversation,
-            participants: (populatedConversation.participants || []).map(
-                (participant) => ({
-                    ...participant,
-                    isOnline: isUserOnline(participant._id),
-                }),
-            ),
+            participants: (populatedConversation.participants || []).map((participant) => ({
+                ...participant,
+                isOnline: isUserOnline(participant._id),
+            })),
             members: members.map((member) => ({
                 userId: member.userId,
                 lastDeliveredMessageId: member.lastDeliveredMessageId,
                 lastSeenMessageId: member.lastSeenMessageId,
             })),
         };
-    } else {
-        await message.populate("senderId", "name username avatar");
     }
 
-    const messagePayload =
-        typeof message.toObject === "function" ? message.toObject() : message;
+    const messagePayload = typeof message.toObject === "function" ? message.toObject() : message;
 
-    await Promise.all([
-        Conversation.updateOne(
-            { _id: conversation._id },
-            {
-                $set: {
-                    lastMessageId: message._id,
-                    lastActivity: message.createdAt,
-                },
-            },
-        ),
-        ConversationMember.updateOne(
-            { conversationId: conversation._id, userId: resolvedReceiverId },
-            { $inc: { unreadCount: 1 } },
-        ),
-    ]);
+    const syncParams = {
+        conversationId: conversation._id,
+        senderId,
+        resolvedReceiverId,
+        message: messagePayload,
+    };
+
+    if (!isNewConversation) {
+        syncConversationAfterMessageInBackground(syncParams);
+    }
 
     return {
         message: messagePayload,
